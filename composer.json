@@ -11,6 +11,9 @@
     "minimum-stability": "dev",
     "require": {},
     "autoload": {
+        "files": [
+            "helpers/Response.php"
+        ],
         "psr-4": {
             "Selvi\\": "src/"
         }
