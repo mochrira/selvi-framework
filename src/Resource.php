@@ -1,7 +1,6 @@
 <?php
 
 namespace Selvi;
-
 use Selvi\Controller;
 
 class Resource extends Controller {
@@ -19,60 +18,59 @@ class Resource extends Controller {
         if($id !== null) {
             $row = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
             if(!$row) {
-                response('', 404);
+                Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
             }
-
-            jsonResponse($row, 200);
+            return jsonResponse($row, 200);
         }
 
         $result = $this->{$this->modelAlias}->result();
-        jsonResponse($result, 200);
-
+        return jsonResponse($result, 200);
     }
 
     function post() {
         $data = json_decode($this->input->raw(), true);
-        if($this->{$this->modelAlias}->insert($data)) {
-            response('',204);
-        } else {
-            response('', 500);
+        if(!$this->{$this->modelAlias}->insert($data)) {
+            Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
         }
+        return response('',204);
     }
 
     function patch() {
         $data = json_decode($this->input->raw(), true);
         $id = $this->uri->segment(2);
         if($id == null) {
-            response('', 400);
+            Throw new Exception('Invalid request', $this->modelAlias.'/invalid-request', 400);
         }
 
-        $row = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+        $row = $this->{$this->modelAlias}->row([
+            [$this->{$this->modelAlias}->getPrimary(), $id]
+        ]);
         if(!$row) {
-            response('', 404);
+            Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
 
-        if($this->{$this->modelAlias}->update([[$this->{$this->modelAlias}->getPrimary(), $id]], $data)) {
-            response('', 204);
-        } else {
-            response('', 500);
+        if(!$this->{$this->modelAlias}->update([[$this->{$this->modelAlias}->getPrimary(), $id]], $data)) {
+            Throw new Exception('Failed to update', $this->modelAlias.'/update-failed', 500);
         }
+        return response('', 204);
     }
 
     function delete() {
         $id = $this->uri->segment(2);
         if($id == null) {
-            response('', 400);
+            Throw new Exception('Invalid request', $this->modelAlias.'/invalid-request', 400);
         }
 
-        $row = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+        $row = $this->{$this->modelAlias}->row([
+            [$this->{$this->modelAlias}->getPrimary(), $id]
+        ]);
         if(!$row) {
-            response('', 404);
+            Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
 
         if($this->{$this->modelAlias}->delete([[$this->{$this->modelAlias}->getPrimary(), $id]])) {
-            response('', 204);
-        } else {
-            response('', 500);
+            Throw new Exception('Failed to delete', $this->modelAlias.'/delete-failed', 500);
         }
+        return response('', 204);
     }
 }

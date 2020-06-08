@@ -2,17 +2,22 @@
 
 namespace Selvi;
 use Selvi\Route;
+use Selvi\Exception;
 
 class Framework {
 
     public static function run() {
-        $callable = Route::getCallable();
-        if($callable !== NULL) {
+        try {
+            $callable = Route::getCallable();
             $controller = new $callable[0];
-            $controller->{$callable[1]}();
-        } else {
-            \http_response_code(404);
+            $response = $controller->{$callable[1]}();
+        } catch(Exception $e) {
+            $response = jsonResponse([
+                'code' => $e->getErrorCode(),
+                'msg' => $e->getMessage()
+            ], $e->getCode());
         }
+        $response->send();
     }
 
 }

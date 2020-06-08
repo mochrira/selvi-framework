@@ -1,13 +1,11 @@
 <?php 
 
+use Selvi\Response;
+
 function response($data = '', $code = 200) {
-    http_response_code($code);
-    echo $data;
-    die();
+    return new Response($data, $code);
 }
 
 function jsonResponse($data = '', $code = 200) {
-    http_response_code($code);
-    echo json_encode($data);
-    die();
+    return new Response(json_encode($data, JSON_PRETTY_PRINT), $code);
 }
