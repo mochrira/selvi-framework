@@ -1,0 +1,18 @@
+{
+    "name": "selvi/framework",
+    "description": "Framework untuk membuat API",
+    "type": "library",
+    "authors": [
+        {
+            "name": "mochrira",
+            "email": "mochrira@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Selvi\\": "src/"
+        }
+    }
+}
