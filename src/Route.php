@@ -1,6 +1,7 @@
 <?php
 
 namespace Selvi;
+use Selvi\Uri;
 
 class Route {
 
@@ -29,13 +30,8 @@ class Route {
     }
 
     public static function getCallable() {
-        $uri = $_SERVER['REQUEST_URI'];
-        $has_query = strpos($uri, '?');
-        if($has_query !== false) {
-            $uri = substr($uri, 0, $has_query);
-        }
+        $uri = Factory::load(Uri::class, [], 'uri')->getUri();
         $routes = self::$routes[strtolower($_SERVER['REQUEST_METHOD'])];
-        var_dump($routes);
         
         if (isset($routes[$uri])) {
             return self::compileCallable(explode('@', $routes[$uri]));
