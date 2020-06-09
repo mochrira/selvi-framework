@@ -3,10 +3,14 @@
 namespace Selvi;
 use Selvi\Route;
 use Selvi\Exception;
+use Selvi\Cli;
+use Selvi\Database\Migration;
 
 class Framework {
 
     public static function run() {
+        Cli::register('migrate', Migration::class);
+        Cli::listen();
         try {
             $callable = Route::getCallable();
             $controller = new $callable[0];

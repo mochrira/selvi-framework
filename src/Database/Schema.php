@@ -64,12 +64,12 @@ class Schema {
     }
 
     public function addMigration($path) {
-        if(!$this->migration_paths[$path]) {
-            $this->migration_paths[$path];
+        if(!in_array($path, $this->migration_paths)) {
+            $this->migration_paths[] = $path;
         }
     }
 
-    public function getMigrationPath() {
+    public function getMigrationPaths() {
         return $this->migration_paths;
     }
 
