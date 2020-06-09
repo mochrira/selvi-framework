@@ -3,15 +3,17 @@
 namespace Selvi\Database;
 use Selvi\Database\QueryResult;
 use Selvi\Exception;
+use Selvi\Database\Migration;
+use Selvi\Factory;
 
 use mysqli;
 
 class Schema {
 
-    private $db;
-    private $migration_paths = [];
+    private $db;    
     private $lastquery;
     private $config;
+    private $migration_paths = [];
 
     function __construct($config) {
         $this->config = $config;
@@ -61,15 +63,14 @@ class Schema {
         return $this->db->error;
     }
 
-    public function withMigration($path) {
-        if(!in_array($path, $this->migration_paths)) {
-            $this->migration_paths[] = $path;
+    public function addMigration($path) {
+        if(!$this->migration_paths[$path]) {
+            $this->migration_paths[$path];
         }
     }
 
-    public function runMigration($direction) {
-        $migration = new Migration($this, $this->migration_paths);
-        $migration->execute($direction);
+    public function getMigrationPath() {
+        return $this->migration_paths;
     }
 
 }

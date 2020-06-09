@@ -2,6 +2,7 @@
 
 namespace Selvi;
 use Selvi\Uri;
+use Selvi\Factory;
 
 class Route {
 

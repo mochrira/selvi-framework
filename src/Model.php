@@ -6,8 +6,7 @@ use Selvi\Database\Manager as Database;
 
 class Model extends Controller {
 
-    private $db;
-
+    protected $db;
     protected $schema = 'default';
     protected $table = '';
     protected $primary = 'id';

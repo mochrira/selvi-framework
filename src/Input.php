@@ -39,7 +39,7 @@ class Input {
 		return file_get_contents('php://input');
 	}
 
-	function request_header($name = ''){
+	function header($name = ''){
 		$headers = apache_request_headers();
 		if($name==''){
 			return $headers;
