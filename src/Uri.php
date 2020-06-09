@@ -22,7 +22,7 @@ class Uri {
 
     public function segment($index)
 	{
-		return $this->segments[$index - 1];
+		return isset($this->segments[$index - 1]) ? $this->segments[$index - 1] : null;
 	}
 
 }
