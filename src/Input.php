@@ -17,6 +17,10 @@ class Input {
 		}
 	}
 	
+	function method() {
+		return filter_input(INPUT_SERVER,'REQUEST_METHOD', FILTER_DEFAULT);
+	}
+
 	function file($name, $filter = FILTER_DEFAULT)
 	{
 		return (isset($_FILES[$name])?$_FILES[$name]:false);

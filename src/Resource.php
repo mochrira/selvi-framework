@@ -13,6 +13,10 @@ class Resource extends Controller {
         $this->load($this->modelClass, $this->modelAlias);
     }
 
+    protected function validateData() {
+        return json_decode($this->input->raw(), true);
+    }
+
     function get() {
         $id = $this->uri->segment(2);
         if($id !== null) {
@@ -28,7 +32,7 @@ class Resource extends Controller {
     }
 
     function post() {
-        $data = json_decode($this->input->raw(), true);
+        $data = $this->validateData();
         if(!$this->{$this->modelAlias}->insert($data)) {
             Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
         }
@@ -36,7 +40,7 @@ class Resource extends Controller {
     }
 
     function patch() {
-        $data = json_decode($this->input->raw(), true);
+        $data = $this->validateData();
         $id = $this->uri->segment(2);
         if($id == null) {
             Throw new Exception('Invalid request', $this->modelAlias.'/invalid-request', 400);
@@ -68,7 +72,7 @@ class Resource extends Controller {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
 
-        if($this->{$this->modelAlias}->delete([[$this->{$this->modelAlias}->getPrimary(), $id]])) {
+        if(!$this->{$this->modelAlias}->delete([[$this->{$this->modelAlias}->getPrimary(), $id]])) {
             Throw new Exception('Failed to delete', $this->modelAlias.'/delete-failed', 500);
         }
         return response('', 204);
