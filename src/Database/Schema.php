@@ -27,7 +27,7 @@ class Schema {
         if(!method_exists(__NAMESPACE__.'\QueryBuilder', $name)) {
             Throw new Exception('Undefined function '.__CLASS__.'::'.$name, 'db/undefined-function');
         }
-        $result = call_user_func_array([__NAMESPACE__.'\QueryBuilder', $name], $args);
+        $result = call_user_func(__NAMESPACE__.'\QueryBuilder::'.$name, ...$args);
         if(empty($result)) {
             return $this;
         }

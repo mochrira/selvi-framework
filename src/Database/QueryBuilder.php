@@ -72,7 +72,7 @@ class QueryBuilder {
         self::$raw['select'] = "SELECT ".$str;
     }
 
-    function insert($tbl, $data) {
+    public static function insert($tbl, $data) {
         $i = 0;
         $col = '';
         $val = '';
@@ -84,7 +84,7 @@ class QueryBuilder {
         return 'INSERT INTO '.$tbl.' ('.$col.') VALUES ('.$val.')';
     }
 
-    function update($tbl, $data) {
+    public static function update($tbl, $data) {
         $i = 0;
         $p = '';
         foreach($data as $c => $v){
@@ -94,7 +94,7 @@ class QueryBuilder {
         return implode(' ', array('UPDATE '.$tbl.' SET '.$p, self::getRaw('where')));
     }
 
-    function delete($tbl) {
+    public static function delete($tbl) {
         return implode(' ', array('DELETE FROM '.$tbl, self::getRaw('where')));
     }
 
