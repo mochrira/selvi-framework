@@ -2,13 +2,8 @@
 
 namespace Selvi;
 use Selvi\Factory;
-use Selvi\Input;
 
 class Controller {
-
-    function __construct() {
-        $this->load(Input::class, 'input');
-    }
 
     function __get($name) {
         return Factory::load($name);

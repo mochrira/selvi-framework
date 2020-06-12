@@ -16,10 +16,6 @@ class Input {
 			return NULL;
 		}
 	}
-	
-	function method() {
-		return filter_input(INPUT_SERVER,'REQUEST_METHOD', FILTER_DEFAULT);
-	}
 
 	function file($name, $filter = FILTER_DEFAULT)
 	{
@@ -37,6 +33,10 @@ class Input {
 	function server($name, $filter = FILTER_DEFAULT)
 	{
 		return filter_input(INPUT_SERVER,$name,$filter);
+	}
+
+	function method() {
+		return $this->server('REQUEST_METHOD');
 	}
 
 	function raw(){
