@@ -38,10 +38,11 @@ class Resource extends Controller {
 
     function post() {
         $data = $this->validateData();
-        if(!$this->{$this->modelAlias}->insert($data)) {
+        $insert = $this->{$this->modelAlias}->insert($data);
+        if(!$insert) {
             Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
         }
-        return response('',204);
+        return jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert],204);
     }
 
     function patch() {
