@@ -9,7 +9,6 @@ class Resource extends Controller {
     protected $modelAlias;
 
     function __construct() {
-        parent::__construct();
         $this->load($this->modelClass, $this->modelAlias);
     }
 
