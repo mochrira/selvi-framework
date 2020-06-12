@@ -42,7 +42,7 @@ class Resource extends Controller {
         if(!$insert) {
             Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
         }
-        return jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert],204);
+        return jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert],201);
     }
 
     function patch() {
