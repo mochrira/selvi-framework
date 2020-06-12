@@ -33,6 +33,11 @@ class Route {
 
     public static function getCallable() {
         $input = Factory::load(Input::class, [], 'input');
+        if($input->method() == 'OPTIONS') {
+            http_response_code(200);
+            die();
+        }
+
         $uri = Factory::load(Uri::class, [], 'uri')->getUri();
         $routes = self::$routes[strtolower($input->method())];
         
