@@ -12,6 +12,7 @@ class Model extends Controller {
     protected $primary = 'id';
     protected $increment = false;
     protected $selectable = null;
+    protected $join = [];
 
     function __construct() {
         $this->db = Database::get($this->schema);
@@ -22,11 +23,11 @@ class Model extends Controller {
     }
 
     function result($filter = []) {
-        return $this->db->where($filter)->select($this->selectable)->get($this->table)->result();
+        return $this->db->where($filter)->select($this->selectable)->join($this->join)->get($this->table)->result();
     }
 
     function row($filter = []) {
-        return $this->db->where($filter)->select($this->selectable)->get($this->table)->row();
+        return $this->db->where($filter)->select($this->selectable)->join($this->join)->get($this->table)->row();
     }
 
     function insert($data) {

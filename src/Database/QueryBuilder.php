@@ -19,6 +19,34 @@ class QueryBuilder {
         }
     }
 
+    public static function inner_join($tbl, $cond)
+	{
+        if(!self::$raw['join']) { self::$raw['join'] = []; }
+		self::$raw['join'][] = 'INNER JOIN '.$tbl.' ON '.$cond;
+	}
+
+	public static function left_join($tbl, $cond)
+	{
+        if(!self::$raw['join']) { self::$raw['join'] = []; }
+        self::$raw['join'][] = 'LEFT JOIN '.$tbl.' ON '.$cond;
+    }
+    
+    public static function join($join)
+    {
+        foreach($join as $k => $j) {
+            if($k == 'inner') {
+                foreach($j as $t => $v) {
+                    self::inner_join($t, $v);
+                }
+            }
+            if($k == 'left') {
+                foreach($j as $t => $v) {
+                    self::left_join($t, $v);
+                }
+            }
+        }
+    }
+
     public static function offset($offset) {
         if($offset !== null) {
             self::$raw['offset'] = 'OFFSET '.$offset;
@@ -102,7 +130,7 @@ class QueryBuilder {
         $sql = implode(' ', array(
             self::getRaw('select'),
             isset($table) ? 'FROM '.$table : '',
-            self::getRaw('join'),
+            implode(' ', self::getRaw('join')),
             self::getRaw('where'),
             self::getRaw('order'),
             self::getRaw('limit'),
