@@ -10,7 +10,7 @@ class QueryBuilder {
 
     private static function getRaw($name) {
         return (isset(self::$raw[$name])?self::$raw[$name]:
-                (isset(self::$rawDefault[$name])?self::$rawDefault[$name]:''));
+                (isset(self::$rawDefault[$name])?self::$rawDefault[$name]:NULL));
     }
 
     public static function limit($limit = null) {
@@ -130,7 +130,7 @@ class QueryBuilder {
         $sql = implode(' ', array(
             self::getRaw('select'),
             isset($table) ? 'FROM '.$table : '',
-            implode(' ', self::getRaw('join')),
+            self::getRaw('join') !== null ? implode(' ', self::getRaw('join')) : '',
             self::getRaw('where'),
             self::getRaw('order'),
             self::getRaw('limit'),
