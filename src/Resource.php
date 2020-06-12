@@ -8,8 +8,14 @@ class Resource extends Controller {
     protected $modelClass;
     protected $modelAlias;
 
-    function __construct() {
-        $this->load($this->modelClass, $this->modelAlias);
+    function __construct($autoloadModel = true) {
+        if($autoloadModel == true) {
+            $this->loadModel();
+        }
+    }
+
+    protected function loadModel() {
+        $this->load($this->modelClass, $this->modelAlias);   
     }
 
     protected function validateData() {
