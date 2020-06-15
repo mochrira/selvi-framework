@@ -21,7 +21,7 @@ class QueryBuilder {
 
     public static function inner_join($tbl, $cond)
 	{
-        if(!self::$raw['join']) { self::$raw['join'] = []; }
+        if(!isset(self::$raw['join'])) { self::$raw['join'] = []; }
 		self::$raw['join'][] = 'INNER JOIN '.$tbl.' ON '.$cond;
 	}
 
