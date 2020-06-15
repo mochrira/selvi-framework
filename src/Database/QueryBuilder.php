@@ -27,7 +27,7 @@ class QueryBuilder {
 
 	public static function left_join($tbl, $cond)
 	{
-        if(!self::$raw['join']) { self::$raw['join'] = []; }
+        if(!isset(self::$raw['join'])) { self::$raw['join'] = []; }
         self::$raw['join'][] = 'LEFT JOIN '.$tbl.' ON '.$cond;
     }
     
