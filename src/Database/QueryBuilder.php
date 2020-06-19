@@ -109,7 +109,9 @@ class QueryBuilder {
             $col .= '`'.$c.'`';
             $val .= (is_null($v)?'NULL':'"'.$v.'"');
         }
-        return 'INSERT INTO '.$tbl.' ('.$col.') VALUES ('.$val.')';
+        $sql = 'INSERT INTO '.$tbl.' ('.$col.') VALUES ('.$val.')';
+        self::$raw = self::$rawDefault;
+        return $sql;
     }
 
     public static function update($tbl, $data) {
@@ -119,11 +121,15 @@ class QueryBuilder {
             if($i++ != 0) {$p .= ', ';};
             $p .= '`'.$c.'` = '.(is_null($v)?'NULL':'"'.$v.'"');
         }
-        return implode(' ', array('UPDATE '.$tbl.' SET '.$p, self::getRaw('where')));
+        $sql = implode(' ', array('UPDATE '.$tbl.' SET '.$p, self::getRaw('where')));
+        self::$raw = self::$rawDefault;
+        return $sql;
     }
 
     public static function delete($tbl) {
-        return implode(' ', array('DELETE FROM '.$tbl, self::getRaw('where')));
+        $sql = implode(' ', array('DELETE FROM '.$tbl, self::getRaw('where')));
+        self::$raw = self::$rawDefault;
+        return $sql;
     }
 
     public static function get($table = NULL) {
@@ -155,6 +161,7 @@ class QueryBuilder {
         foreach($props as $key => $val) {
             $sql .= $key.'='.$val.' ';
         }
+        self::$raw = self::$rawDefault;
         return $sql;
     }
 
