@@ -12,6 +12,7 @@ class Model extends Controller {
     protected $primary = 'id';
     protected $increment = false;
     protected $selectable = null;
+    protected $searchable = [];
     protected $join = [];
 
     function __construct() {
@@ -27,22 +28,35 @@ class Model extends Controller {
     }
 
     function buildWhere($where) {
-        if(count($this->join)>0) {
-            foreach($where as $index => $w) {
-                if(!strpos($w[0], '.')) {
-                    $where[$index][0] = $this->getTable().'.'.$where[$index][0];
-                }
+        foreach($where as $index => $w) {
+            if(!strpos($w[0], '.')) {
+                $where[$index][0] = $this->getTable().'.'.$where[$index][0];
             }
         }
         return $where;
     }
 
-    function result($filter = []) {
-        return $this->db->where($this->buildWhere($filter))->select($this->selectable)->join($this->join)->get($this->table)->result();
+    function buildSearchable($q = null) {
+        $where = [];
+        if($q !== null) {
+            foreach($this->searchable as $index => $field) {
+                $where[] = [$this->table.'.'.$field, 'LIKE', '%'.$q.'%'];
+            }
+        }
+        return $where;
+    }
+
+    function result($filter = [], $q = null) {
+        return $this->db
+            ->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
+            ->select($this->selectable)->join($this->join)->get($this->table)
+            ->result();
     }
 
     function row($filter = []) {
-        return $this->db->where($this->buildWhere($filter))->select($this->selectable)->join($this->join)->get($this->table)->row();
+        return $this->db->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
+            ->select($this->selectable)->join($this->join)->get($this->table)
+            ->row();
     }
 
     function insert($data) {

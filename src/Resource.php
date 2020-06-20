@@ -32,7 +32,7 @@ class Resource extends Controller {
             return jsonResponse($row, 200);
         }
 
-        $result = $this->{$this->modelAlias}->result();
+        $result = $this->{$this->modelAlias}->result([], $this->input->get('search'));
         return jsonResponse($result, 200);
     }
 

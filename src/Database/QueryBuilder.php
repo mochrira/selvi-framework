@@ -87,6 +87,40 @@ class QueryBuilder {
         }        
     }
 
+    public static function orWhere($param = '', $param2 = null) {
+        $str = '';
+        if(is_array($param) && count($param) > 0){
+            $i=0;
+            foreach($param as $p){
+                if($i++ !=0){ $str .= ' OR '; }
+                if(is_array($p)){
+                    if(count($p) == 2) {
+                        $str .= $p[0].' = "'.$p[1].'"';
+                    } else if(count($p) == 3){
+                        $str .= $p[0].' '.$p[1].' "'.$p[2].'"';
+                    }
+                }else if(is_string($p)){
+                    $str .= $p;
+                }
+            }
+        }
+
+        if(is_string($param) && strlen($param)>0){
+            if(strlen($param2)>0){
+                $str .= $param.'="'.$param2.'"';
+            }else{
+                $str .= $param;
+            }
+        }
+        if(strlen($str)>0){
+            if(isset(self::$raw['where']) && strlen(self::$raw['where']) > 0){
+                self::$raw['where'] .= ' AND ('.$str.')';
+            }else{
+                self::$raw['where'] = 'WHERE ('.$str.')';
+            }	
+        }        
+    }
+
     public static function select($cols = null) {
         $str = '*';
         if($cols !== null) {
@@ -142,6 +176,7 @@ class QueryBuilder {
             self::getRaw('limit'),
             self::getRaw('offset')
         ));
+        var_dump($sql);
         self::$raw = self::$rawDefault;
         return $sql;
     }
