@@ -46,10 +46,22 @@ class Model extends Controller {
         return $where;
     }
 
-    function result($filter = [], $q = null) {
+    function buildSort($order) {
+        $sort = [];
+        foreach($order as $k => $v) {
+            if(!strpos($k, '.')) {
+                $sort[$this->table.'.'.$k] = $v;
+            } else {
+                $sort[$k] = $v;
+            }
+        }
+        return $sort;
+    }
+
+    function result($filter = [], $q = null, $order = []) {
         return $this->db
             ->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
-            ->select($this->selectable)->join($this->join)->get($this->table)
+            ->select($this->selectable)->join($this->join)->order($this->buildSort($order))->get($this->table)
             ->result();
     }
 

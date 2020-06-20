@@ -84,7 +84,7 @@ class QueryBuilder {
             }else{
                 self::$raw['where'] = 'WHERE ('.$str.')';
             }	
-        }        
+        }
     }
 
     public static function orWhere($param = '', $param2 = null) {
@@ -118,7 +118,7 @@ class QueryBuilder {
             }else{
                 self::$raw['where'] = 'WHERE ('.$str.')';
             }	
-        }        
+        }
     }
 
     public static function select($cols = null) {

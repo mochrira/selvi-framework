@@ -32,7 +32,16 @@ class Resource extends Controller {
             return jsonResponse($row, 200);
         }
 
-        $result = $this->{$this->modelAlias}->result([], $this->input->get('search'));
+        $order = [];
+        $sort = $this->input->get('sort');
+        if($sort !== null) {
+            $a = explode(',', $sort);
+            foreach($a as $b) {
+                $c = explode(':', $b);
+                $order[$c[0]] = $c[1];
+            }
+        }
+        $result = $this->{$this->modelAlias}->result([], $this->input->get('search'), $order);
         return jsonResponse($result, 200);
     }
 
