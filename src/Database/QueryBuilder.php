@@ -176,7 +176,6 @@ class QueryBuilder {
             self::getRaw('limit'),
             self::getRaw('offset')
         ));
-        var_dump($sql);
         self::$raw = self::$rawDefault;
         return $sql;
     }
