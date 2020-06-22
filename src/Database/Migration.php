@@ -40,7 +40,8 @@ class Migration {
         ));
     }
 
-    public function run($args) {
+    public function run() {
+        $args = func_get_args();
         $schema = $args[0];
         $direction = $args[1] ?? 'up';
         $step = -1;

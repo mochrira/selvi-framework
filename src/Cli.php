@@ -20,7 +20,7 @@ class Cli {
                 global $argv;
                 $name = $argv[1];
                 $args = array_slice($argv, 2, count($argv));
-                $response = self::$commands[$name]->run($args);
+                $response = self::$commands[$name]->run(...$args);
             } catch(Exception $e) {
                 $response = jsonResponse([
                     'code' => $e->getErrorCode(),
