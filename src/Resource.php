@@ -56,7 +56,7 @@ class Resource extends Controller {
             Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
         }
         $this->afterInsert($this->{$this->modelAlias}->row([
-            [$this->{$this->modelAlias}->getPrimary() => $insert]
+            [$this->{$this->modelAlias}->getPrimary(), $insert]
         ]));
         return jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert],201);
     }
