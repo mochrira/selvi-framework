@@ -50,6 +50,8 @@ class Migration {
             $step = $args[$stepIndex];
         }
 
+        $silent = in_array('--silent', $args);
+
         $this->db = Database::get($schema);
         $this->prepareTables();
 
@@ -61,7 +63,9 @@ class Migration {
                 if($cek->num_rows() > 0) {
                     $info = $cek->row();
                     if($info->output == "success" && $info->direction == $direction) {
-                        echo 'Skipped. '.basename($file).' has been executed successfully on '.date('d F Y H:i:s', $info->finish)."\n";
+                        if($silent == false) {
+                            echo 'Skipped. '.basename($file).' has been executed successfully on '.date('d F Y H:i:s', $info->finish)."\n";
+                        }
                         continue;
                     }
                 }
@@ -69,13 +73,15 @@ class Migration {
                 $output = '';
                 $start = time();
                 try {
-                    echo "Starting ".basename($file)."...\n";
+                    if($silent == false) {
+                        echo "Starting ".basename($file)."...\n";
+                    }
                     ob_start();
                     call_user_func(include $file, $this->db, $direction);   
                     echo "success";
                     $output = ob_get_contents();
                     ob_end_clean();
-                    if($output == 'success') {
+                    if($output == 'success' && $silent == false) {
                         echo basename($file)." successfully executed\n";
                     }
                 } catch(Exception $e) {
@@ -90,7 +96,9 @@ class Migration {
                     'filename' => basename($file),
                     'output' => $output
                 ))) {
-                    echo $file." - Gagal menulis log migrasi.\n";
+                    if($silent == false) {
+                        echo $file." - Gagal menulis log migrasi.\n";
+                    }
                 };
             }
         }
