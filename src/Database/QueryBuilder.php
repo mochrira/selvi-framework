@@ -180,6 +180,10 @@ class QueryBuilder {
         return $sql;
     }
 
+    public static function createDb($name) {
+        return 'CREATE DATABASE `'.$name.'`';
+    }
+
     public static function create($name, $columns, $props = []){
         $sql = 'CREATE TABLE IF NOT EXISTS '.$name.' (';
         $count = count($columns);

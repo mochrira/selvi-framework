@@ -22,6 +22,10 @@ class Resource extends Controller {
         return json_decode($this->input->raw(), true);
     }
 
+    protected function afterInsert($object) {
+        return;
+    }
+
     function get() {
         $id = $this->uri->segment(2);
         if($id !== null) {
@@ -51,6 +55,9 @@ class Resource extends Controller {
         if(!$insert) {
             Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
         }
+        $this->afterInsert($this->{$this->modelAlias}->row([
+            [$this->{$this->modelAlias}->getPrimary() => $insert]
+        ]));
         return jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert],201);
     }
 
