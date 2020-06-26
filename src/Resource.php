@@ -26,6 +26,10 @@ class Resource extends Controller {
         return;
     }
 
+    protected function buildWhere() {
+        return [];
+    }
+
     function get() {
         $id = $this->uri->segment(2);
         if($id !== null) {
@@ -45,7 +49,7 @@ class Resource extends Controller {
                 $order[$c[0]] = $c[1];
             }
         }
-        $result = $this->{$this->modelAlias}->result([], $this->input->get('search'), $order);
+        $result = $this->{$this->modelAlias}->result($this->buildWhere(), $this->input->get('search'), $order);
         return jsonResponse($result, 200);
     }
 
