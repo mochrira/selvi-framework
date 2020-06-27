@@ -58,11 +58,14 @@ class Model extends Controller {
         return $sort;
     }
 
-    function result($filter = [], $q = null, $order = []) {
-        return $this->db
+    function result($filter = [], $q = null, $order = [], $offset = -1, $limit = 30) {
+        $query = $this->db
             ->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
-            ->select($this->selectable)->join($this->join)->order($this->buildSort($order))->get($this->table)
-            ->result();
+            ->select($this->selectable)->join($this->join)->order($this->buildSort($order))->get($this->table);
+        if($offset > -1) {
+            $query->offset($offset)->limit($limit);
+        }
+        return $query->result();
     }
 
     function row($filter = []) {

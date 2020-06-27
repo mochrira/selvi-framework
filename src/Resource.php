@@ -49,7 +49,10 @@ class Resource extends Controller {
                 $order[$c[0]] = $c[1];
             }
         }
-        $result = $this->{$this->modelAlias}->result($this->buildWhere(), $this->input->get('search'), $order);
+
+        $offset = $this->input->get('offset') ?: -1;
+        $limit = $this->input->get('limit') ?: 30;
+        $result = $this->{$this->modelAlias}->result($this->buildWhere(), $this->input->get('search'), $order, $offset, $limit);
         return jsonResponse($result, 200);
     }
 
