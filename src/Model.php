@@ -61,9 +61,9 @@ class Model extends Controller {
     function result($filter = [], $q = null, $order = [], $offset = 0, $limit = -1) {
         $query = $this->db
             ->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
-            ->select($this->selectable)->join($this->join)->order($this->buildSort($order));
+            ->select($this->selectable)->join($this->join)->order($this->buildSort($order))->offset($offset);
         if($limit > -1) {
-            $query->offset($offset)->limit($limit);
+            $query->limit($limit);
         }
         return $query->get($this->table)->result();
     }
