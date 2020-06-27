@@ -22,7 +22,15 @@ class Resource extends Controller {
         return json_decode($this->input->raw(), true);
     }
 
-    protected function afterInsert($object) {
+    protected function afterInsert($object, $data) {
+        return;
+    }
+
+    protected function afterUpdate($object, $data) {
+        return;
+    }
+
+    protected function afterDelete($object) {
         return;
     }
 
