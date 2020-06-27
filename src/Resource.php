@@ -50,9 +50,9 @@ class Resource extends Controller {
             }
         }
 
-        $offset = $this->input->get('offset') ?? 0;
         $limit = $this->input->get('limit') ?? -1;
-        $result = $this->{$this->modelAlias}->result($this->buildWhere(), $this->input->get('search'), $order, $offset, $limit);
+        $offset = $this->input->get('offset') ?? 0;
+        $result = $this->{$this->modelAlias}->result($this->buildWhere(), $this->input->get('search'), $order, $limit, $offset);
         return jsonResponse($result, 200);
     }
 
