@@ -62,9 +62,10 @@ class Resource extends Controller {
         if(!$insert) {
             Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
         }
-        $this->afterInsert($this->{$this->modelAlias}->row([
-            [$this->{$this->modelAlias}->getPrimary(), $insert]
-        ]));
+
+        $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
+        $this->afterInsert($object);
+
         return jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert],201);
     }
 
@@ -75,9 +76,7 @@ class Resource extends Controller {
             Throw new Exception('Invalid request', $this->modelAlias.'/invalid-request', 400);
         }
 
-        $row = $this->{$this->modelAlias}->row([
-            [$this->{$this->modelAlias}->getPrimary(), $id]
-        ]);
+        $row = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
         if(!$row) {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
@@ -85,6 +84,10 @@ class Resource extends Controller {
         if(!$this->{$this->modelAlias}->update([[$this->{$this->modelAlias}->getPrimary(), $id]], $data)) {
             Throw new Exception('Failed to update', $this->modelAlias.'/update-failed', 500);
         }
+
+        $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+        $this->afterUpdate($object);
+
         return response('', 204);
     }
 
@@ -94,16 +97,18 @@ class Resource extends Controller {
             Throw new Exception('Invalid request', $this->modelAlias.'/invalid-request', 400);
         }
 
-        $row = $this->{$this->modelAlias}->row([
+        $object = $this->{$this->modelAlias}->row([
             [$this->{$this->modelAlias}->getPrimary(), $id]
         ]);
-        if(!$row) {
+        if(!$object) {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
 
         if(!$this->{$this->modelAlias}->delete([[$this->{$this->modelAlias}->getPrimary(), $id]])) {
             Throw new Exception('Failed to delete', $this->modelAlias.'/delete-failed', 500);
         }
+        $this->afterDelete($object);
+
         return response('', 204);
     }
 }
