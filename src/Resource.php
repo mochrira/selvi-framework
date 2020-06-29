@@ -72,7 +72,7 @@ class Resource extends Controller {
         }
 
         $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
-        $this->afterInsert($object);
+        $this->afterInsert($object, $data);
 
         return jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert],201);
     }
@@ -94,7 +94,7 @@ class Resource extends Controller {
         }
 
         $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
-        $this->afterUpdate($object);
+        $this->afterUpdate($object, $data);
 
         return response('', 204);
     }
