@@ -12,7 +12,8 @@
     "require": {},
     "autoload": {
         "files": [
-            "helpers/Response.php"
+            "helpers/Response.php",
+            "helpers/Uri.php"
         ],
         "psr-4": {
             "Selvi\\": "src/"
