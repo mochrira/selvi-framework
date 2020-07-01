@@ -52,7 +52,10 @@ class Migration {
         }
     }
 
-    public function needUpgrade() {
+    public function needUpgrade($schema) {
+        $this->db = Database::get($schema);
+        $this->prepareTables();
+
         $files = $this->getFiles('ASC');
         $filesUpgrade = [];
         foreach($files as $index => $file) {
@@ -70,6 +73,15 @@ class Migration {
     public function run() {
         $args = func_get_args();
         $schema = $args[0];
+        $this->silent = in_array('--silent', $args);
+        if(in_array('--check', $args)) {
+            $needUpgrade = $this->needUpgrade($schema);
+            if(!$this->silent) {
+                return response($needUpgrade ? 'Need Upgrade' : 'Already Updated');
+            }
+            return;
+        }
+
         $direction = $args[1] ?? 'up';
         $step = -1;
         if(in_array('--step', $args)) {
@@ -81,16 +93,8 @@ class Migration {
             }
         }
 
-        $this->silent = in_array('--silent', $args);
-
         $this->db = Database::get($schema);
         $this->prepareTables();
-
-        if(in_array('--check', $args)) {
-            if(!$this->silent) {
-                return response($this->needUpgrade() ? 'Need Upgrade' : 'Already Updated');
-            }
-        }
 
         $files = $this->getFiles($direction == 'up' ? 'ASC' : 'DESC');
         if(in_array('--all', $args)) {
@@ -103,8 +107,16 @@ class Migration {
             mkdir($path, 0775, true);
         }
         $backup_file = $path.'/'.$config['database'].'_'.time().'.sql';
-        $this->print('Backing up database...');
-        exec('mysqldump --user='.$config['username'].' --password='.$config['password'].' --host='.$config['host'].' '.$config['database'].' > '.$backup_file);
+        $this->print("Backing up database...\n");
+
+        if(!in_array('--no-backup', $args)) {
+            exec('mysqldump --host='.$config['host'].' --user='.$config['username'].' --password='.$config['password'].' '.$config['database'].' --result-file='.$backup_file.' 2>&1', $output);
+            if(!$this->silent) { 
+                foreach($output as $o) {
+                    echo $o."\n";
+                }
+            }
+        }
 
         foreach($files as $index => $file) {
             if($step == -1 || ($step > -1 && ($index < $step))) {

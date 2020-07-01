@@ -27,7 +27,10 @@ class Cli {
                     'msg' => $e->getMessage()
                 ], $e->getCode());
             }
-            $response->send();
+            if(isset($response)) {
+                $response->send();
+            }
+            die();
         }
     }
 

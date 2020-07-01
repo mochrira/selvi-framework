@@ -207,9 +207,17 @@ class QueryBuilder {
         return 'CREATE DATABASE '.$name;
     }
 
-    public static function drop($name) {
-        $sql = 'DROP TABLE IF EXISTS '.$name;
+    public static function createIndex($table, $index_name, $cols) {
+        return 'CREATE INDEX '.$index_name.' ON '.$table.'('.implode($cols).')';
+    }
+
+    public static function drop($table) {
+        $sql = 'DROP TABLE IF EXISTS '.$table;
         return $sql;
+    }
+
+    public static function dropIndex($table, $index_name) {
+        return 'ALTER TABLE '.$table.' DROP INDEX '.$index_name;
     }
 
     public static function modifyColumn($column, $type) {
