@@ -10,7 +10,7 @@ use mysqli;
 
 class Schema {
 
-    private $db;    
+    private $db;
     private $lastquery;
     private $config;
     private $migration_paths = [];

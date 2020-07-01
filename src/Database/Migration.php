@@ -6,7 +6,13 @@ use Selvi\Exception;
 
 class Migration {
 
+    private static $backup_path;
+    public static function setBackupPath($path) {
+        self::$backup_path = $path;
+    }
+
     private $db;
+    private $silent = false;
 
     private function getFiles($sort = 'ASC') {
         $files = [];
@@ -40,6 +46,27 @@ class Migration {
         ));
     }
 
+    private function print($msg) {
+        if(!$this->silent) {
+            echo $msg;
+        }
+    }
+
+    public function needUpgrade() {
+        $files = $this->getFiles('ASC');
+        $filesUpgrade = [];
+        foreach($files as $index => $file) {
+            $cek = $this->db->where([['filename', basename($file)]])->limit(1)->order(['start' => 'desc'])->get('_migration');
+            if($cek->num_rows() > 0) {
+                $info = $cek->row();
+                if($info->output !== "success" || $info->direction !== 'up') {
+                    $filesUpgrade[] = $file;
+                }
+            }
+        }
+        return count($filesUpgrade) > 0 ? true : false;
+    }
+
     public function run() {
         $args = func_get_args();
         $schema = $args[0];
@@ -48,14 +75,37 @@ class Migration {
         if(in_array('--step', $args)) {
             $stepIndex = array_search('--step', $args) + 1;
             $step = $args[$stepIndex];
+        } else {
+            if($direction == 'down') {
+                $step = 1;
+            }
         }
 
-        $silent = in_array('--silent', $args);
+        $this->silent = in_array('--silent', $args);
 
         $this->db = Database::get($schema);
         $this->prepareTables();
 
+        if(in_array('--check', $args)) {
+            if(!$this->silent) {
+                return response($this->needUpgrade() ? 'Need Upgrade' : 'Already Updated');
+            }
+        }
+
         $files = $this->getFiles($direction == 'up' ? 'ASC' : 'DESC');
+        if(in_array('--all', $args)) {
+            $step = count($files);
+        }
+
+        $config = $this->db->getConfig();
+        $path = self::$backup_path.'/'.$config['database'];
+        if(!is_dir($path)) {
+            mkdir($path, 0775, true);
+        }
+        $backup_file = $path.'/'.$config['database'].'_'.time().'.sql';
+        $this->print('Backing up database...');
+        exec('mysqldump --user='.$config['username'].' --password='.$config['password'].' --host='.$config['host'].' '.$config['database'].' > '.$backup_file);
+
         foreach($files as $index => $file) {
             if($step == -1 || ($step > -1 && ($index < $step))) {
 
@@ -63,9 +113,7 @@ class Migration {
                 if($cek->num_rows() > 0) {
                     $info = $cek->row();
                     if($info->output == "success" && $info->direction == $direction) {
-                        if($silent == false) {
-                            echo 'Skipped. '.basename($file).' has been executed successfully on '.date('d F Y H:i:s', $info->finish)."\n";
-                        }
+                        $this->print('Skipped. '.basename($file).' has been executed successfully on '.date('d F Y H:i:s', $info->finish)."\n");
                         continue;
                     }
                 }
@@ -73,7 +121,7 @@ class Migration {
                 $output = '';
                 $start = time();
                 try {
-                    if($silent == false) {
+                    if($this->silent == false) {
                         echo "Starting ".basename($file)."...\n";
                     }
                     ob_start();
@@ -81,7 +129,7 @@ class Migration {
                     echo "success";
                     $output = ob_get_contents();
                     ob_end_clean();
-                    if($output == 'success' && $silent == false) {
+                    if($output == 'success' && $this->silent == false) {
                         echo basename($file)." successfully executed\n";
                     }
                 } catch(Exception $e) {
@@ -97,12 +145,15 @@ class Migration {
                     'output' => $output
                 ))) {
                     if($silent == false) {
-                        echo $file." - Gagal menulis log migrasi.\n";
+                        $this->print($file." - Gagal menulis log migrasi.\n");
                     }
                 };
             }
         }
-        return response('Migration Done..');
+        if(!$this->silent) {
+            return response('Migration Done..');
+        }
+        return;
     }
 
 }

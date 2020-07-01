@@ -9,7 +9,7 @@ function response($data = '', $code = 200) {
 }
 
 function jsonResponse($data = '', $code = 200) {
-    return new Response(json_encode($data, JSON_PRETTY_PRINT), $code);
+    return new Response(json_encode($data, JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT), $code);
 }
 
 function view($file, $data = [], $returned = false) {
