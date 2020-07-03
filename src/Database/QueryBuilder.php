@@ -240,6 +240,18 @@ class QueryBuilder {
         self::$raw['alter'][] = 'DROP COLUMN '.$column;
     }
 
+    public static function startTransaction() {
+        return 'START TRANSACTION;';
+    }
+
+    public static function rollback() {
+        return 'ROLLBACK;';
+    }
+
+    public static function commit() {
+        return 'COMMIT;';
+    }
+
     public static function alter($table) {
         $sql = 'ALTER TABLE '.$table.' '.implode(',', self::$raw['alter']);
         self::$raw = self::$rawDefault;

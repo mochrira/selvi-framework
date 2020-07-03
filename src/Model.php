@@ -19,6 +19,10 @@ class Model extends Controller {
         $this->db = Database::get($this->schema);
     }
 
+    function getSchema() {
+        return $this->db;
+    }
+
     function getTable() {
         return $this->table;
     }
@@ -59,8 +63,7 @@ class Model extends Controller {
     }
 
     function result($filter = [], $q = null, $order = [], $limit = -1, $offset = 0) {
-        $query = $this->db
-            ->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
+        $query = $this->db->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
             ->select($this->selectable)->join($this->join)->order($this->buildSort($order));
         if($limit > -1) {
             $query->limit($limit)->offset($offset);
@@ -69,7 +72,7 @@ class Model extends Controller {
     }
 
     function row($filter = []) {
-        return $this->db->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
+        return $this->db->where($this->buildWhere($filter))
             ->select($this->selectable)->join($this->join)->get($this->table)
             ->row();
     }
