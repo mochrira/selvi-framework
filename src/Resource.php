@@ -103,6 +103,11 @@ class Resource extends Controller {
             if(!$insert) {
                 Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
             }
+
+            if(\method_exists($this, 'afterInsert')) {
+                $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
+                $this->afterInsert($object);
+            }
         } catch(Exception $e) {
             $this->rollback();
             Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
@@ -126,11 +131,6 @@ class Resource extends Controller {
 
         if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
             $this->commit();
-        }
-
-        if(\method_exists($this, 'afterInsert')) {
-            $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
-            $this->afterInsert($object);
         }
         return jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert],201);
     }
@@ -162,6 +162,10 @@ class Resource extends Controller {
         try {
             if(!$this->{$this->modelAlias}->update([[$this->{$this->modelAlias}->getPrimary(), $id]], $preparedData)) {
                 Throw new Exception('Failed to update', $this->modelAlias.'/update-failed', 500);
+            }
+            if(\method_exists($this, 'afterUpdate')) {
+                $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+                $this->afterUpdate($object);
             }
         } catch(Exception $e) {
             $this->rollback();
@@ -197,11 +201,6 @@ class Resource extends Controller {
         if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
             $this->commit();
         }
-
-        if(\method_exists($this, 'afterUpdate')) {
-            $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
-            $this->afterUpdate($object);
-        }
         return response('', 204);
     }
 
@@ -225,6 +224,9 @@ class Resource extends Controller {
                 $this->rollback();
                 Throw new Exception('Failed to delete', $this->modelAlias.'/delete-failed', 500);
             }
+            if(\method_exists($this, 'afterDelete')) {
+                $this->afterDelete($object);
+            }
         } catch(Exception $e) {
             $this->rollback();
             Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
@@ -244,10 +246,6 @@ class Resource extends Controller {
 
         if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
             $this->commit();
-        }
-
-        if(\method_exists($this, 'afterDelete')) {
-            $this->afterDelete($object);
         }
         return response('', 204);
     }
