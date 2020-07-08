@@ -229,8 +229,8 @@ class QueryBuilder {
         self::$raw['alter'][] = 'MODIFY COLUMN '.$column.' '.$type;
     }
 
-    public static function renameColumn($table, $column, $new_column) {
-        $sql = 'ALTER '.$table.' RENAME COLUMN '.$column.' TO '.$new_column;
+    public static function changeColumn($table, $column, $new_column, $type) {
+        $sql = 'ALTER TABLE '.$table.' CHANGE COLUMN '.$column.' '.$new_column.' '.$type;
         return $sql;
     }
 
