@@ -211,6 +211,11 @@ class QueryBuilder {
         return 'CREATE INDEX '.$index_name.' ON '.$table.'('.implode($cols).')';
     }
 
+    public static function rename($table, $new_table) {
+        $sql = 'ALTER TABLE '.$table.' RENAME TO '.$new_table;
+        return $sql;
+    }
+
     public static function drop($table) {
         $sql = 'DROP TABLE IF EXISTS '.$table;
         return $sql;
@@ -222,6 +227,11 @@ class QueryBuilder {
 
     public static function modifyColumn($column, $type) {
         self::$raw['alter'][] = 'MODIFY COLUMN '.$column.' '.$type;
+    }
+
+    public static function renameColumn($table, $column, $new_column) {
+        $sql = 'ALTER '.$table.' RENAME COLUMN '.$column.' TO '.$new_column;
+        return $sql;
     }
 
     public static function addColumn($column, $type) {

@@ -180,7 +180,7 @@ class Resource extends Controller {
                 }
             } catch(Exception $e) {
                 $this->rollback();
-                Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
+                Throw new Exception($e->getMessage(), $this->modelAlias.'/update-failed', 500);
             }
 
             foreach($data[$this->detailKey] as $item) {
@@ -189,11 +189,11 @@ class Resource extends Controller {
                     $insertItem = $this->{$this->detailAlias}->insert($item);
                     if(!$insertItem) {
                         $this->rollback();
-                        Throw new Exception('Failed to process detail', $this->modelAlias.'/insert-detail-failed', 500);
+                        Throw new Exception('Failed to process detail', $this->modelAlias.'/update-detail-failed', 500);
                     }
                 } catch(Exception $e) {
                     $this->rollback();
-                    Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
+                    Throw new Exception($e->getMessage(), $this->modelAlias.'/update-failed', 500);
                 }
             }
         }
@@ -229,7 +229,7 @@ class Resource extends Controller {
             }
         } catch(Exception $e) {
             $this->rollback();
-            Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
+            Throw new Exception($e->getMessage(), $this->modelAlias.'/delete-failed', 500);
         }
 
         if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
@@ -240,7 +240,7 @@ class Resource extends Controller {
                 }
             } catch(Exception $e) {
                 $this->rollback();
-                Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
+                Throw new Exception($e->getMessage(), $this->modelAlias.'/delete-failed', 500);
             }
         }
 
