@@ -208,7 +208,7 @@ class QueryBuilder {
     }
 
     public static function createIndex($table, $index_name, $cols) {
-        return 'CREATE INDEX '.$index_name.' ON '.$table.'('.implode($cols).')';
+        return 'CREATE INDEX '.$index_name.' ON '.$table.'('.implode(',', $cols).')';
     }
 
     public static function rename($table, $new_table) {
