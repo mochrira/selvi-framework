@@ -65,6 +65,8 @@ class Migration {
                 if($info->output !== "success" || $info->direction !== 'up') {
                     $filesUpgrade[] = $file;
                 }
+            } else {
+                $filesUpgrade[] = $file;
             }
         }
         return count($filesUpgrade) > 0 ? true : false;
