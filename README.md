@@ -42,7 +42,6 @@ use Selvi\Route;
 Route::get('/', 'HomeController@index');
 
 Selvi\Framework::run();
-?>
 ```
 
 5. Create `.htaccess` file

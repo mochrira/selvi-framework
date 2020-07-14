@@ -8,6 +8,7 @@
             "email": "mochrira@gmail.com"
         }
     ],
+    "minimum-stability": "stable",
     "license": "MIT",
     "autoload": {
         "files": [
