@@ -8,8 +8,7 @@
             "email": "mochrira@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {},
+    "license": "MIT",
     "autoload": {
         "files": [
             "helpers/Response.php",
