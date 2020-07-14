@@ -1,6 +1,6 @@
 {
-    "name": "selvi/framework",
-    "description": "Framework untuk membuat API",
+    "name": "mochrira/selvi-framework",
+    "description": "Super fast PHP Framework for building API",
     "type": "library",
     "authors": [
         {
