@@ -35,7 +35,7 @@ class Schema {
     }
 
     public function getSql($tblName) {
-        return $this->get($tblName);
+        return \Selvi\Database\QueryBuilder::get($tblName);
     }
 
     public function getConfig() {
