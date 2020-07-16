@@ -34,6 +34,10 @@ class Schema {
         return $this->query($result);
     }
 
+    public function getSql($tblName) {
+        return $this->get($tblName);
+    }
+
     public function getConfig() {
         return $this->config;
     }
