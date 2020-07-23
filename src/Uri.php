@@ -8,7 +8,10 @@ class Uri {
     private $segments;
 
     public function __construct() {
-        $this->uri = $_SERVER['REQUEST_URI'];
+        $uri = $_SERVER['REQUEST_URI'];
+        $path = dirname($_SERVER['SCRIPT_NAME']);
+        $this->uri = str_replace($path, '', $uri);
+        
         $has_query = strpos($this->uri, '?');
         if($has_query !== false) {
             $this->uri = substr($this->uri, 0, $has_query);
