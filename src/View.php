@@ -5,19 +5,26 @@ use Selvi\Exception;
 
 class View {
 
-    public static $templateDir;
+    public static $templateDirs = [];
 
     public static function setup($templateDir) {
-        self::$templateDir = $templateDir;
+        self::$templateDirs[] = $templateDir;
     }
 
     public function render($name, $data) {
-        $file = self::$templateDir.'/'.$name.'.php';
-        if(!is_file($file)) {
-            $file = self::$templateDir.'/'.$name;
+        $found = false;
+        $index = 0;
+        while(!$found) {
+            $file = self::$templateDirs[$index].'/'.$name.'.php';
             if(!is_file($file)) {
-                Throw new Exception('View `'.$name.'` not found', 'view/not-found');
+                $index++;
+            } else {
+                $found = true;
             }
+        }
+
+        if(!$found) {
+            Throw new Exception('View `'.$name.'` not found', 'view/not-found');
         }
 
         ob_start();

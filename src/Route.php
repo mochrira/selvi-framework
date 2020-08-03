@@ -8,6 +8,7 @@ use Selvi\Factory;
 class Route {
 
     public static $routes = [];
+    public static $currentUri = '';
 
     public static function __callStatic($name, $args) {
         self::$routes[$name][$args[0]] = $args[1];
@@ -22,13 +23,12 @@ class Route {
     }
 
     private static function compileCallable($callable) {
-        if(!is_callable($callable)){
-            $callable[0] = '\\App\\Controllers\\'.$callable[0];
+        $classCall = explode('@', $callable);
+        $classCall[0] = '\\App\\Controllers\\'.$classCall[0];
+        if(is_callable($classCall)) {
+            return $classCall;
         }
-        if(!is_callable($callable)) {
-            return NULL;
-        }
-        return $callable;
+        return null;
     }
 
     public static function getCallable() {
@@ -38,13 +38,22 @@ class Route {
             die();
         }
 
-        $uri = Factory::load(Uri::class, [], 'uri')->getUri();
+        self::$currentUri = Factory::load(Uri::class, [], 'uri')->getUri();
         $routes = self::$routes[strtolower($input->method())];
-        
-        if (isset($routes[$uri])) {
-            return self::compileCallable(explode('@', $routes[$uri]));
+
+        // Cek apakah route berupa function, jika function kembalikan nilai
+        $callable = $routes[self::$currentUri];
+        if(is_callable($callable)) {
+            return $callable;
+        }
+
+        // Jika lolos dari tes diatas, bisa jadi berupa string class
+        $callable = self::compileCallable($callable);
+        if($callable !== null) {
+            return $callable;
         }
         
+        // Jika lolos dari semua test diatas, bisa jadi uri mengandung variabel
         foreach ($routes as $key => $val) {
             $key = str_replace(':any', '.+', $key);
             $key = str_replace(':num', '[0-9]+', $key);
@@ -52,14 +61,16 @@ class Route {
             $key = str_replace(':alpha', '[A-Za-z]+', $key);
             $key = str_replace(':alnum', '[A-Za-z0-9]+', $key);
             $key = str_replace(':hex', '[A-Fa-f0-9]+', $key);
-            if (preg_match('#^' . $key . '$#', $uri)) {
+            if (preg_match('#^' . $key . '$#', self::$currentUri)) {
                 if (strpos($val, '$') !== false && strpos($key, '(') !== false) {
-                    $val = preg_replace('#^' . $key . '$#', $val, $uri);
+                    $val = preg_replace('#^' . $key . '$#', $val, self::$currentUri);
                 }
-                return self::compileCallable(explode('@', $val));
+                return self::compileCallable($val);
             }
         }
-        return self::compileCallable(explode('@', $uri));
+        
+        // jika tidak ada kembalikan error
+        Throw new Exception('Route tidak ditemukan. URI: '.self::$currentUri, 'route/not-found');
     }
 
 }

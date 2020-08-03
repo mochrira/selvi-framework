@@ -3,6 +3,7 @@
 namespace Selvi;
 use Selvi\Controller;
 use Selvi\Exception;
+use Selvi\Route;
 
 class Resource extends Controller {
 
@@ -12,6 +13,7 @@ class Resource extends Controller {
     protected $detailClass;
     protected $detailAlias;
     protected $detailKey = 'detail';
+    protected $idSegment = 2;
 
     function __construct($autoloadModel = true) {
         if($autoloadModel == true) {
@@ -52,9 +54,11 @@ class Resource extends Controller {
     }
 
     function get() {
-        $id = $this->uri->segment(2);
+        $id = $this->uri->segment($this->idSegment);
         if($id !== null) {
-            $row = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+            $where = $this->buildWhere();
+            $where[] = [$this->{$this->modelAlias}->getPrimary(), $id];
+            $row = $this->{$this->modelAlias}->row($where);
             if(!$row) {
                 Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
             }
@@ -91,11 +95,9 @@ class Resource extends Controller {
         }
 
         $preparedData = $data;
-        if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
-            $this->startTransaction();
-            if(isset($preparedData[$this->detailKey])) {
-                unset($preparedData[$this->detailKey]);
-            }
+        $this->startTransaction();
+        if(isset($preparedData[$this->detailKey])) {
+            unset($preparedData[$this->detailKey]);
         }
 
         try {
@@ -104,9 +106,14 @@ class Resource extends Controller {
                 Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
             }
 
-            if(\method_exists($this, 'afterInsert')) {
-                $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
-                $this->afterInsert($object);
+            try {
+                if(\method_exists($this, 'afterInsert')) {
+                    $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
+                    $this->afterInsert($object);
+                }       
+            } catch(Exception $e) {
+                $this->rollback();
+                Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
             }
         } catch(Exception $e) {
             $this->rollback();
@@ -129,9 +136,7 @@ class Resource extends Controller {
             }
         }
 
-        if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
-            $this->commit();
-        }
+        $this->commit();
         return jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert],201);
     }
 
@@ -141,22 +146,22 @@ class Resource extends Controller {
             $data = $this->validateData($data);
         }
 
-        $id = $this->uri->segment(2);
+        $id = $this->uri->segment($this->idSegment);
         if($id == null) {
             Throw new Exception('Invalid request', $this->modelAlias.'/invalid-request', 400);
         }
 
-        $row = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+        $where = $this->buildWhere();
+        $where[] = [$this->{$this->modelAlias}->getPrimary(), $id];
+        $row = $this->{$this->modelAlias}->row($where);
         if(!$row) {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
 
         $preparedData = $data;
-        if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
-            $this->startTransaction();
-            if(isset($preparedData[$this->detailKey])) {
-                unset($preparedData[$this->detailKey]);
-            }
+        $this->startTransaction();
+        if(isset($preparedData[$this->detailKey])) {
+            unset($preparedData[$this->detailKey]);
         }
 
         try {
@@ -198,26 +203,24 @@ class Resource extends Controller {
             }
         }
 
-        if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
-            $this->commit();
-        }
+        $this->commit();
         return response('', 204);
     }
 
     function delete() {
-        $id = $this->uri->segment(2);
+        $id = $this->uri->segment($this->idSegment);
         if($id == null) {
             Throw new Exception('Invalid request', $this->modelAlias.'/invalid-request', 400);
         }
 
-        $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+        $where = $this->buildWhere();
+        $where[] = [$this->{$this->modelAlias}->getPrimary(), $id];
+        $object = $this->{$this->modelAlias}->row($where);
         if(!$object) {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
 
-        if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
-            $this->startTransaction();
-        }
+        $this->startTransaction();
 
         try {
             if(!$this->{$this->modelAlias}->delete([[$this->{$this->modelAlias}->getPrimary(), $id]])) {
@@ -244,9 +247,7 @@ class Resource extends Controller {
             }
         }
 
-        if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
-            $this->commit();
-        }
+        $this->commit();
         return response('', 204);
     }
 }
