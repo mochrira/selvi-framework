@@ -57,23 +57,13 @@
 </head>
 <body>
     <div class="container box">
-        <h1>Welcome to Selvi Framework !</h1>
+        <h1>Welcome to Selvi Framework</h1>
         <p>
-        This is the default page of selvi framework. <br/><br/> 
-        To getting started, create <span class="code">app/Controllers</span> folder. <br/><br/>
-        Then create <span class="code">HomeController.php</span> file.<br/><br/>
-        <span class="code">
-        &gt;
-        </span>
-        Then, define new route before Selvi\Framework::run() on your index.php.
-        <span class="code">\Selvi\Route::get('/', 'HomeController');</span>
-        <br><br>
-        For this HTML view could be found at <span class="code">app/views/vindex.php</span>
+        When you see this page, it means you are successfully setup selvi framework on your environment.
         </p>
     </div>
     <div class="container footer">
         Coded with &hearts; by Wajek Studio
-        <span>This page rendered in {total_execution_time} second</span>
     </div>
 </body>
 </html>

@@ -105,16 +105,6 @@ class Resource extends Controller {
             if(!$insert) {
                 Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
             }
-
-            try {
-                if(\method_exists($this, 'afterInsert')) {
-                    $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
-                    $this->afterInsert($object);
-                }       
-            } catch(Exception $e) {
-                $this->rollback();
-                Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
-            }
         } catch(Exception $e) {
             $this->rollback();
             Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
@@ -136,6 +126,16 @@ class Resource extends Controller {
             }
         }
 
+        if(\method_exists($this, 'afterInsert')) {
+            $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
+            if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
+                $detail = $this->{$this->detailAlias}->result([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
+                $this->afterInsert($object, $detail);
+            } else {
+                $this->afterInsert($object);
+            }
+        }
+
         $this->commit();
         return jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert],201);
     }
@@ -153,9 +153,18 @@ class Resource extends Controller {
 
         $where = $this->buildWhere();
         $where[] = [$this->{$this->modelAlias}->getPrimary(), $id];
-        $row = $this->{$this->modelAlias}->row($where);
-        if(!$row) {
+        $object = $this->{$this->modelAlias}->row($where);
+        if(!$object) {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
+        }
+
+        if(\method_exists($this, 'beforeUpdate')) {
+            if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
+                $detail = $this->{$this->detailAlias}->result([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+                $this->beforeUpdate($object, $detail);
+            } else {
+                $this->beforeUpdate($object);
+            }
         }
 
         $preparedData = $data;
@@ -167,10 +176,6 @@ class Resource extends Controller {
         try {
             if(!$this->{$this->modelAlias}->update([[$this->{$this->modelAlias}->getPrimary(), $id]], $preparedData)) {
                 Throw new Exception('Failed to update', $this->modelAlias.'/update-failed', 500);
-            }
-            if(\method_exists($this, 'afterUpdate')) {
-                $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
-                $this->afterUpdate($object);
             }
         } catch(Exception $e) {
             $this->rollback();
@@ -203,6 +208,16 @@ class Resource extends Controller {
             }
         }
 
+        if(\method_exists($this, 'afterUpdate')) {
+            $object = $this->{$this->modelAlias}->row($where);
+            if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
+                $detail = $this->{$this->detailAlias}->result([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+                $this->afterUpdate($object, $detail);
+            } else {
+                $this->afterUpdate($object);
+            }
+        }
+
         $this->commit();
         return response('', 204);
     }
@@ -220,15 +235,20 @@ class Resource extends Controller {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
 
-        $this->startTransaction();
+        if(\method_exists($this, 'beforeDelete')) {
+            if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
+                $detail = $this->{$this->detailAlias}->result([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+                $this->beforeDelete($object, $detail);
+            } else {
+                $this->beforeDelete($object);
+            }
+        }
 
+        $this->startTransaction();
         try {
             if(!$this->{$this->modelAlias}->delete([[$this->{$this->modelAlias}->getPrimary(), $id]])) {
                 $this->rollback();
                 Throw new Exception('Failed to delete', $this->modelAlias.'/delete-failed', 500);
-            }
-            if(\method_exists($this, 'afterDelete')) {
-                $this->afterDelete($object);
             }
         } catch(Exception $e) {
             $this->rollback();
@@ -244,6 +264,15 @@ class Resource extends Controller {
             } catch(Exception $e) {
                 $this->rollback();
                 Throw new Exception($e->getMessage(), $this->modelAlias.'/delete-failed', 500);
+            }
+        }
+
+        if(\method_exists($this, 'afterDelete')) {
+            if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
+                $detail = $this->{$this->detailAlias}->result([[$this->{$this->modelAlias}->getPrimary(), $id]]);
+                $this->afterDelete($object, $detail);
+            } else {
+                $this->afterDelete($object);
             }
         }
 

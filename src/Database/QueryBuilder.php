@@ -126,6 +126,17 @@ class QueryBuilder {
         }
     }
 
+    public static function groupBy($group) {
+        $str = '';
+        if(is_array($group)) {
+            $str .= implode(' , ', $group);
+        } else if(is_string($group)){
+            $str .= $group;
+        }
+        $str = ((self::getRaw('group') == null) ? ' GROUP BY ' : ' , ').$str;
+        self::$raw['group'] .= $str;
+    }
+
     public static function select($cols = null) {
         $str = '*';
         if($cols !== null) {
@@ -170,6 +181,8 @@ class QueryBuilder {
         self::$raw = self::$rawDefault;
         return $sql;
     }
+    
+
 
     public static function get($table = NULL) {
         $sql = implode(' ', array(
@@ -177,6 +190,7 @@ class QueryBuilder {
             isset($table) ? 'FROM '.$table : '',
             self::getRaw('join') !== null ? implode(' ', self::getRaw('join')) : '',
             self::getRaw('where'),
+            self::getRaw('group'),
             self::getRaw('order'),
             self::getRaw('limit'),
             self::getRaw('offset')

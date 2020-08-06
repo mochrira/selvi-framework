@@ -13,7 +13,7 @@ class Framework {
         Cli::register('migrate', Migration::class);
         Cli::listen();
 
-        if(!Route::$routes['get']['/']) {
+        if(!isset(Route::$routes['get']['/'])) {
             View::setup(__DIR__.'/../views');
             Route::get('/', function() {
                 return view('default');
@@ -40,7 +40,10 @@ class Framework {
             }
             $response = jsonResponse($konten, $e->getCode());
         }
-        $response->send();
+
+        if(isset($response)) {
+            $response->send();
+        }
     }
 
 }

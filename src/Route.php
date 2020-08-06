@@ -24,6 +24,10 @@ class Route {
 
     private static function compileCallable($callable) {
         $classCall = explode('@', $callable);
+        if(is_callable($classCall)) {
+            return $classCall;
+        }
+
         $classCall[0] = '\\App\\Controllers\\'.$classCall[0];
         if(is_callable($classCall)) {
             return $classCall;
