@@ -61,9 +61,9 @@ class QueryBuilder {
                 if($i++ !=0){ $str .= ' AND '; }
                 if(is_array($p)){
                     if(count($p) == 2) {
-                        $str .= $p[0].' '.($p[1] == null ? 'IS NULL' : '= "'.$p[1].'"');
+                        $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= "'.$p[1].'"');
                     } else if(count($p) == 3){
-                        $str .= $p[0].' '.$p[1].' '.($p[2] == null ? 'IS NULL' : '= "'.$p[2].'"');
+                        $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'IS NULL' : '"'.$p[2].'"');
                     }
                 }else if(is_string($p)){
                     $str .= $p;
