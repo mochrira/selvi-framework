@@ -133,8 +133,10 @@ class QueryBuilder {
         } else if(is_string($group)){
             $str .= $group;
         }
-        $str = ((self::getRaw('group') == null) ? ' GROUP BY ' : ' , ').$str;
-        self::$raw['group'] .= $str;
+        if(strlen($str) > 0) {
+            $str = ((self::getRaw('group') == null) ? ' GROUP BY ' : ' , ').$str;
+            self::$raw['group'] .= $str;
+        }
     }
 
     public static function select($cols = null) {

@@ -14,6 +14,7 @@ class Model extends Controller {
     protected $selectable = null;
     protected $searchable = [];
     protected $join = [];
+    protected $group = [];
 
     function __construct() {
         $this->db = Database::get($this->schema);
@@ -64,7 +65,7 @@ class Model extends Controller {
 
     function result($filter = [], $q = null, $order = [], $limit = -1, $offset = 0) {
         $query = $this->db->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
-            ->select($this->selectable)->join($this->join)->order($this->buildSort($order));
+            ->select($this->selectable)->join($this->join)->order($this->buildSort($order))->groupBy($this->group);
         if($limit > -1) {
             $query->limit($limit)->offset($offset);
         }
