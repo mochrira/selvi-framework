@@ -289,6 +289,18 @@ class QueryBuilder {
         return $sql;
     }
 
+    public static function orderFromStr($str) {
+        $order = [];
+        if($str !== null) {
+            $a = explode(',', $str);
+            foreach($a as $b) {
+                $c = explode(':', $b);
+                $order[$c[0]] = $c[1];
+            }
+        }
+        self::order($order);
+    }
+
     public static function order($param, $param2 = '') {
         $str = '';
 		if(is_array($param)&&count($param)>0){
