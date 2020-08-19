@@ -90,7 +90,7 @@ class Resource extends Controller {
 
     function post() {
         $data = json_decode($this->input->raw(), true);
-        if(\is_callable($this, 'validateData')) {
+        if(\method_exists($this, 'validateData')) {
             $data = $this->validateData($data);
         }
 
@@ -126,7 +126,7 @@ class Resource extends Controller {
             }
         }
 
-        if(\is_callable($this, 'afterInsert')) {
+        if(\method_exists($this, 'afterInsert')) {
             $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
             if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
                 $detail = $this->{$this->detailAlias}->result([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
@@ -142,7 +142,7 @@ class Resource extends Controller {
 
     function patch() {
         $data = json_decode($this->input->raw(), true);
-        if(\is_callable($this, 'validateData')) {
+        if(\method_exists($this, 'validateData')) {
             $data = $this->validateData($data);
         }
 
@@ -158,7 +158,7 @@ class Resource extends Controller {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
 
-        if(\is_callable($this, 'beforeUpdate')) {
+        if(\method_exists($this, 'beforeUpdate')) {
             if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
                 $detail = $this->{$this->detailAlias}->result([[$this->{$this->modelAlias}->getPrimary(), $id]]);
                 $this->beforeUpdate($object, $detail);
@@ -208,7 +208,7 @@ class Resource extends Controller {
             }
         }
 
-        if(\is_callable($this, 'afterUpdate')) {
+        if(\method_exists($this, 'afterUpdate')) {
             $object = $this->{$this->modelAlias}->row($where);
             if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
                 $detail = $this->{$this->detailAlias}->result([[$this->{$this->modelAlias}->getPrimary(), $id]]);
@@ -235,7 +235,7 @@ class Resource extends Controller {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
 
-        if(\is_callable($this, 'beforeDelete')) {
+        if(\method_exists($this, 'beforeDelete')) {
             if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
                 $detail = $this->{$this->detailAlias}->result([[$this->{$this->modelAlias}->getPrimary(), $id]]);
                 $this->beforeDelete($object, $detail);
@@ -267,7 +267,7 @@ class Resource extends Controller {
             }
         }
 
-        if(\is_callable($this, 'afterDelete')) {
+        if(\method_exists($this, 'afterDelete')) {
             if($this->detailAlias != '' && $this->{$this->detailAlias} != null) {
                 $detail = $this->{$this->detailAlias}->result([[$this->{$this->modelAlias}->getPrimary(), $id]]);
                 $this->afterDelete($object, $detail);
