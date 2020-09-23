@@ -99,7 +99,7 @@ class Model extends Controller {
     }
 
     function delete($filter) {
-        return $this->db->where($this->buildWhere($filter))->delete($this->table);
+        return $this->db->join($this->join)->where($this->buildWhere($filter))->delete($this->table);
     }
 
 }
