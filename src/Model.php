@@ -42,13 +42,19 @@ class Model extends Controller {
     }
 
     function buildSearchable($q = null) {
-        $where = [];
         if($q !== null) {
+            $where = $this->searchable;
             foreach($this->searchable as $index => $field) {
-                $where[] = [$this->table.'.'.$field, 'LIKE', '%'.$q.'%'];
+                if(!strpos($field, '.')) {
+                    $where[] = [$this->getTable().'.'.$field, 'LIKE', '%'.$q.'%'];
+                } else {
+                    $where[] = [$field, 'LIKE', '%'.$q.'%'];
+                }
             }
+            return $where;
+        } else {
+            return [];
         }
-        return $where;
     }
 
     function buildSort($order) {

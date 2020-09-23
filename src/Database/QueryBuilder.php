@@ -179,12 +179,10 @@ class QueryBuilder {
     }
 
     public static function delete($tbl) {
-        $sql = implode(' ', array('DELETE FROM '.$tbl, self::getRaw('where')));
+        $sql = implode(' ', array('DELETE '.$tbl.' FROM '.$tbl, self::getRaw('join') !== null ? implode(' ', self::getRaw('join')) : '',self::getRaw('where')));
         self::$raw = self::$rawDefault;
         return $sql;
     }
-    
-
 
     public static function get($table = NULL) {
         $sql = implode(' ', array(
