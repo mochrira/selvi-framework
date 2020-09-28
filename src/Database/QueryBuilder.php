@@ -61,9 +61,9 @@ class QueryBuilder {
                 if($i++ !=0){ $str .= ' AND '; }
                 if(is_array($p)){
                     if(count($p) == 2) {
-                        $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= "'.$p[1].'"');
+                        $str .= $p[0].' '.($p[1] === null ? 'NULL' : '= "'.$p[1].'"');
                     } else if(count($p) == 3){
-                        $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'IS NULL' : '"'.$p[2].'"');
+                        $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'NULL' : '"'.$p[2].'"');
                     }
                 }else if(is_string($p)){
                     $str .= $p;
@@ -269,6 +269,14 @@ class QueryBuilder {
         self::$raw['alter'][] = 'DROP COLUMN '.$column;
     }
 
+    public static function dropPrimary(){
+        self::$raw['alter'][] = 'DROP PRIMARY KEY';
+    }
+
+    public static function addPrimary($column){
+        self::$raw['alter'][] = 'ADD PRIMARY KEY('.$column.')';
+    }
+
     public static function startTransaction() {
         return 'START TRANSACTION;';
     }
@@ -283,6 +291,7 @@ class QueryBuilder {
 
     public static function alter($table) {
         $sql = 'ALTER TABLE '.$table.' '.implode(',', self::$raw['alter']);
+        echo $sql;
         self::$raw = self::$rawDefault;
         return $sql;
     }
