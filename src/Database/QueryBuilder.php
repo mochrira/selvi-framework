@@ -291,7 +291,6 @@ class QueryBuilder {
 
     public static function alter($table) {
         $sql = 'ALTER TABLE '.$table.' '.implode(',', self::$raw['alter']);
-        echo $sql;
         self::$raw = self::$rawDefault;
         return $sql;
     }

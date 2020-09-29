@@ -80,7 +80,7 @@ class Model extends Controller {
 
     function row($filter = []) {
         return $this->db->where($this->buildWhere($filter))
-            ->select($this->selectable)->join($this->join)->get($this->table)
+            ->select($this->selectable)->join($this->join)->order($this->buildSort($order))->groupBy($this->group)->get($this->table)
             ->row();
     }
 
