@@ -226,6 +226,10 @@ class QueryBuilder {
         return 'CREATE DATABASE '.$name;
     }
 
+    public static function dropSchema($name) {
+        return 'DROP DATABASE '. $name;
+    }
+
     public static function createIndex($table, $index_name, $cols) {
         return 'CREATE INDEX '.$index_name.' ON '.$table.'('.implode(',', $cols).')';
     }
