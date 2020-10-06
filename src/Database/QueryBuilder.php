@@ -135,7 +135,11 @@ class QueryBuilder {
         }
         if(strlen($str) > 0) {
             $str = ((self::getRaw('group') == null) ? ' GROUP BY ' : ' , ').$str;
-            self::$raw['group'] .= $str;
+            if(isset(self::$raw['group'])) {
+                self::$raw['group'] .= $str;
+            } else {
+                self::$raw['group'] = $str;
+            }
         }
     }
 
