@@ -45,15 +45,18 @@ class Route {
         self::$currentUri = Factory::load(Uri::class, [], 'uri')->getUri();
         $routes = self::$routes[strtolower($input->method())];
 
+        $callable = null;
         // Cek apakah route berupa function, jika function kembalikan nilai
-        $callable = $routes[self::$currentUri];
-        if(is_callable($callable)) {
-            return $callable;
+        if(isset($routes[self::$currentUri])) {
+            $callable = $routes[self::$currentUri];
+            if(is_callable($callable)) {
+                return $callable;
+            }
         }
 
         // Jika lolos dari tes diatas, bisa jadi berupa string class
-        $callable = self::compileCallable($callable);
         if($callable !== null) {
+            $callable = self::compileCallable($callable);
             return $callable;
         }
         

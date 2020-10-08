@@ -61,7 +61,7 @@ class QueryBuilder {
                 if($i++ !=0){ $str .= ' AND '; }
                 if(is_array($p)){
                     if(count($p) == 2) {
-                        $str .= $p[0].' '.($p[1] === null ? 'NULL' : '= "'.$p[1].'"');
+                        $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= "'.$p[1].'"');
                     } else if(count($p) == 3){
                         $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'NULL' : '"'.$p[2].'"');
                     }
@@ -99,10 +99,14 @@ class QueryBuilder {
             foreach($param as $p){
                 if($i++ !=0){ $str .= ' OR '; }
                 if(is_array($p)){
-                    if(count($p) == 2) {
-                        $str .= $p[0].' = "'.$p[1].'"';
-                    } else if(count($p) == 3){
-                        $str .= $p[0].' '.$p[1].' "'.$p[2].'"';
+                    if(is_array($p)){
+                        if(count($p) == 2) {
+                            $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= "'.$p[1].'"');
+                        } else if(count($p) == 3){
+                            $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'NULL' : '"'.$p[2].'"');
+                        }
+                    }else if(is_string($p)){
+                        $str .= $p;
                     }
                 }else if(is_string($p)){
                     $str .= $p;
