@@ -69,9 +69,6 @@ class Route {
             $key = str_replace(':alnum', '[A-Za-z0-9]+', $key);
             $key = str_replace(':hex', '[A-Fa-f0-9]+', $key);
             if (preg_match('#^' . $key . '$#', self::$currentUri)) {
-                if (strpos($val, '$') !== false && strpos($key, '(') !== false) {
-                    $val = preg_replace('#^' . $key . '$#', $val, self::$currentUri);
-                }
                 return self::compileCallable($val);
             }
         }

@@ -4,7 +4,7 @@ namespace Selvi;
 
 class Input {
 	
-	function post($name, $filter = FILTER_DEFAULT)
+	function post($name, $filter = FILTER_DEFAULT) : mixed
 	{
 		if(isset($_POST[$name])){
 			if(is_array($_POST[$name])){
@@ -39,8 +39,15 @@ class Input {
 		return $this->server('REQUEST_METHOD');
 	}
 
-	function raw(){
-		return file_get_contents('php://input');
+	function raw($format = ''){
+		$raw = file_get_contents('php://input');
+		if($format == 'json') {
+			return json_decode($raw);
+		}
+		if($format == 'json_assoc') {
+			return json_decode($raw, true);
+		}
+		return $raw;
 	}
 
 	function header($name = ''){
