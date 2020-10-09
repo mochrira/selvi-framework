@@ -95,15 +95,12 @@ class Resource extends Controller {
 
         try {
             $data = $this->validateData(json_decode($this->input->raw(), true), $object);
-            if(!$this->{$this->modelAlias}->update([[$this->{$this->modelAlias}->getPrimary(), $id]], $data)) {
-                Throw new Exception('Failed to update', $this->modelAlias.'/update-failed', 500);
-            }
+            $this->{$this->modelAlias}->update([[$this->{$this->modelAlias}->getPrimary(), $id]], $data);
             $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
             $response = '';
             $this->afterUpdate($object, $response);
         } catch(Exception $e) {
-            $this->rollback();
-            Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
+            Throw new Exception($e->getMessage(), $this->modelAlias.'/update-failed', 500);
         }
         
         return response($response, 204);
@@ -135,7 +132,6 @@ class Resource extends Controller {
             $response = '';
             $this->afterDelete($object, $response);
         } catch(Exception $e) {
-            $this->rollback();
             Throw new Exception($e->getMessage(), $this->modelAlias.'/delete-failed', 500);
         }
         return response($response, 204);
