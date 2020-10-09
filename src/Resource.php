@@ -88,7 +88,7 @@ class Resource extends Controller {
             Throw new Exception('Invalid request', $this->modelAlias.'/invalid-request', 400);
         }
 
-        $object = $this->{$this->modelAlias}->row([$this->{$this->modelAlias}->getPrimary(), $id]);
+        $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
         if(!$object) {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
@@ -120,7 +120,7 @@ class Resource extends Controller {
             Throw new Exception('Invalid request', $this->modelAlias.'/invalid-request', 400);
         }
 
-        $object = $this->{$this->modelAlias}->row([$this->{$this->modelAlias}->getPrimary(), $id]);
+        $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
         if(!$object) {
             Throw new Exception('Invalid id or criteria', $this->modelAlias.'/not-found', 404);
         }
