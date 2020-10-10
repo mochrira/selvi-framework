@@ -69,12 +69,12 @@ class Resource extends Controller {
                 Throw new Exception('Failed to insert', $this->modelAlias.'/insert-failed', 500);
             }
             $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $insert]]);
-            $response = [$this->{$this->modelAlias}->getPrimary() => $insert];
+            $response = jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert], 201);
             $this->afterInsert($object, $response);
         } catch(Exception $e) {
             Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
         }
-        return jsonResponse($response, 201);
+        return $response;
     }
 
     function afterUpdate($object, &$response = NULL) {
@@ -97,13 +97,13 @@ class Resource extends Controller {
             $data = $this->validateData(json_decode($this->input->raw(), true), $object);
             $this->{$this->modelAlias}->update([[$this->{$this->modelAlias}->getPrimary(), $id]], $data);
             $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
-            $response = '';
+            $response = response('', 204);
             $this->afterUpdate($object, $response);
         } catch(Exception $e) {
             Throw new Exception($e->getMessage(), $this->modelAlias.'/update-failed', 500);
         }
         
-        return response($response, 204);
+        return $response;
     }
 
     function afterDelete($object, &$response = NULL) {
@@ -129,11 +129,11 @@ class Resource extends Controller {
                 Throw new Exception('Failed to delete', $this->modelAlias.'/delete-failed', 500);
             }
             $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
-            $response = '';
+            $response = response('', 204);
             $this->afterDelete($object, $response);
         } catch(Exception $e) {
             Throw new Exception($e->getMessage(), $this->modelAlias.'/delete-failed', 500);
         }
-        return response($response, 204);
+        return $response;
     }
 }

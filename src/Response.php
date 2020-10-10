@@ -12,6 +12,14 @@ class Response {
         $this->code = $code;
     }
 
+    public function setContent($content) {
+        $this->content = $content;
+    }
+
+    public function setCode($code) {
+        $this->code = $code;
+    }
+
     public function send() {
         http_response_code($this->code);
         echo $this->content;
