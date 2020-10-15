@@ -52,7 +52,11 @@ class Schema {
         $query = $this->db->query($sql);
         if(is_bool($query)) {
             if($query === false) {
-                throw new Exception($this->error(), 'db/query-error');
+                $data = null;
+                if($this->config['debug'] == true) {
+                    $data['query'] = $this->lastquery;
+                }
+                throw new Exception($this->error(), 'db/query-error', 500, $data);
             }
             return $query;
         }
