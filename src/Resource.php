@@ -128,7 +128,6 @@ class Resource extends Controller {
                 $this->rollback();
                 Throw new Exception('Failed to delete', $this->modelAlias.'/delete-failed', 500);
             }
-            $object = $this->{$this->modelAlias}->row([[$this->{$this->modelAlias}->getPrimary(), $id]]);
             $response = response('', 204);
             $this->afterDelete($object, $response);
         } catch(Exception $e) {
