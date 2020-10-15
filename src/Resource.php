@@ -72,7 +72,7 @@ class Resource extends Controller {
             $response = jsonResponse([$this->{$this->modelAlias}->getPrimary() => $insert], 201);
             $this->afterInsert($object, $response);
         } catch(Exception $e) {
-            Throw new Exception($e->getMessage(), $this->modelAlias.'/insert-failed', 500);
+            Throw $e;
         }
         return $response;
     }
@@ -100,7 +100,7 @@ class Resource extends Controller {
             $response = response('', 204);
             $this->afterUpdate($object, $response);
         } catch(Exception $e) {
-            Throw new Exception($e->getMessage(), $this->modelAlias.'/update-failed', 500);
+            Throw $e;
         }
         
         return $response;
@@ -132,7 +132,7 @@ class Resource extends Controller {
             $response = response('', 204);
             $this->afterDelete($object, $response);
         } catch(Exception $e) {
-            Throw new Exception($e->getMessage(), $this->modelAlias.'/delete-failed', 500);
+            Throw $e;
         }
         return $response;
     }
