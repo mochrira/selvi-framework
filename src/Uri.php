@@ -8,9 +8,22 @@ class Uri {
     private $segments;
 
     public function __construct() {
-        $this->uri = $_SERVER['REQUEST_URI'];
-        // $path = dirname($_SERVER['SCRIPT_NAME']);
-        // $this->uri = str_replace($path, '', $uri);
+        $host = $_SERVER['HTTP_HOST'];
+
+        $this->uri = parse_url('http://dummy'.$_SERVER['REQUEST_URI']);
+		$this->uri = isset($this->uri['path']) ? $this->uri['path'] : '';
+
+		if (isset($_SERVER['SCRIPT_NAME'][0]))
+		{
+			if (strpos($this->uri, $_SERVER['SCRIPT_NAME']) === 0)
+			{
+				$this->uri = (string) substr($this->uri, strlen($_SERVER['SCRIPT_NAME']));
+			}
+			elseif (strpos($this->uri, dirname($_SERVER['SCRIPT_NAME'])) === 0)
+			{
+				$this->uri = (string) substr($this->uri, strlen(dirname($_SERVER['SCRIPT_NAME'])));
+			}
+        }
         
         $has_query = strpos($this->uri, '?');
         if($has_query !== false) {
