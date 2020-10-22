@@ -108,7 +108,7 @@ class Migration {
         if(!is_dir($path)) {
             mkdir($path, 0775, true);
         }
-        $backup_file = $path.'/'.$config['database'].'_'.time().'.sql';
+        $backup_file = $path.'/'.$config['database'].'_'.date('Ymd_His').'.sql';
         $this->print("Backing up database...\n");
 
         if(!in_array('--no-backup', $args)) {
