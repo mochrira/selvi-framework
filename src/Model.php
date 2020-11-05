@@ -69,6 +69,13 @@ class Model extends Controller {
         return $sort;
     }
 
+    function count($filter = [], $q = null) {
+        $query = $this->db->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
+            ->select('COUNT('.$this->table.'.'.$this->primary.') AS jumlah')->join($this->join)->groupBy($this->group);
+        $row = $query->get($this->table)->row();
+        return $row->jumlah;
+    }
+
     function result($filter = [], $q = null, $order = [], $limit = -1, $offset = 0) {
         $query = $this->db->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
             ->select($this->selectable)->join($this->join)->order($this->buildSort($order))->groupBy($this->group);

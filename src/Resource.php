@@ -9,6 +9,7 @@ class Resource extends Controller {
 
     protected $modelClass;
     protected $modelAlias;
+    protected $showCount = false;
 
     function __construct($autoloadModel = true) {
         if($autoloadModel == true) {
@@ -48,8 +49,16 @@ class Resource extends Controller {
 
         $limit = $this->input->get('limit') ?? -1;
         $offset = $this->input->get('offset') ?? 0;
+
+        $data = [];
         $result = $this->{$this->modelAlias}->result($this->buildWhere(), $this->input->get('search'), $order, $limit, $offset);
-        return jsonResponse($result, 200);
+        if($this->showCount == true) {
+            $data['data'] = $result;
+            $data['count'] = $this->{$this->modelAlias}->count($this->buildWhere(), $this->input->get('search'));
+        } else {
+            $data = $result;
+        }
+        return jsonResponse($data, 200);
     }
 
     function validateData($data, $object = null) {
