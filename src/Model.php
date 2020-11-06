@@ -73,7 +73,7 @@ class Model extends Controller {
         $query = $this->db->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
             ->select('COUNT('.$this->table.'.'.$this->primary.') AS jumlah')->join($this->join)->groupBy($this->group);
         $row = $query->get($this->table)->row();
-        return $row->jumlah;
+        return $row->jumlah ?? 0;
     }
 
     function result($filter = [], $q = null, $order = [], $limit = -1, $offset = 0) {
