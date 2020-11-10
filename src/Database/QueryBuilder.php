@@ -160,6 +160,11 @@ class QueryBuilder {
         self::$raw['select'] = "SELECT ".$str;
     }
 
+    private static function is_json($str) {
+        json_decode($str);
+        return (json_last_error() == JSON_ERROR_NONE);
+    }
+
     public static function insert($tbl, $data) {
         $i = 0;
         $col = '';
@@ -167,7 +172,7 @@ class QueryBuilder {
         foreach($data as $c => $v){
             if($i++ != 0) {$col .= ', '; $val .= ', ';};
             $col .= '`'.$c.'`';
-            $val .= (is_null($v)?'NULL':'"'.$v.'"');
+            $val .= (is_null($v)?'NULL':'\''.$v.'\'');
         }
         $sql = 'INSERT INTO '.$tbl.' ('.$col.') VALUES ('.$val.')';
         self::$raw = self::$rawDefault;
@@ -179,7 +184,7 @@ class QueryBuilder {
         $p = '';
         foreach($data as $c => $v){
             if($i++ != 0) {$p .= ', ';};
-            $p .= '`'.$c.'` = '.(is_null($v)?'NULL':'"'.$v.'"');
+            $p .= '`'.$c.'` = '.(is_null($v)?'NULL':'\''.$v.'\'');
         }
         $sql = implode(' ', array('UPDATE '.$tbl.' SET '.$p, self::getRaw('where')));
         self::$raw = self::$rawDefault;
