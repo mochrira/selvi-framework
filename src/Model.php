@@ -100,13 +100,13 @@ class Model extends Controller {
     }
 
     function row($where = []) {
-        $query = $this->db->select($this->selectable)->join($this->join)->groupBy($this->group)->get($this->table);
+        $query = $this->db->select($this->selectable)->join($this->join)->groupBy($this->group);
         if(is_callable($where)) {
             $where($query);
         } else {
             $query->where($this->buildWhere($where));
         }
-        return $query->row();
+        return $query->get($this->table)->row();
     }
 
     function insert($data) {
