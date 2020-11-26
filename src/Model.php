@@ -81,19 +81,27 @@ class Model extends Controller {
         return $row->jumlah ?? 0;
     }
 
-    function result($filter = [], $q = null, $order = [], $limit = -1, $offset = 0) {
-        $query = $this->db->where($this->buildWhere($filter))->orWhere($this->buildSearchable($q))
-            ->select($this->selectable)->join($this->join)->order($this->buildSort($order))->groupBy($this->group);
+    function result($where = [], $q = null, $order = [], $limit = -1, $offset = 0) {
+        $query = $this->db->select($this->selectable)->join($this->join)->order($this->buildSort($sort))->groupBy($this->group);
+        if(is_callable($where)) { 
+            $where($query);
+        } else { 
+            $query->where($this->buildWhere($where));
+        }
         if($limit > -1) {
             $query->limit($limit)->offset($offset);
         }
         return $query->get($this->table)->result();
     }
 
-    function row($filter = []) {
-        return $this->db->where($this->buildWhere($filter))
-            ->select($this->selectable)->join($this->join)->groupBy($this->group)->get($this->table)
-            ->row();
+    function row($where = []) {
+        $query = $this->db->select($this->selectable)->join($this->join)->groupBy($this->group)->get($this->table);
+        if(is_callable($where)) {
+            $where($query);
+        } else {
+            $query->where($this->buildWhere($where));
+        }
+        return $query->row();
     }
 
     function insert($data) {
@@ -106,12 +114,24 @@ class Model extends Controller {
         return false;
     }
 
-    function update($filter, $data) {
-        return $this->db->where($this->buildWhere($filter))->update($this->table, $data);
+    function update($where, $data) {
+        $query = $this->db->where([]);
+        if(is_callable($where)) {
+            $where($query);
+        } else {
+            $query->where($this->buildWhere($where));
+        }
+        return $query->update($this->table, $data);
     }
 
-    function delete($filter) {
-        return $this->db->join($this->join)->where($this->buildWhere($filter))->delete($this->table);
+    function delete($where) {
+        $query = $this->db->join($this->join);
+        if(is_callable($where)) {
+            $where($query);
+        } else {
+            $query->where($this->buildWhere($where));
+        }
+        return $query->delete($this->table);
     }
 
 }
