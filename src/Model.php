@@ -87,7 +87,7 @@ class Model extends Controller {
     }
 
     function result($where = [], $q = null, $order = [], $limit = -1, $offset = 0) {
-        $query = $this->db->select($this->selectable)->join($this->join)->order($this->buildSort($sort))->groupBy($this->group);
+        $query = $this->db->select($this->selectable)->join($this->join)->order($this->buildSort($order))->groupBy($this->group);
         if(is_callable($where)) { 
             $where($query);
         } else { 
