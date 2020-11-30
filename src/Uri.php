@@ -10,15 +10,15 @@ class Uri {
     public function __construct() {
         $host = $_SERVER['HTTP_HOST'];
 
-        $uri = parse_url('http://dummy'.$_SERVER['REQUEST_URI']);
-        $uri = isset($uri['path']) ? $uri['path'] : '';
+        $this->uri = parse_url('http://dummy'.$_SERVER['REQUEST_URI']);
+        $this->uri = isset($this->uri['path']) ? $this->uri['path'] : '';
 
         if (isset($_SERVER['SCRIPT_NAME'][0]))
         {
-            if (strpos($uri, $_SERVER['SCRIPT_NAME']) === 0) {
-                $uri = (string) substr($uri, strlen($_SERVER['SCRIPT_NAME']));
-            } elseif (strlen(dirname($_SERVER['SCRIPT_NAME'])) > 1 && strpos($uri, dirname($_SERVER['SCRIPT_NAME'])) === 0) {
-                $uri = (string) substr($uri, strlen(dirname($_SERVER['SCRIPT_NAME'])));
+            if (strpos($this->uri, $_SERVER['SCRIPT_NAME']) === 0) {
+                $this->uri = (string) substr($this->uri, strlen($_SERVER['SCRIPT_NAME']));
+            } elseif (strlen(dirname($_SERVER['SCRIPT_NAME'])) > 1 && strpos($this->uri, dirname($_SERVER['SCRIPT_NAME'])) === 0) {
+                $this->uri = (string) substr($this->uri, strlen(dirname($_SERVER['SCRIPT_NAME'])));
             }
         }
         
