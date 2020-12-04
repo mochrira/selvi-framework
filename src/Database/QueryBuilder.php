@@ -53,7 +53,7 @@ class QueryBuilder {
         }
     }
 
-    public static function where($param = '', $param2 = null) {
+    public static function where($param = '', $param2 = null) {        
         $str = '';
         if(is_array($param) && count($param) > 0){
             $i=0;
@@ -310,18 +310,6 @@ class QueryBuilder {
         $sql = 'ALTER TABLE '.$table.' '.implode(',', self::$raw['alter']);
         self::$raw = self::$rawDefault;
         return $sql;
-    }
-
-    public static function orderFromStr($str) {
-        $order = [];
-        if($str !== null) {
-            $a = explode(',', $str);
-            foreach($a as $b) {
-                $c = explode(':', $b);
-                $order[$c[0]] = $c[1];
-            }
-        }
-        self::order($order);
     }
 
     public static function order($param, $param2 = '') {

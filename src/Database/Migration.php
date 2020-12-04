@@ -103,19 +103,21 @@ class Migration {
             $step = count($files);
         }
 
-        $config = $this->db->getConfig();
-        $path = self::$backup_path.'/'.$config['database'];
-        if(!is_dir($path)) {
-            mkdir($path, 0775, true);
-        }
-        $backup_file = $path.'/'.$config['database'].'_'.date('Ymd_His').'.sql';
-        $this->print("Backing up database...\n");
+        if(self::$backup_path !== null) {
+            $config = $this->db->getConfig();
+            $path = self::$backup_path.'/'.$config['database'];
+            if(!is_dir($path)) {
+                mkdir($path, 0775, true);
+            }
+            $backup_file = $path.'/'.$config['database'].'_'.date('Ymd_His').'.sql';
+            $this->print("Backing up database...\n");
 
-        if(!in_array('--no-backup', $args)) {
-            exec('mysqldump --host='.$config['host'].' --user='.$config['username'].' --password='.$config['password'].' '.$config['database'].' --result-file='.$backup_file.' 2>&1', $output);
-            if(!$this->silent) { 
-                foreach($output as $o) {
-                    echo $o."\n";
+            if(!in_array('--no-backup', $args)) {
+                exec('mysqldump --host='.$config['host'].' --user='.$config['username'].' --password='.$config['password'].' '.$config['database'].' --result-file='.$backup_file.' 2>&1', $output);
+                if(!$this->silent) { 
+                    foreach($output as $o) {
+                        echo $o."\n";
+                    }
                 }
             }
         }
