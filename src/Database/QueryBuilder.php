@@ -172,7 +172,7 @@ class QueryBuilder {
         foreach($data as $c => $v){
             if($i++ != 0) {$col .= ', '; $val .= ', ';};
             $col .= '`'.$c.'`';
-            $val .= (is_null($v)?'NULL':'\''.$v.'\'');
+            $val .= (is_null($v)?'NULL':'\''.(is_bool($v) ? ($v == true ? 1 : 0) : $v).'\'');
         }
         $sql = 'INSERT INTO '.$tbl.' ('.$col.') VALUES ('.$val.')';
         self::$raw = self::$rawDefault;
@@ -184,7 +184,7 @@ class QueryBuilder {
         $p = '';
         foreach($data as $c => $v){
             if($i++ != 0) {$p .= ', ';};
-            $p .= '`'.$c.'` = '.(is_null($v)?'NULL':'\''.$v.'\'');
+            $p .= '`'.$c.'` = '.(is_null($v)?'NULL':'\''.(is_bool($v) ? ($v == true ? 1 : 0) : $v).'\'');
         }
         $sql = implode(' ', array('UPDATE '.$tbl.' SET '.$p, self::getRaw('where')));
         self::$raw = self::$rawDefault;
