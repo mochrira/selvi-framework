@@ -12,8 +12,8 @@ if(!function_exists('response')) {
 
 
 if(!function_exists('jsonResponse')) {
-    function jsonResponse($data = '', $code = 200) {
-        return new Response(json_encode($data, JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT), $code);
+    function jsonResponse($data = '', $code = 200, $options = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT) {
+        return new Response(json_encode($data, $options), $code);
     }
 }
 
