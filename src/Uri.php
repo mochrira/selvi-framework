@@ -15,7 +15,6 @@ class Uri {
         $sPos = strrpos($this->scriptName, basename($this->scriptName));
         $this->subFolder = substr($this->scriptName, 0, $sPos);
         $this->uri = preg_replace('/'.preg_quote($this->subFolder, '/').'/', '/', $_SERVER['REQUEST_URI'], 1);
-        var_dump($this->base_url());
         $has_query = strpos($this->uri, '?');
         if($has_query !== false) {
             $this->uri = substr($this->uri, 0, $has_query);
