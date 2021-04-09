@@ -9,11 +9,7 @@ class Controller {
         return Factory::load($name);
     }
     
-    protected function load($name, $params = [], $customName = '') {
-        if(is_string($params)) {
-            $customName = $params;
-            $params = [];
-        }
+    protected function load($name, $customName = '', $params = []) {
         Factory::load($name, $params, $customName);
     }
 
