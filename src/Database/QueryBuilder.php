@@ -31,20 +31,10 @@ class QueryBuilder {
         self::$raw['join'][] = 'LEFT JOIN '.$tbl.' ON '.$cond;
     }
     
-    public static function join($join)
+    public static function join($tbl, $cond = null)
     {
-        foreach($join as $k => $j) {
-            if($k == 'inner') {
-                foreach($j as $t => $v) {
-                    self::innerJoin($t, $v);
-                }
-            }
-            if($k == 'left') {
-                foreach($j as $t => $v) {
-                    self::leftJoin($t, $v);
-                }
-            }
-        }
+        if(!isset(self::$raw['join'])) { self::$raw['join'] = []; }
+        self::$raw['join'][] = 'JOIN '.$tbl.($cond != null ? ' ON '.$cond : '');
     }
 
     public static function offset($offset) {

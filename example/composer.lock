@@ -1,0 +1,54 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "9e01b8e8bea04fea6ef38454ff9f8858",
+    "packages": [
+        {
+            "name": "mochrira/selvi-framework",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "..",
+                "reference": "a95bf80797d220ab3ded3eef0ce81c435feaf1a7"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "helpers/QueryHelper.php",
+                    "helpers/ResponseHelper.php",
+                    "helpers/UriHelper.php"
+                ],
+                "psr-4": {
+                    "Selvi\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "mochrira",
+                    "email": "mochrira@gmail.com"
+                }
+            ],
+            "description": "Super fast PHP Framework for building API",
+            "transport-options": {
+                "relative": true
+            }
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "mochrira/selvi-framework": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
+}
