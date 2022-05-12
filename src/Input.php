@@ -4,7 +4,7 @@ namespace Selvi;
 
 class Input {
 	
-	function post($name, $filter = FILTER_DEFAULT) : mixed
+	function post($name, $filter = FILTER_DEFAULT)
 	{
 		if(isset($_POST[$name])){
 			if(is_array($_POST[$name])){
