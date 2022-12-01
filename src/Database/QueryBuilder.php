@@ -155,6 +155,12 @@ class QueryBuilder {
         return (json_last_error() == JSON_ERROR_NONE);
     }
 
+    private static function prepareValue($val) {
+        if(is_null($val)) return 'NULL';
+        if(is_bool($val)) return '\''.($val == true ? 1 : 0).'\'';
+        return ('\''.str_replace('\'', '\\\'', $val).'\'');
+    }
+
     public static function insert($tbl, $data) {
         $i = 0;
         $col = '';
@@ -162,7 +168,7 @@ class QueryBuilder {
         foreach($data as $c => $v){
             if($i++ != 0) {$col .= ', '; $val .= ', ';};
             $col .= '`'.$c.'`';
-            $val .= (is_null($v)?'NULL':'\''.(is_bool($v) ? ($v == true ? 1 : 0) : $v).'\'');
+            $val .= self::prepareValue($v);
         }
         $sql = 'INSERT INTO '.$tbl.' ('.$col.') VALUES ('.$val.')';
         self::$raw = self::$rawDefault;
@@ -174,7 +180,7 @@ class QueryBuilder {
         $p = '';
         foreach($data as $c => $v){
             if($i++ != 0) {$p .= ', ';};
-            $p .= '`'.$c.'` = '.(is_null($v)?'NULL':'\''.(is_bool($v) ? ($v == true ? 1 : 0) : $v).'\'');
+            $p .= '`'.$c.'` = '.self::prepareValue($v);
         }
         $sql = implode(' ', array('UPDATE '.$tbl.' SET '.$p, self::getRaw('where')));
         self::$raw = self::$rawDefault;
