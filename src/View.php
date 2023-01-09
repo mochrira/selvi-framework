@@ -14,13 +14,10 @@ class View {
     public function render($name, $data) {
         $found = false;
         $index = 0;
-        while(!$found) {
+        while(!$found && $index <= count(self::$templateDirs) - 1) {
             $file = self::$templateDirs[$index].'/'.$name.'.php';
-            if(!is_file($file)) {
-                $index++;
-            } else {
-                $found = true;
-            }
+            if(is_file($file)) $found = true;
+            $index++;
         }
 
         if(!$found) {
