@@ -42,7 +42,7 @@ class Route {
             die();
         }
 
-        self::$currentUri = Factory::load(Uri::class, [], 'uri')->string();
+        self::$currentUri = '/'.Factory::load(Uri::class, [], 'uri')->string();
         $routes = self::$routes[strtolower($input->method())];
 
         $callable = null;
