@@ -58,12 +58,11 @@ class Uri {
 	}
 
     public function base_url() {
+        if(self::$baseUrl) return self::$baseUrl;
         return sprintf(
-            "%s://%s%s%s",
+            "%s://%s",
             isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-            $_SERVER['SERVER_NAME'],
-            isset($_SERVER['SERVER_PORT']) ? ':' . $_SERVER['SERVER_PORT'] : '',
-            $this->subFolder
+            $_SERVER['HTTP_HOST']
         );
     }
 
