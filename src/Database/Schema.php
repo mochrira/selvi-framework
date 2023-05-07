@@ -5,6 +5,7 @@ use Selvi\Database\QueryResult;
 use Selvi\Exception;
 use Selvi\Database\Migration;
 use Selvi\Factory;
+use Selvi\Cli;
 
 use mysqli;
 
@@ -72,6 +73,7 @@ class Schema {
     }
 
     public function addMigration($path) {
+        Cli::register('migrate', Migration::class);
         if(!in_array($path, $this->migration_paths)) {
             $this->migration_paths[] = $path;
         }

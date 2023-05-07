@@ -2,6 +2,7 @@
 
 namespace Selvi;
 use Selvi\Exception;
+use Selvi\Response;
 
 class View {
 

@@ -28,7 +28,8 @@ class Uri {
         if(self::$baseUrl) $baseUrl = self::$baseUrl;
 
         $parsedUrl = parse_url($baseUrl);
-        $basePath = $this->cleanUri($parsedUrl['path']);
+        $basePath = '';
+        if(isset($parsedUrl['path'])) $basePath = $this->cleanUri($parsedUrl['path']);
 
         $this->uri = $this->cleanUri(preg_replace('/'.preg_quote($basePath, '/').'/', '', $this->uri, 1));
 

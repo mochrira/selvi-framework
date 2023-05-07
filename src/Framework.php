@@ -1,48 +1,42 @@
 <?php 
 
 namespace Selvi;
-use Selvi\Route;
-use Selvi\Exception;
-use Selvi\Cli;
 use Selvi\Database\Migration;
-use Selvi\View;
+use Selvi\Middleware;
 
 class Framework {
 
-    public static function run() {
-        Cli::register('migrate', Migration::class);
-        Cli::listen();
+    private static function executeRoute() {
+        $route = Route::compileCallable();
+        $action = function () use ($route) {
+            return call_user_func($route['callable']);
+        };
 
-        if(!isset(Route::$routes['get']['/'])) {
-            View::setup(__DIR__.'/../views');
-            Route::get('/', function() {
-                return view('default');
-            });
+        $middlewares = $route['middlewares'];
+        foreach($middlewares as $middleware) {
+            $callable = Middleware::compileCallable($middleware);
+            $action = function () use ($action, $callable) {
+                return call_user_func($callable, $action);
+            };
         }
+        return $action();
+    }
 
+    private static function executeCli() {
+        return Cli::listen();
+    }
+
+    public static function run() {
         try {
-            $callable = Route::getCallable();
-            if(is_array($callable)) {
-                $controller = new $callable[0];
-                $response = $controller->{$callable[1]}();
-            } else {
-                if(is_callable($callable)) {
-                    $response = $callable();
-                }
-            }
+            if(php_sapi_name() == 'cli') self::executeCli()->send();
+            self::executeRoute()->send();
         } catch(Exception $e) {
-            $konten = [
-                'code' => $e->getErrorCode(),
+            $data = [
+                'code' => $e->getErrorCode(), 
                 'msg' => $e->getMessage()
             ];
-            if($e->getAdditionalData() !== null) {
-                $konten['data'] = $e->getAdditionalData();
-            }
-            $response = jsonResponse($konten, $e->getCode());
-        }
-
-        if(isset($response)) {
-            $response->send();
+            if($e->getAdditionalData() !== null) $data['data'] = $e->getAdditionalData();
+            (new Response(json_encode($data), $e->getCode()))->send();
         }
     }
 

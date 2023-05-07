@@ -1,6 +1,7 @@
 <?php 
 
 use Selvi\Response;
+use Selvi\JsonResponse;
 use Selvi\View;
 use Selvi\Factory;
 
@@ -10,10 +11,9 @@ if(!function_exists('response')) {
     }
 }
 
-
 if(!function_exists('jsonResponse')) {
     function jsonResponse($data = '', $code = 200, $options = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT) {
-        return new Response(json_encode($data, $options), $code);
+        return new JsonResponse($data, $code, $options);
     }
 }
 

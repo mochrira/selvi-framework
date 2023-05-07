@@ -1,7 +1,6 @@
 <?php
 
 namespace Selvi;
-use Selvi\Controller;
-use Selvi\Database\Manager as Database;
+use Selvi\Base;
 
-class Model extends Controller { }
+class Model extends Base { }

@@ -15,22 +15,14 @@ class Cli {
     }
 
     public static function listen() {
-        if(php_sapi_name() == 'cli') {
-            try {
-                global $argv;
-                $name = $argv[1];
-                $args = array_slice($argv, 2, count($argv));
-                $response = self::$commands[$name]->run(...$args);
-            } catch(Exception $e) {
-                $response = jsonResponse([
-                    'code' => $e->getErrorCode(),
-                    'msg' => $e->getMessage()
-                ], $e->getCode());
-            }
-            if(isset($response)) {
-                $response->send();
-            }
-            die();
+        try {
+            global $argv;
+            $name = $argv[1];
+            $args = array_slice($argv, 2, count($argv));
+            $response = self::$commands[$name]->run(...$args);
+            return $response;
+        } catch(Exception $e) {
+            throw $e;
         }
     }
 
