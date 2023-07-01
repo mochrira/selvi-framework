@@ -16,7 +16,7 @@ class Manager {
     }
 
     public static function get($name = 'default') {
-        return self::$connections[$name] ?: NULL;
+        return isset(self::$connections[$name]) ? self::$connections[$name] : NULL;
     }
 
 }

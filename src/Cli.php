@@ -22,7 +22,7 @@ class Cli {
             $response = self::$commands[$name]->run(...$args);
             return $response;
         } catch(Exception $e) {
-            throw $e;
+            return response($e->getMessage());
         }
     }
 

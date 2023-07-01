@@ -248,6 +248,21 @@ class QueryBuilder {
         return $sql;
     }
 
+    public static function createLike($table, $new_table) {
+        $sql = 'CREATE TABLE '.$new_table.' LIKE '.$table;
+        return $sql;
+    }
+
+    public static function copyData($table, $new_table) {
+        $sql = 'INSERT INTO '.$new_table.' SELECT * FROM '.$table;
+        return $sql;
+    }
+
+    public static function truncate($table) {
+        $sql = 'TRUNCATE '.$table;
+        return $sql;
+    }
+
     public static function drop($table) {
         $sql = 'DROP TABLE IF EXISTS '.$table;
         return $sql;

@@ -54,7 +54,7 @@ class Schema {
         if(is_bool($query)) {
             if($query === false) {
                 $data = null;
-                if($this->config['debug'] == true) {
+                if(isset($this->config['debug']) && ($this->config['debug'] == true)) {
                     $data['query'] = $this->lastquery;
                 }
                 throw new Exception($this->error(), 'db/query-error', 500, $data);
