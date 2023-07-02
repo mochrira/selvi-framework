@@ -1,0 +1,18 @@
+version: '3.0'
+name: selvi_framework
+services:
+  backend: 
+    container_name: selvi_framework_container
+    image: mochrira/php:7.4.33-nginx
+    volumes:
+      - ./:/home/php/www
+      - ../src:/home/php/src
+    ports:
+      - 8091:80
+    networks:
+      - database
+
+networks:
+  database: 
+    name: database
+    external: true

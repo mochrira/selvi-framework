@@ -14,7 +14,6 @@ class Schema {
     private $db;
     private $lastquery;
     private $config;
-    private $migration_paths = [];
 
     function __construct($config) {
         $this->config = $config;
@@ -70,17 +69,6 @@ class Schema {
 
     public function error() {
         return $this->db->error;
-    }
-
-    public function addMigration($path) {
-        Cli::register('migrate', Migration::class);
-        if(!in_array($path, $this->migration_paths)) {
-            $this->migration_paths[] = $path;
-        }
-    }
-
-    public function getMigrationPaths() {
-        return $this->migration_paths;
     }
 
 }

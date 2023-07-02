@@ -41,7 +41,7 @@ class Route {
 
     public static function compileCallable() {
         if(!isset(Route::$routes['get']['/'])) {
-            View::setup(__DIR__.'/../views');
+            View::setup(__DIR__.'/Views');
             Route::get('/', fn() => view('default'));
         }
         
