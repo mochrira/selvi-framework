@@ -19,24 +19,16 @@ class Framework {
                 return call_user_func($callable, $action);
             };
         }
+        
         return $action();
-    }
-
-    private static function executeCli() {
-        return Cli::listen();
     }
 
     public static function run() {
         try {
-            if(php_sapi_name() == 'cli') self::executeCli()->send();
+            if(php_sapi_name() == 'cli') Cli::listen()->send();
             self::executeRoute()->send();
         } catch(Exception $e) {
-            $data = [
-                'code' => $e->getErrorCode(), 
-                'msg' => $e->getMessage()
-            ];
-            if($e->getAdditionalData() !== null) $data['data'] = $e->getAdditionalData();
-            (new Response(json_encode($data), $e->getCode()))->send();
+            $e->send();
         }
     }
 

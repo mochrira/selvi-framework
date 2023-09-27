@@ -17,7 +17,7 @@ class Response {
     }
 
     public function getContent() {
-        return $content;
+        return $this->content ?? null;
     }
 
     public function setCode($code) {
@@ -25,12 +25,13 @@ class Response {
     }
 
     public function getCode() {
-        return $this->code;
+        return $this->code ?? null;
     }
 
     public function send() {
-        http_response_code($this->code);
-        echo $this->content;
+        http_response_code($this->code ?? 200);
+        $content = $this->getContent();
+        if($content != null) echo $content;
         if(php_sapi_name() == 'cli') echo "\n";
         die();
     }

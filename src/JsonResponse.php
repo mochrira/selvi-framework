@@ -4,8 +4,8 @@ namespace Selvi;
 
 class JsonResponse extends Response {
 
-    protected $data;
-    protected $options;
+    protected $data = null;
+    protected $options = null;
 
     public function __construct($data, $code = 200, $options = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT) {
         parent::__construct($data, $code);
@@ -30,7 +30,7 @@ class JsonResponse extends Response {
     }
 
     public function send() {
-        $this->setContent(json_encode($this->data, $this->options));
+        if($this->data != null) $this->setContent(json_encode($this->data, $this->options));
         parent::send();
     }
 

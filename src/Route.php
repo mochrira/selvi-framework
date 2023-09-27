@@ -56,7 +56,7 @@ class Route {
 
         $route = $routes[self::$currentUri] ?? null;
         if($route == null) $route = self::matchPattern($routes);
-        if($route == null) throw new Exception('Undefined route. URI: '.self::$currentUri, 'route/not-found');
+        if($route == null) throw new Exception(null, null, 404);
 
         $callable = $route['callback'];
         if(is_string($callable) && strpos($callable, '@')) {
