@@ -28,7 +28,7 @@ class Exception extends PHPException {
         $errorData = $this->getAdditionalData();
 
         $content = [];
-        if($errorMessage != null) $content['message'] = $errorMessage;
+        if($errorMessage != null) $content['msg'] = $errorMessage;
         if($errorCode != null) $content['code'] = $errorCode;
         if($errorData != null) $content['data'] = $errorData;
 
