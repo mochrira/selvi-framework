@@ -1,18 +1,18 @@
-<?php
+<?php 
 
 namespace Selvi;
 
-class Factory{
-    
+class Factory {
+
     private static $objects = [];
-    
-    public static function load($name, $params = [], $customName = ''){
-        $realName = $name;
-        if(is_string($params)) $customName = $params;
-        if(strlen($customName) > 0) $realName = $customName;
-        if(!isset(self::$objects[$realName])) 
-            self::$objects[$realName]=new $name(...(is_array($params) ? $params : []));
-        return self::$objects[$realName];
+
+    static function load($className, $alias) {
+        if(!isset(self::$objects[$alias])) self::$objects[$alias] = new $className();
+        return self::$objects[$alias];
     }
-    
+
+    static function get($name) {
+        return self::$objects[$name] ?? null;
+    }
+
 }

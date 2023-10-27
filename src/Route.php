@@ -1,30 +1,40 @@
-<?php
+<?php 
 
 namespace Selvi;
-use Selvi\Uri;
-use Selvi\Input;
-use Selvi\Factory;
 
 class Route {
 
-    public static $routes = [];
-    public static $currentUri = '';
-    public static $middlewares = [];
+    private static $routes = [
+        'GET' => [],
+        'POST' => [],
+        'PATCH' => [],
+        'DELETE' => []
+    ];
 
-    public static function middleware($middlewares, callable $callback) {
-        self::$middlewares = $middlewares;
-        $callback();
-        self::$middlewares = [];
+    static function get($uri, $callable) {
+        self::$routes['GET'][$uri] = $callable;
     }
 
-    public static function __callStatic($name, $args) {
-        self::$routes[$name][$args[0]] = [
-            'callback' => $args[1],
-            'middlewares' => [$args[2]] ?? self::$middlewares ?? []
-        ];
+    static function post($uri, $callable) {
+        self::$routes['POST'][$uri] = $callable;
     }
 
-    private static function matchPattern($routes) {
+    static function patch($uri, $callable) {
+        self::$routes['PATCH'][$uri] = $callable;
+    }
+
+    static function delete($uri, $callable) {
+        self::$routes['DELETE'][$uri] = $callable;
+    }
+
+    static function bind($uri, $callable) {
+        self::get($uri, $callable);
+        self::post($uri, $callable);
+        self::patch($uri, $callable);
+        self::delete($uri, $callable);
+    }
+
+    private static function matchPattern($routes, $uri_string) {
         foreach ($routes as $uri => $props) {
             $uri = str_replace(':any', '.+', $uri);
             $uri = str_replace(':num', '[0-9]+', $uri);
@@ -32,43 +42,16 @@ class Route {
             $uri = str_replace(':alpha', '[A-Za-z]+', $uri);
             $uri = str_replace(':alnum', '[A-Za-z0-9]+', $uri);
             $uri = str_replace(':hex', '[A-Fa-f0-9]+', $uri);
-            if (preg_match('#^' . $uri . '$#', self::$currentUri)) {
+            if (preg_match('#^' . $uri . '$#', $uri_string)) {
                 return $props;
+                break;
             }
         }
         return null;
     }
 
-    public static function compileCallable() {
-        if(!isset(Route::$routes['get']['/'])) {
-            View::setup(__DIR__.'/Views');
-            Route::get('/', fn() => view('default'));
-        }
-        
-        $input = Factory::load(Input::class, [], 'input');
-        if($input->method() == 'OPTIONS') {
-            http_response_code(200);
-            die();
-        }
-
-        self::$currentUri = '/'.Factory::load(Uri::class, [], 'uri')->string();
-        $routes = self::$routes[strtolower($input->method())];
-
-        $route = $routes[self::$currentUri] ?? null;
-        if($route == null) $route = self::matchPattern($routes);
-        if($route == null) throw new Exception(null, null, 404);
-
-        $callable = $route['callback'];
-        if(is_string($callable) && strpos($callable, '@')) {
-            $callable = explode('@', $callable);
-            $callable[0] = class_exists($callable[0]) ? $callable[0] : '\\App\\Controllers\\'.$callable[0];
-            $callable[0] = new $callable[0];
-            $route['callable'] = $callable;
-            return $route;
-        }
-
-        $route['callable'] = $callable;
-        return $route;
+    static function callable($method, $uri) {
+        return self::matchPattern(self::$routes[$method], $uri);
     }
 
 }

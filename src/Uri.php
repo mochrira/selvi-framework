@@ -7,64 +7,67 @@ class Uri {
     private static $baseUrl;
 
     public static function setBaseUrl($baseUrl) {
+        if(substr($baseUrl, -1) == '/') {
+            $baseUrl = substr($baseUrl, 0, strlen($baseUrl) - 1);
+        }
         self::$baseUrl = $baseUrl;
     }
 
-    private $uri;
+    function baseUrl() {
+        return self::$baseUrl.'/';
+    }
+
+    private $currentUrl;
     private $segments;
 
-    private $subFolder;
-    private $scriptName;
+    function __construct() {
+        if(!self::$baseUrl) self::$baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://').
+            $_SERVER['HTTP_HOST'];
 
-    public function __construct() {
-        $this->scriptName = $_SERVER['SCRIPT_NAME'];
-        $sPos = strrpos($this->scriptName, basename($this->scriptName));
-        $this->subFolder = substr($this->scriptName, 0, $sPos);
+        echo self::$baseUrl;
+        die();
+        
+        $parts = explode('?', $_SERVER['REQUEST_URI']);
+        $requestUri = $parts[0];
 
-        $uri = $this->cleanUri($_SERVER['REQUEST_URI']);
-        $this->uri = preg_replace('/'.preg_quote($this->subFolder, '/').'/', '/', $uri, 1);
-
-        $baseUrl = $this->base_url();
-        if(self::$baseUrl) $baseUrl = self::$baseUrl;
-
-        $parsedUrl = parse_url($baseUrl);
-        $basePath = '';
-        if(isset($parsedUrl['path'])) $basePath = $this->cleanUri($parsedUrl['path']);
-
-        $this->uri = $this->cleanUri(preg_replace('/'.preg_quote($basePath, '/').'/', '', $this->uri, 1));
-
-        $has_query = strpos($this->uri, '?');
-        if($has_query !== false) {
-            $this->uri = substr($this->uri, 0, $has_query);
-        }
-        $this->segments = explode('/', $this->uri);
+        $this->currentUrl = self::$baseUrl.$requestUri;
+        $uri = preg_replace('/'.preg_quote(self::$baseUrl, '/').'/', '', $this->currentUrl);
+        var_dump($uri);
+        die();
+        $this->segments = $this->parseUri($uri);
     }
 
-    private function cleanUri($uri) {
-        return implode(array_reduce(explode('/', $uri), function ($carry, $item) {
-            if(strlen($item) > 0) {
-                $carry[] = $item;
-            }
+    private function parseUri($uri) {
+        $segments = explode('/', $uri);
+        return array_reduce($segments, function ($carry, $item) {
+            if(strlen($item) > 0) $carry[] = $item;
             return $carry;
-        }, []), '/');
+        }, []);
     }
 
-    public function string() {
-        return $this->uri;
+    private function validateUri($uri) {
+        $segments = $this->parseUri($uri);
+        return '/'.implode('/', $segments);
     }
 
-    public function segment($index)
-	{
-		return isset($this->segments[$index - 1]) ? $this->segments[$index - 1] : null;
-	}
+    function currentUrl() {
+        return $this->currentUrl;
+    }
 
-    public function base_url() {
-        if(self::$baseUrl) return self::$baseUrl;
-        return sprintf(
-            "%s://%s",
-            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
-            $_SERVER['HTTP_HOST']
-        );
+    function siteUrl($uri) {
+        return self::$baseUrl.$this->validateUri($uri);
+    }
+
+    function string() {
+        return '/'.implode('/', $this->segments);
+    }
+
+    function segments() {
+        return $this->segments;
+    }
+
+    function segment($index) {
+        return $this->segments[$index - 1] ?? null;
     }
 
 }

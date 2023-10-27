@@ -1,35 +1,27 @@
 <?php 
 
 namespace Selvi;
-use Selvi\Database\Migration;
-use Selvi\Middleware;
+
+use Selvi\Factory;
+use Selvi\Uri;
+use Selvi\Request;
+use Selvi\Route;
 
 class Framework {
 
-    private static function executeRoute() {
-        $route = Route::compileCallable();
-        $action = function () use ($route) {
-            return call_user_func($route['callable']);
-        };
+    static function run() {
+        $uri = Factory::load(Uri::class, 'uri');
+        $uriString = $uri->string();
 
-        $middlewares = $route['middlewares'];
-        foreach($middlewares as $middleware) {
-            $callable = Middleware::compileCallable($middleware);
-            $action = function () use ($action, $callable) {
-                return call_user_func($callable, $action);
-            };
-        }
+        $request = Factory::load(Request::class, 'request');
+        $method = $request->method();
+
+        $callable = Route::callable($method, $uriString);
+        $callable_array = explode('@', $callable);
         
-        return $action();
-    }
-
-    public static function run() {
-        try {
-            if(php_sapi_name() == 'cli') Cli::listen()->send();
-            self::executeRoute()->send();
-        } catch(Exception $e) {
-            $e->send();
-        }
+        $controller = new $callable_array[0]();
+        $response = $controller->{$callable_array[1]}();
+        $response->send();
     }
 
 }

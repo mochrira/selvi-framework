@@ -1,36 +1,52 @@
 <?php 
 
 namespace Selvi;
-use Selvi\Exception;
+
+use Selvi\Base;
 use Selvi\Response;
 
-class View {
+class View extends Base {
 
-    public static $templateDirs = [];
+    static $paths = [];
 
-    public static function setup($templateDir) {
-        self::$templateDirs[] = $templateDir;
+    static function addPath($path) {
+        self::$paths[] = $path;
     }
 
-    public function render($name, $data) {
-        $found = false;
-        $index = 0;
-        while(!$found && $index <= count(self::$templateDirs) - 1) {
-            $file = self::$templateDirs[$index].'/'.$name.'.php';
-            if(is_file($file)) $found = true;
-            $index++;
+    private static function getAbsoluteFilePath($file) {
+        $i = 0;
+        while($i <= count(self::$paths) - 1) {
+            $path = self::$paths[$i].'/'.$file;
+            if(is_file($path)) return $path;
+            $i++;
         }
+        return null;
+    }
 
-        if(!$found) {
-            Throw new Exception('View `'.$name.'` not found', 'view/not-found');
-        }
+    private static $vars = [];
+    private $file;
 
+    function __construct($file) {
+        $this->file = self::getAbsoluteFilePath($file);
+    }
+
+    function setVar($name, $value) {
+        self::$vars[$name] = $value;
+        return $this;
+    }
+
+    function include() {
+        extract(self::$vars);
+        include($this->file);
+    }
+
+    function render($code = 200) {
         ob_start();
-        extract($data);
-        include($file);
+        extract(self::$vars);
+        include($this->file);
         $content = ob_get_contents();
         ob_end_clean();
-        return $content;
+        return new Response($content, $code);
     }
 
 }

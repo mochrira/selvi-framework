@@ -1,16 +1,17 @@
 <?php 
 
 namespace Selvi;
+
 use Selvi\Factory;
 
 class Base {
 
     function __get($name) {
-        return Factory::load($name);
+        return Factory::get($name);
     }
-    
-    protected function load($name, $customName = '', $params = []) {
-        Factory::load($name, $params, $customName);
+
+    function load($className, $alias) {
+        return Factory::load($className, $alias);
     }
 
 }
