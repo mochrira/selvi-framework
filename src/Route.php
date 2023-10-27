@@ -20,7 +20,7 @@ class Route {
     public static function __callStatic($name, $args) {
         self::$routes[$name][$args[0]] = [
             'callback' => $args[1],
-            'middlewares' => [$args[2]] ?? self::$middlewares ?? []
+            'middlewares' => $args[2] ?? self::$middlewares
         ];
     }
 

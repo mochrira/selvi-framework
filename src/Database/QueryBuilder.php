@@ -162,29 +162,52 @@ class QueryBuilder {
     }
 
     public static function insert($tbl, $data) {
-        $i = 0;
-        $col = '';
-        $val = '';
-        foreach($data as $c => $v){
-            if($i++ != 0) {$col .= ', '; $val .= ', ';};
-            $col .= '`'.$c.'`';
-            $val .= self::prepareValue($v);
-        }
-        $sql = 'INSERT INTO '.$tbl.' ('.$col.') VALUES ('.$val.')';
+        $cols = array_keys($data);
+        $colStr = implode(", ", $cols);
+
+        $values = array_values($data);
+        $valStr = implode(', ', array_map(function ($item) {
+            return '?';
+        }, $values));
+
+        $types = $values;
+        $typeStr = implode("", array_map(function ($item) {
+            if(is_numeric($item)) {
+                if(is_int($item)) return 'i';
+                return 'd';
+            }
+            if(is_string($item)) return 's';
+        }, $types));
+
         self::$raw = self::$rawDefault;
-        return $sql;
+        return [
+            'sql' => 'INSERT INTO '.$tbl.' ('.$colStr.') VALUES ('.$valStr.')',
+            'types' => $typeStr,
+            'args' => $values
+        ];
     }
 
     public static function update($tbl, $data) {
-        $i = 0;
-        $p = '';
-        foreach($data as $c => $v){
-            if($i++ != 0) {$p .= ', ';};
-            $p .= '`'.$c.'` = '.self::prepareValue($v);
-        }
-        $sql = implode(' ', array('UPDATE '.$tbl.' SET '.$p, self::getRaw('where')));
+        $setStr = implode(', ', array_map(function ($key) {
+            return $key.'=?';
+        }, array_keys($data)));
+
+        $typeStr = implode("", array_map(function ($item) {
+            if(is_numeric($item)) {
+                if(is_int($item)) return 'i';
+                return 'd';
+            }
+            if(is_string($item)) return 's';
+        }, $data));
+
+        $result = [
+            'sql' => 'UPDATE '.$tbl.' SET '.$setStr.' '.self::getRaw('where'),
+            'types' => $typeStr,
+            'args' => array_values($data)
+        ];
+
         self::$raw = self::$rawDefault;
-        return $sql;
+        return $result;
     }
 
     public static function delete($tbl) {

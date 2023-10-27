@@ -31,6 +31,9 @@ class Schema {
         if(empty($result)) {
             return $this;
         }
+        if(is_array($result)) {
+            return $this->query_prepared($result['sql'], $result['types'], $result['args']);
+        }
         return $this->query($result);
     }
 
@@ -50,6 +53,23 @@ class Schema {
     public function query($sql) {
         $this->lastquery = $sql;
         $query = $this->db->query($sql);
+        if(is_bool($query)) {
+            if($query === false) {
+                $data = null;
+                if(isset($this->config['debug']) && ($this->config['debug'] == true)) {
+                    $data['query'] = $this->lastquery;
+                }
+                throw new Exception($this->error(), 'db/query-error', 500, $data);
+            }
+            return $query;
+        }
+        return new QueryResult($query);
+    }
+
+    public function query_prepared($sql, $types, $args) {
+        $prepared = $this->db->prepare($sql);
+        $prepared->bind_param($types, ...$args);
+        $query = $prepared->execute();
         if(is_bool($query)) {
             if($query === false) {
                 $data = null;
