@@ -21,7 +21,8 @@ class HomeController extends Controller {
         $this->db->update('kontak', [
             'nmKontak' => "Yayasan Al Qur'an",
             'noHp' => 'App\Contact\Quran',
-            'penjualan' => 15000.89
+            'penjualan' => 15000.89,
+            'tunai' => true
         ]);
         return response('Halo');
     }

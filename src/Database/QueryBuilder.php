@@ -157,27 +157,29 @@ class QueryBuilder {
 
     private static function prepareValue($val) {
         if(is_null($val)) return 'NULL';
-        if(is_bool($val)) return '\''.($val == true ? 1 : 0).'\'';
-        return ('\''.str_replace('\'', '\\\'', $val).'\'');
+        if(is_bool($val)) return ($val == true ? 1 : 0);
+        return $val;
     }
 
     public static function insert($tbl, $data) {
         $cols = array_keys($data);
         $colStr = implode(", ", $cols);
 
-        $values = array_values($data);
+        $values = array_map(function ($v) {
+            return self::prepareValue($v);
+        }, array_values($data));
+
         $valStr = implode(', ', array_map(function ($item) {
             return '?';
         }, $values));
 
-        $types = $values;
-        $typeStr = implode("", array_map(function ($item) {
-            if(is_numeric($item)) {
-                if(is_int($item)) return 'i';
+        $typeStr = implode("", array_map(function ($v) {
+            if(is_string($v)) return 's';
+            if(is_numeric($v)) {
+                if(is_int($v)) return 'i';
                 return 'd';
             }
-            if(is_string($item)) return 's';
-        }, $types));
+        }, $values));
 
         self::$raw = self::$rawDefault;
         return [
@@ -192,13 +194,17 @@ class QueryBuilder {
             return $key.'=?';
         }, array_keys($data)));
 
-        $typeStr = implode("", array_map(function ($item) {
-            if(is_numeric($item)) {
-                if(is_int($item)) return 'i';
+        $values = array_map(function ($v) {
+            return self::prepareValue($v);
+        }, array_values($data));
+
+        $typeStr = implode("", array_map(function ($v) {
+            if(is_string($v)) return 's';
+            if(is_numeric($v)) {
+                if(is_int($v)) return 'i';
                 return 'd';
             }
-            if(is_string($item)) return 's';
-        }, $data));
+        }, $values));
 
         $result = [
             'sql' => 'UPDATE '.$tbl.' SET '.$setStr.' '.self::getRaw('where'),
