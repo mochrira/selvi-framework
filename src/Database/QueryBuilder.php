@@ -156,8 +156,9 @@ class QueryBuilder {
     }
 
     private static function prepareValue($val) {
-        if(is_null($val)) return 'NULL';
-        if(is_bool($val)) return ($val == true ? 1 : 0);
+        if(is_bool($val)) {
+            $val = ($val == true ? 1 : 0);
+        }
         return $val;
     }
 
