@@ -51,9 +51,9 @@ class QueryBuilder {
                 if($i++ !=0){ $str .= ' AND '; }
                 if(is_array($p)){
                     if(count($p) == 2) {
-                        $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= "'.$p[1].'"');
+                        $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= '.self::prepareValue($p[1]));
                     } else if(count($p) == 3){
-                        $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'NULL' : '"'.$p[2].'"');
+                        $str .= $p[0].' '.$p[1].' '.self::prepareValue($p[2]);
                     }
                 }else if(is_string($p)){
                     $str .= $p;
@@ -63,7 +63,7 @@ class QueryBuilder {
 
         if(is_string($param) && strlen($param)>0){
             if(strlen($param2)>0){
-                $str .= $param.' '.($param2 == null ? 'IS NULL' : '= "'.$param2.'"');
+                $str .= $param.' '.($param2 == null ? 'IS NULL' : '= '.self::prepareValue($param2));
             }else{
                 $str .= $param;
             }
@@ -91,9 +91,9 @@ class QueryBuilder {
                 if(is_array($p)){
                     if(is_array($p)){
                         if(count($p) == 2) {
-                            $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= "'.$p[1].'"');
+                            $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= '.self::prepareValue($p[1]));
                         } else if(count($p) == 3){
-                            $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'NULL' : '"'.$p[2].'"');
+                            $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'NULL' : self::prepareValue($p[2]));
                         }
                     }else if(is_string($p)){
                         $str .= $p;
@@ -106,7 +106,7 @@ class QueryBuilder {
 
         if(is_string($param) && strlen($param)>0){
             if(strlen($param2)>0){
-                $str .= $param.'="'.$param2.'"';
+                $str .= $param.'='.self::prepareValue($param2);
             }else{
                 $str .= $param;
             }
@@ -156,9 +156,15 @@ class QueryBuilder {
     }
 
     private static function prepareValue($val) {
-        if(is_null($val)) return 'NULL';
-        if(is_bool($val)) return '\''.($val == true ? 1 : 0).'\'';
-        return ('\''.str_replace('\'', '\\\'', $val).'\'');
+        if(is_null($val)) $val = 'NULL';
+        if(is_bool($val)) $val = ($val == true ? '1' : '0');
+        if(is_string($val)) {
+            $val = str_replace("\\", "\\\\", $val); // replace backslash View\Update => View\\Update
+            $val = str_replace("'", "\\'", $val); // replace single quotes Qur'an => Qur\'an
+            $val = str_replace("\"", "\\\"", $val); // replace double quotes Qur"an => Qur\"an
+            $val = "\"".$val."\""; // add double quotes before and after "Qur\'an", "Qur\"an", "View\\Update"
+        }
+        return $val;
     }
 
     public static function insert($tbl, $data) {
