@@ -17,14 +17,32 @@ class HomeController extends Controller {
     }
 
     function index() {
-        $this->db->where([['kontak.idKontak', 1]]);
-        $this->db->update('kontak', [
+        $this->db->insert('kontak', [
             'nmKontak' => "Yayasan Al Qur'an",
             'noHp' => 'App\Contact\Quran',
             'penjualan' => 15000.89,
             'tunai' => true
         ]);
-        return response('Halo');
+        $idKontak = $this->db->getlastid();
+
+        $this->db->where([['kontak.idKontak', 1]]);
+        $this->db->update('kontak', [
+            'nmKontak' => "Yayasan Al Qur'annul Kariim",
+            'noHp' => 'App\Contact\Quran',
+            'penjualan' => 15000.89,
+            'tunai' => true
+        ]);
+
+        $this->db->where([['kontak.idKontak', $idKontak]]);
+        $this->db->delete('kontak');
+
+        $this->db->where([['kontak.idKontak', 1]]);
+        $query = $this->db->get('kontak');
+        var_dump($query->result());
+        die();
+
+        
+        return jsonResponse();
     }
     
 }

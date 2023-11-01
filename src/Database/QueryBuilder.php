@@ -8,9 +8,17 @@ class QueryBuilder {
     private static $rawDefault = ['select' => 'SELECT *'];
     private static $raw = [];
 
+    private static $argsDefault = [];
+    private static $args = [];
+
     private static function getRaw($name) {
         return (isset(self::$raw[$name])?self::$raw[$name]:
                 (isset(self::$rawDefault[$name])?self::$rawDefault[$name]:NULL));
+    }
+
+    private static function getArgs($name) {
+        return (isset(self::$args[$name]))?self::$args[$name]:
+                (isset(self::$argsDefault[$name])?self::$argsDefault[$name]:[]);
     }
 
     public static function limit($limit = null) {
@@ -45,15 +53,19 @@ class QueryBuilder {
 
     public static function where($param = '', $param2 = null) {        
         $str = '';
+        $args = [];
+
         if(is_array($param) && count($param) > 0){
             $i=0;
             foreach($param as $p){
                 if($i++ !=0){ $str .= ' AND '; }
                 if(is_array($p)){
                     if(count($p) == 2) {
-                        $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= "'.$p[1].'"');
+                        $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= ?');
+                        if($p[1] !== null) $args[] = $p[1];
                     } else if(count($p) == 3){
-                        $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'NULL' : '"'.$p[2].'"');
+                        $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'NULL' : '?');
+                        if($p[2] !== null) $args[] = $p[2];
                     }
                 }else if(is_string($p)){
                     $str .= $p;
@@ -63,7 +75,8 @@ class QueryBuilder {
 
         if(is_string($param) && strlen($param)>0){
             if(strlen($param2)>0){
-                $str .= $param.' '.($param2 == null ? 'IS NULL' : '= "'.$param2.'"');
+                $str .= $param.' '.($param2 == null ? 'IS NULL' : '= ?');
+                if($param2 != null) $args[] = $param2;
             }else{
                 $str .= $param;
             }
@@ -78,25 +91,26 @@ class QueryBuilder {
                 self::$raw['where'] .= ' AND ('.$str.')';
             }else{
                 self::$raw['where'] = 'WHERE ('.$str.')';
-            }	
+            }
+            self::$args['where'] = array_merge(self::getArgs('where'), $args);
         }
     }
 
     public static function orWhere($param = '', $param2 = null) {
         $str = '';
+        $args = [];
+
         if(is_array($param) && count($param) > 0){
             $i=0;
             foreach($param as $p){
                 if($i++ !=0){ $str .= ' OR '; }
                 if(is_array($p)){
-                    if(is_array($p)){
-                        if(count($p) == 2) {
-                            $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= "'.$p[1].'"');
-                        } else if(count($p) == 3){
-                            $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'NULL' : '"'.$p[2].'"');
-                        }
-                    }else if(is_string($p)){
-                        $str .= $p;
+                    if(count($p) == 2) {
+                        $str .= $p[0].' '.($p[1] === null ? 'IS NULL' : '= ?');
+                        if($p[1] !== null) $args[] = $p[1];
+                    } else if(count($p) == 3){
+                        $str .= $p[0].' '.$p[1].' '.($p[2] === null ? 'NULL' : '?');
+                        if($p[2] !== null) $args[] = $p[2];
                     }
                 }else if(is_string($p)){
                     $str .= $p;
@@ -106,17 +120,24 @@ class QueryBuilder {
 
         if(is_string($param) && strlen($param)>0){
             if(strlen($param2)>0){
-                $str .= $param.'="'.$param2.'"';
+                $str .= $param.' '.($param2 == null ? 'IS NULL' : '= ?');
+                if($param2 != null) $args[] = $param2;
             }else{
                 $str .= $param;
             }
         }
+
+        if(is_string($param) && $param2 == null) {
+            $str = $param;
+        }
+
         if(strlen($str)>0){
             if(isset(self::$raw['where']) && strlen(self::$raw['where']) > 0){
                 self::$raw['where'] .= ' AND ('.$str.')';
             }else{
                 self::$raw['where'] = 'WHERE ('.$str.')';
-            }	
+            }
+            self::$args['where'] = array_merge(self::getArgs('where'), $args);
         }
     }
 
@@ -174,18 +195,10 @@ class QueryBuilder {
             return '?';
         }, $values));
 
-        $typeStr = implode("", array_map(function ($v) {
-            if(is_numeric($v)) {
-                if(is_int($v)) return 'i';
-                return 'd';
-            }
-            return 's';
-        }, $values));
-
         self::$raw = self::$rawDefault;
+        self::$args = self::$argsDefault;
         return [
             'sql' => 'INSERT INTO '.$tbl.' ('.$colStr.') VALUES ('.$valStr.')',
-            'types' => $typeStr,
             'args' => $values
         ];
     }
@@ -199,28 +212,37 @@ class QueryBuilder {
             return self::prepareValue($v);
         }, array_values($data));
 
-        $typeStr = implode("", array_map(function ($v) {
-            if(is_numeric($v)) {
-                if(is_int($v)) return 'i';
-                return 'd';
-            }
-            return 's';
-        }, $values));
+        $args = array_merge($values, self::getArgs('where'));
 
         $result = [
             'sql' => 'UPDATE '.$tbl.' SET '.$setStr.' '.self::getRaw('where'),
-            'types' => $typeStr,
-            'args' => array_values($data)
+            'args' => $args
         ];
 
         self::$raw = self::$rawDefault;
+        self::$args = self::$argsDefault;
         return $result;
     }
 
     public static function delete($tbl) {
-        $sql = implode(' ', array('DELETE '.$tbl.' FROM '.$tbl, self::getRaw('join') !== null ? implode(' ', self::getRaw('join')) : '',self::getRaw('where')));
+        $sql = implode(' ', array(
+            'DELETE '.$tbl.' FROM '.$tbl, 
+            self::getRaw('join') !== null ? implode(' ', self::getRaw('join')) : '',
+            self::getRaw('where')
+        ));
+
+        $args = array_merge(
+            self::getArgs('join'),
+            self::getArgs('where')
+        );
+
         self::$raw = self::$rawDefault;
-        return $sql;
+        self::$args = self::$argsDefault;
+
+        return [
+            'sql' => $sql,
+            'args' => $args
+        ];
     }
 
     public static function get($table = NULL) {
@@ -234,8 +256,24 @@ class QueryBuilder {
             self::getRaw('limit'),
             self::getRaw('offset')
         ));
+
+        $args = array_merge(
+            self::getArgs('select'),
+            self::getArgs('join'),
+            self::getArgs('where'),
+            self::getArgs('group'),
+            self::getArgs('order'),
+            self::getArgs('limit'),
+            self::getArgs('offset')
+        );
+
         self::$raw = self::$rawDefault;
-        return $sql;
+        self::$args = self::$argsDefault;
+
+        return [
+            'sql' => $sql,
+            'args' => $args
+        ];
     }
 
     public static function createDb($name) {
