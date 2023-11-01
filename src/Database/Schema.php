@@ -28,9 +28,13 @@ class Schema {
             Throw new Exception('Undefined function '.__CLASS__.'::'.$name, 'db/undefined-function');
         }
         $result = call_user_func(__NAMESPACE__.'\QueryBuilder::'.$name, ...$args);
-
-        if(empty($result)) return $this;
-        return $this->query($result['sql'], $result['args']);
+        if(empty($result)) {
+            return $this;
+        }
+        if(is_array($result)) {
+            return $this->query_prepared($result['sql'], $result['types'], $result['args']);
+        }
+        return $this->query($result);
     }
 
     public function getSql($tblName) {
@@ -46,31 +50,37 @@ class Schema {
         return $row->lastid;
     }
 
-    public function query($sql, $args) {
+    public function query($sql) {
         $this->lastquery = $sql;
-        $types = implode("", array_map(function ($v) {
-            if(is_numeric($v)) {
-                if(is_int($v)) return 'i';
-                return 'd';
+        $query = $this->db->query($sql);
+        if(is_bool($query)) {
+            if($query === false) {
+                $data = null;
+                if(isset($this->config['debug']) && ($this->config['debug'] == true)) {
+                    $data['query'] = $this->lastquery;
+                }
+                throw new Exception($this->error(), 'db/query-error', 500, $data);
             }
-            return 's';
-        }, $args));
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->bind_param($types, ...$args);
-        $exec_result = $stmt->execute();
-        
-        if($exec_result === false) {
-            $data = null;
-            if(isset($this->config['debug']) && ($this->config['debug'] == true)) {
-                $data['query'] = $this->lastquery;
-            }
-            throw new Exception($stmt->error, 'db/query-error', 500, $data);
+            return $query;
         }
+        return new QueryResult($query);
+    }
 
-        $queryResult = $stmt->get_result();
-        if($queryResult === false) return $exec_result;
-        return new QueryResult($queryResult);
+    public function query_prepared($sql, $types, $args) {
+        $prepared = $this->db->prepare($sql);
+        $prepared->bind_param($types, ...$args);
+        $query = $prepared->execute();
+        if(is_bool($query)) {
+            if($query === false) {
+                $data = null;
+                if(isset($this->config['debug']) && ($this->config['debug'] == true)) {
+                    $data['query'] = $this->lastquery;
+                }
+                throw new Exception($this->error(), 'db/query-error', 500, $data);
+            }
+            return $query;
+        }
+        return new QueryResult($query);
     }
 
     public function getlastquery() {
