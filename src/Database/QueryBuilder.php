@@ -175,11 +175,11 @@ class QueryBuilder {
         }, $values));
 
         $typeStr = implode("", array_map(function ($v) {
+            if(is_string($v)) return 's';
             if(is_numeric($v)) {
                 if(is_int($v)) return 'i';
                 return 'd';
             }
-            return 's';
         }, $values));
 
         self::$raw = self::$rawDefault;
@@ -200,11 +200,11 @@ class QueryBuilder {
         }, array_values($data));
 
         $typeStr = implode("", array_map(function ($v) {
+            if(is_string($v)) return 's';
             if(is_numeric($v)) {
                 if(is_int($v)) return 'i';
                 return 'd';
             }
-            return 's';
         }, $values));
 
         $result = [
