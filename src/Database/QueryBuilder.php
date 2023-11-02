@@ -156,13 +156,14 @@ class QueryBuilder {
     }
 
     private static function prepareValue($val) {
-        if(is_null($val)) $val = 'NULL';
-        if(is_bool($val)) $val = ($val == true ? '1' : '0');
+        if(is_null($val)) return 'NULL';
+        if(is_bool($val)) return ($val == true ? '1' : '0');
         if(is_string($val)) {
             $val = str_replace("\\", "\\\\", $val); // replace backslash View\Update => View\\Update
             $val = str_replace("'", "\\'", $val); // replace single quotes Qur'an => Qur\'an
             $val = str_replace("\"", "\\\"", $val); // replace double quotes Qur"an => Qur\"an
             $val = "\"".$val."\""; // add double quotes before and after "Qur\'an", "Qur\"an", "View\\Update"
+            return $val;
         }
         return $val;
     }
