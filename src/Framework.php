@@ -11,16 +11,16 @@ class Framework {
 
     static function run() {
         $uri = Factory::load(Uri::class, 'uri');
-        $uriString = $uri->string();
-
         $request = Factory::load(Request::class, 'request');
-        $method = $request->method();
 
-        $callable = Route::callable($method, $uriString);
-        $callable_array = explode('@', $callable);
+        $result = Route::translate($request->method(), $uri->string());
+        $methodRef = new \ReflectionFunction($result['callable']);
         
-        $controller = new $callable_array[0]();
-        $response = $controller->{$callable_array[1]}();
+        $parameters = array_map(function ($parameter) use ($result) {
+            return $result['params'][$parameter->name] ?? null;
+        }, $methodRef->getParameters());
+
+        $response = $result['callable'](...$parameters);
         $response->send();
     }
 

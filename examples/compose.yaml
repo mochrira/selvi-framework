@@ -9,3 +9,14 @@ services:
       - ../src:/var/www/html/src
     ports:
       - 8091:80
+    networks:
+      - environment
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.framework.rule=Host(`framework.local`)"
+      - "traefik.http.services.framework.loadbalancer.server.port=80"
+
+networks:
+  environment:
+    name: environment
+    external: true

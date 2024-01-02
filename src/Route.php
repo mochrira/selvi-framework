@@ -34,24 +34,16 @@ class Route {
         self::delete($uri, $callable);
     }
 
-    private static function matchPattern($routes, $uri_string) {
-        foreach ($routes as $uri => $props) {
-            $uri = str_replace(':any', '.+', $uri);
-            $uri = str_replace(':num', '[0-9]+', $uri);
-            $uri = str_replace(':nonum', '[^0-9]+', $uri);
-            $uri = str_replace(':alpha', '[A-Za-z]+', $uri);
-            $uri = str_replace(':alnum', '[A-Za-z0-9]+', $uri);
-            $uri = str_replace(':hex', '[A-Fa-f0-9]+', $uri);
-            if (preg_match('#^' . $uri . '$#', $uri_string)) {
-                return $props;
-                break;
+    static function translate($method, $current_uri) {
+        foreach (self::$routes[$method] as $route_uri => $callable) {
+            if (preg_match('#^' . preg_replace('/\{(.*?)\}/', '(.+)', $route_uri) . '$#', $current_uri, $values)) {
+                if(preg_match('#^' . preg_replace('/\{(.*?)\}/', '\{(.+)\}', $route_uri) . '$#', $route_uri, $keys)) {
+                    array_shift($keys); array_shift($values);
+                    return ['callable' => $callable, 'params' => array_combine($keys, $values)];
+                }
             }
         }
         return null;
-    }
-
-    static function callable($method, $uri) {
-        return self::matchPattern(self::$routes[$method], $uri);
     }
 
 }

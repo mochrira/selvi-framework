@@ -4,37 +4,27 @@ namespace Selvi;
 
 class Uri {
 
-    private static $baseUrl;
-
-    public static function setBaseUrl($baseUrl) {
-        if(substr($baseUrl, -1) == '/') {
-            $baseUrl = substr($baseUrl, 0, strlen($baseUrl) - 1);
-        }
-        self::$baseUrl = $baseUrl;
-    }
-
-    function baseUrl() {
-        return self::$baseUrl.'/';
-    }
-
+    private $baseUrl;
     private $currentUrl;
-    private $segments;
+
+    private $uriString;
+    private $uriSegments;
 
     function __construct() {
-        if(!self::$baseUrl) self::$baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://').
-            $_SERVER['HTTP_HOST'];
+        $baseUrl = sprintf("%s://%s",
+            isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+            $_SERVER['SERVER_NAME'] . ( $_SERVER['SERVER_PORT'] != '80' ? ':' . $_SERVER['SERVER_PORT'] : '' )
+        );
+        $this->currentUrl = $baseUrl . $_SERVER['REQUEST_URI'];
 
-        echo self::$baseUrl;
-        die();
-        
-        $parts = explode('?', $_SERVER['REQUEST_URI']);
-        $requestUri = $parts[0];
+        $subDir = preg_replace('/'.preg_quote($_SERVER['DOCUMENT_ROOT'], '/').'/', '', dirname($_SERVER['SCRIPT_FILENAME']), 1);
+        $this->baseUrl = $baseUrl . $subDir;
 
-        $this->currentUrl = self::$baseUrl.$requestUri;
-        $uri = preg_replace('/'.preg_quote(self::$baseUrl, '/').'/', '', $this->currentUrl);
-        var_dump($uri);
-        die();
-        $this->segments = $this->parseUri($uri);
+        $uriString = preg_replace('/'.preg_quote($subDir, '/').'/', '', $_SERVER['REQUEST_URI'], 1);
+        $parts = explode('?', $uriString);
+
+        $this->uriString = $this->validateUri($parts[0]);
+        $this->uriSegments = $this->parseUri($this->uriString);
     }
 
     private function parseUri($uri) {
@@ -59,15 +49,15 @@ class Uri {
     }
 
     function string() {
-        return '/'.implode('/', $this->segments);
+        return '/'.implode('/', $this->uriSegments);
     }
 
     function segments() {
-        return $this->segments;
+        return $this->uriSegments;
     }
 
     function segment($index) {
-        return $this->segments[$index - 1] ?? null;
+        return $this->uriSegments[$index - 1] ?? null;
     }
 
 }
