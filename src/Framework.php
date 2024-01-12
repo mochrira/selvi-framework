@@ -2,6 +2,7 @@
 
 namespace Selvi;
 
+use ReflectionNamedType;
 use Selvi\Factory;
 use Selvi\Uri;
 use Selvi\Request;
@@ -16,14 +17,16 @@ class Framework {
         $result = Route::translate($request->method(), $uri->string());
         $methodRef = new \ReflectionFunction($result['callable']);
         
-        $parameters = array_map(function ($parameter) use ($result) {
+        $parameters = array_map(function (\ReflectionParameter $parameter) use ($result) {
+            if(isset($result['params'][$parameter->name])) 
+                return $result['params'][$parameter->name];
+
+            if($parameter->isDefaultValueAvailable())
+                return $parameter->getDefaultValue();
+
+            /** @var \ReflectionNamedType $type */
             $type = $parameter->getType();
-            if($type->isBuiltIn()) {
-                echo $parameter->name." is built-in \n";
-            } else {
-                echo $parameter->name." is not built-in \n";
-            }
-            return $result['params'][$parameter->name] ?? null;
+            return Factory::load($type->getName());
         }, $methodRef->getParameters());
 
         $response = $result['callable'](...$parameters);
