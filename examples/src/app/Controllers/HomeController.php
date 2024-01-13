@@ -24,7 +24,18 @@ class HomeController extends Controller {
     }
 
     function withName($name) {
-        
+        return new Response(json_encode([
+            'name' => $name
+        ], JSON_PRETTY_PRINT));
+    }
+    function withFactory($name) {
+        return new Response(json_encode([
+            'name' => $name
+        ], JSON_PRETTY_PRINT));
+    }
+
+    function noName() {
+        return new Response('No Name');
     }
     
 }
