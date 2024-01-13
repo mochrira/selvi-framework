@@ -9,6 +9,7 @@ interface Schema {
     public function __construct(Array $config);
     public function connect(): bool;
     public function disconnect(): bool;
-    public function query(): QueryResult;
+    public function select_db(string $db): bool;
+    public function query(string $sql): QueryResult;
 
 }

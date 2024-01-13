@@ -28,7 +28,7 @@ class MySQLDriver implements Schema {
                 $this->config['socket'] ?? null
             );
         }
-        return $this->instance->connect();
+        return ($this->instance->connect_errno > 0) ? false : true;
     }
 
     public function disconnect(): bool
@@ -39,7 +39,11 @@ class MySQLDriver implements Schema {
         return false;
     }
 
-    public function query(): QueryResult
+    public function select_db(string $db): bool {
+        return $this->instance->select_db($db);
+    }
+
+    public function query(string $sql): QueryResult
     {
         return new QueryResult();
     }

@@ -53,6 +53,7 @@ Manager::add('main', [
 Route::get('/db', function () {
     $db = Manager::get('main');
     $db->connect();
+    
     return new Response('Halo');
 });
 
