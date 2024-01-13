@@ -11,6 +11,7 @@ services:
       - 8091:80
     networks:
       - environment
+      - database
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.framework.rule=Host(`framework.local`)"
@@ -19,4 +20,8 @@ services:
 networks:
   environment:
     name: environment
+    external: true
+
+  database:
+    name: database
     external: true

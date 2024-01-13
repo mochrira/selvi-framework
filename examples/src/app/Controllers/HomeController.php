@@ -22,20 +22,5 @@ class HomeController extends Controller {
             'segments' => $this->uri->segments()
         ], JSON_PRETTY_PRINT));
     }
-
-    function withName($name) {
-        return new Response(json_encode([
-            'name' => $name
-        ], JSON_PRETTY_PRINT));
-    }
-    function withFactory($name) {
-        return new Response(json_encode([
-            'name' => $name
-        ], JSON_PRETTY_PRINT));
-    }
-
-    function noName() {
-        return new Response('No Name');
-    }
     
 }

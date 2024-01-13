@@ -4,31 +4,11 @@ namespace Selvi\Database;
 
 use Selvi\Database\QueryResult;
 
-public class interface Schema {
+interface Schema {
 
-    public function connect(): void {
-
-    }
-
-    public function disconnect(): void {
-
-    }
-
+    public function __construct(Array $config);
+    public function connect(): bool;
+    public function disconnect(): bool;
     public function query(): QueryResult;
-    public function get() {
-
-    }
-
-    public function insert() {
-
-    }
-
-    public function update() {
-
-    }
-
-    public function delete() {
-
-    }
 
 }
