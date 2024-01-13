@@ -2,10 +2,9 @@
 
 namespace Selvi;
 
-use Selvi\Base;
 use Selvi\Response;
 
-class View extends Base {
+class View {
 
     static $paths = [];
 

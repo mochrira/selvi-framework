@@ -40,6 +40,10 @@ class Uri {
         return '/'.implode('/', $segments);
     }
 
+    function baseUrl() {
+        return $this->baseUrl;
+    }
+
     function currentUrl() {
         return $this->currentUrl;
     }
