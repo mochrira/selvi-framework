@@ -47,25 +47,17 @@ Manager::add('main', [
     'driver' => 'mysql',
     'host' => 'mariadb.database',
     'username' => 'root',
-    'password' => 'RDF?jq8eec'
+    'password' => 'root'
 ]);
 
 Route::get('/db', function () {
     $db = Manager::get('main');
     $db->connect();
 
-    $db->select_db('test');
-    $queryKontak = $db->query('SELECT * FROM kontak');
-
     $db->select_db('ujian_online');
-    $queryPeserta = $db->query('SELECT * FROM peserta');
+    $queryPeserta = $db->get('materi');
 
     return new Response(json_encode([
-        'kontak' => [
-            'num_rows' => $queryKontak->num_rows(),
-            'row' => $queryKontak->row(),
-            'result' => $queryKontak->result()
-        ],
         'peserta' => [
             'num_rows' => $queryPeserta->num_rows(),
             'row' => $queryPeserta->row(),

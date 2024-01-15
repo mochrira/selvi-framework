@@ -51,12 +51,13 @@ class MySQLSchema implements Schema {
 
     public function getSql(string $tbl): string
     {
-        
+        return "SELECT * FROM {$tbl}";
     }
 
     public function get(string $tbl): Result
     {
-        
+        $res = $this->instance->query("SELECT * FROM {$tbl}");
+        return new MySQLResult($res);
     }
 
 }
