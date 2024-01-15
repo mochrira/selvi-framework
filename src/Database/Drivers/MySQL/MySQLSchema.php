@@ -10,6 +10,8 @@ class MySQLSchema implements Schema {
 
     private Array $config;
     private mysqli $instance;
+    private ?string $_select = null;
+    private ?string $_where = null;
 
     public function __construct(Array $config)
     {
@@ -56,15 +58,15 @@ class MySQLSchema implements Schema {
 
     public function get(string $tbl): Result
     {
-        $res = $this->instance->query("SELECT * FROM {$tbl}");
+        $select = "SELECT " . (is_null($this->_select) ?  "*" : $this->_select);
+        $res = $this->instance->query("{$select} FROM {$tbl}");
         return new MySQLResult($res);
     }
 
-    private string $_select = null;
-    private string $_where = null;
-
-    public function select(string $cols): Schema
+    public function select(string | array $cols): Schema
     {
+        if (is_string($cols)) $this->_select = $cols;
+        if (is_array($cols)) $this->_select = implode(',', $cols); 
         return $this;
     }
 
