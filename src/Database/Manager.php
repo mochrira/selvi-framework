@@ -2,20 +2,18 @@
 
 namespace Selvi\Database;
 
-use Selvi\Database\Drivers\MySQLDriver;
-use Selvi\Database\Drivers\SQLServerDriver;
+use Selvi\Database\Drivers\MySQL\MySQLSchema;
 
 class Manager {
 
     private static Array $drivers = [
-        'mysql' => MySQLDriver::class,
-        'sqlsrv' => SQLServerDriver::class
+        'mysql' => MySQLSchema::class
     ];
 
     private static Array $schemas = [];
 
-    public static function add(string $name, Array $config, string $driver = 'mysql'): void {
-        if(!isset(self::$schemas[$name])) self::$schemas[$name] = new self::$drivers[$driver]($config);
+    public static function add(string $name, Array $config): void {
+        if(!isset(self::$schemas[$name])) self::$schemas[$name] = new self::$drivers[$config['driver']]($config);
     }
 
     public static function get(string $name): Schema {

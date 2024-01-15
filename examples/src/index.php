@@ -44,17 +44,34 @@ Route::get('/dependency/{name}', function (string $name, Uri $uri) {
 });
 
 Manager::add('main', [
+    'driver' => 'mysql',
     'host' => 'mariadb.database',
     'username' => 'root',
-    'password' => 'RDF?jq8eec',
-    'database' => 'test'
-], 'mysql');
+    'password' => 'RDF?jq8eec'
+]);
 
 Route::get('/db', function () {
     $db = Manager::get('main');
     $db->connect();
-    
-    return new Response('Halo');
+
+    $db->select_db('test');
+    $queryKontak = $db->query('SELECT * FROM kontak');
+
+    $db->select_db('ujian_online');
+    $queryPeserta = $db->query('SELECT * FROM peserta');
+
+    return new Response(json_encode([
+        'kontak' => [
+            'num_rows' => $queryKontak->num_rows(),
+            'row' => $queryKontak->row(),
+            'result' => $queryKontak->result()
+        ],
+        'peserta' => [
+            'num_rows' => $queryPeserta->num_rows(),
+            'row' => $queryPeserta->row(),
+            'result' => $queryPeserta->result()
+        ]
+    ], JSON_PRETTY_PRINT));
 });
 
 Framework::run();

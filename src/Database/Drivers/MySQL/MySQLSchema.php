@@ -1,15 +1,15 @@
 <?php 
 
-namespace Selvi\Database\Drivers;
+namespace Selvi\Database\Drivers\MySQL;
 
 use mysqli;
-use Selvi\Database\QueryResult;
 use Selvi\Database\Schema;
+use Selvi\Database\Result;
 
-class MySQLDriver implements Schema {
+class MySQLSchema implements Schema {
 
     private Array $config;
-    private \mysqli $instance;
+    private mysqli $instance;
 
     public function __construct(Array $config)
     {
@@ -19,7 +19,7 @@ class MySQLDriver implements Schema {
     public function connect(): bool
     {
         if(!isset($this->instance)) {
-            $this->instance = new \mysqli(
+            $this->instance = new mysqli(
                 $this->config['host'], 
                 $this->config['username'], 
                 $this->config['password'], 
@@ -43,9 +43,20 @@ class MySQLDriver implements Schema {
         return $this->instance->select_db($db);
     }
 
-    public function query(string $sql): QueryResult
+    public function query(string $sql): Result
     {
-        return new QueryResult();
+        $res = $this->instance->query($sql);
+        return new MySQLResult($res);
+    }
+
+    public function getSql(string $tbl): string
+    {
+        
+    }
+
+    public function get(string $tbl): Result
+    {
+        
     }
 
 }

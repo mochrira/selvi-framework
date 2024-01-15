@@ -1,0 +1,43 @@
+<?php 
+
+namespace Selvi\Database\Drivers\MySQL;
+
+use \mysqli_result;
+use Selvi\Database\Result;
+use stdClass;
+
+class MySQLResult implements Result {
+
+    public mysqli_result $result;
+    public int $num_rows;
+
+    function __construct(mixed $result) {
+        $this->result = $result;
+    }
+
+    function num_rows(): int {
+        return $this->result->num_rows;
+    }
+
+    function result(): array | bool | null {
+        if(is_bool($this->result)) return $this->result;
+        if($this->result instanceof mysqli_result) {
+            $this->result->data_seek(0);
+            $res = [];
+            while($row = $this->result->fetch_object()) 
+                $res[] = $row;
+            return $res;
+        }
+        return null;
+    }
+
+    function row(): stdClass | bool | null {
+        if(is_bool($this->result)) return $this->result;
+        if($this->result instanceof mysqli_result) {
+            $this->result->data_seek(0);
+            return $this->result->fetch_object();
+        }
+        return null;
+    }
+
+}
