@@ -60,4 +60,17 @@ class MySQLSchema implements Schema {
         return new MySQLResult($res);
     }
 
+    private string $_select = null;
+    private string $_where = null;
+
+    public function select(string $cols): Schema
+    {
+        return $this;
+    }
+
+    public function where(string $where): Schema
+    {
+        return $this;
+    }
+
 }

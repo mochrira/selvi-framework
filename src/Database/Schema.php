@@ -13,6 +13,9 @@ interface Schema {
     public function getSql(string $tbl): string;
     public function get(string $tbl): Result;
 
+    public function select(string $cols): self;
+    public function where(string $where): self;
+
     // public function limit (int $limit): void;
     // public function offset(): void;
     // public function innerJoin(string $tbl, string $cond): self;
@@ -21,7 +24,6 @@ interface Schema {
     // public function where(mixed $param, mixed $param2): self;
     // public function orWhere(mixed $param, mixed $param2): self;
     // public function groupBy(mixed $group): self;
-    // public function select(mixed $cols): self;
     // public function is_json(string $json): bool;
     // public function prepareValue(mixed $val): mixed;
     // public function insert(string $tbl, array $data): string;

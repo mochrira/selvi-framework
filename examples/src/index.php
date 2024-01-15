@@ -43,25 +43,21 @@ Route::get('/dependency/{name}', function (string $name, Uri $uri) {
     ], JSON_PRETTY_PRINT));
 });
 
-Manager::add('main', [
-    'driver' => 'mysql',
-    'host' => 'mariadb.database',
-    'username' => 'root',
-    'password' => 'root'
-]);
+$config = json_decode(file_get_contents(__DIR__.'/private/.DBCONFIG'), true);
+Manager::add('main', $config);
 
 Route::get('/db', function () {
     $db = Manager::get('main');
     $db->connect();
 
-    $db->select_db('ujian_online');
-    $queryPeserta = $db->get('materi');
+    $db->select_db('test');
+    $queryKontak = $db->get('kontak');
 
     return new Response(json_encode([
         'peserta' => [
-            'num_rows' => $queryPeserta->num_rows(),
-            'row' => $queryPeserta->row(),
-            'result' => $queryPeserta->result()
+            'num_rows' => $queryKontak->num_rows(),
+            'row' => $queryKontak->row(),
+            'result' => $queryKontak->result()
         ]
     ], JSON_PRETTY_PRINT));
 });
