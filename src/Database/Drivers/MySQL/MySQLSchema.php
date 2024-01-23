@@ -56,20 +56,73 @@ class MySQLSchema implements Schema {
 
     public function get(string $tbl): Result
     {
-        $res = $this->instance->query("SELECT * FROM {$tbl}");
+        $select = "*";
+        if($this->_select != null) $select = $this->_select;
+
+        $res = $this->instance->query(
+            "SELECT {$select} FROM {$tbl} {$this->_where}"
+        );
         return new MySQLResult($res);
     }
 
-    private string $_select = null;
-    private string $_where = null;
+    private ?string $_select = null;
 
-    public function select(string $cols): Schema
+    public function select(string|array $cols): Schema
     {
+        if(is_string($cols)) $this->_select = $cols;
+        if(is_array($cols)) $this->_select = implode(",", $cols);
         return $this;
     }
 
-    public function where(string $where): Schema
+    private function prepareValue($val) {
+        if(is_null($val)) return 'NULL';
+        if(is_bool($val)) return ($val == true ? '1' : '0');
+        if(is_string($val)) {
+            $val = str_replace("\\", "\\\\", $val); // replace backslash View\Update => View\\Update
+            $val = str_replace("'", "\\'", $val); // replace single quotes Qur'an => Qur\'an
+            $val = str_replace("\"", "\\\"", $val); // replace double quotes Qur"an => Qur\"an
+            $val = "\"".$val."\""; // add double quotes before and after "Qur\'an", "Qur\"an", "View\\Update"
+            return $val;
+        }
+        return $val;
+    }
+
+    private ?string $_where = null;
+
+    public function where(string|array $where): Schema
     {
+        $tmp = "";
+        if(is_string($where)) $tmp = $where;
+        if(is_array($where)) {
+            /**
+             * ['(kontak.idKontak=1)']
+             * ['kontak.idKontak', 1]
+             * ['kontak.idKontak', '=' ,1]
+             */
+            foreach($where as $w) {
+                if(is_string($w)) {
+
+                }
+
+                if(is_array($w)) {
+                    if(count($w) == 2) {
+
+                    }
+
+                    if(count($w) == 3) {
+
+                    }
+                }
+            }
+        }
+
+        if(strlen($tmp) > 0) {
+            if($this->_where == null) {
+                $this->_where = "WHERE ({$tmp})";
+            } else {
+                $this->_where .= " AND ({$tmp})";
+            }
+        }
         return $this;
     }
 

@@ -1,10 +1,9 @@
 <?php 
 
+declare(strict_types=1);
+
 require 'vendor/autoload.php';
 
-use App\Controllers\HomeController;
-use Selvi\Database\Drivers\SQLServerDriver;
-use Selvi\Factory;
 use Selvi\Response;
 use Selvi\Route;
 use Selvi\Framework;
@@ -49,12 +48,14 @@ Manager::add('main', $config);
 Route::get('/db', function () {
     $db = Manager::get('main');
     $db->connect();
-
     $db->select_db('test');
+
+    $db->select(['kontak.nmKontak', 'kontak.idKontak'])
+       ->where('kontak.idKontak=1');
     $queryKontak = $db->get('kontak');
 
     return new Response(json_encode([
-        'peserta' => [
+        'kontak' => [
             'num_rows' => $queryKontak->num_rows(),
             'row' => $queryKontak->row(),
             'result' => $queryKontak->result()

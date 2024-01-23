@@ -13,8 +13,8 @@ interface Schema {
     public function getSql(string $tbl): string;
     public function get(string $tbl): Result;
 
-    public function select(string $cols): self;
-    public function where(string $where): self;
+    public function select(string|array $cols): self;
+    public function where(string|array $where): self;
 
     // public function limit (int $limit): void;
     // public function offset(): void;
