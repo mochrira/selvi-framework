@@ -74,7 +74,7 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    private function prepareValue($val) {
+    private function prepareValue($val): string {
         if(is_null($val)) return 'NULL';
         if(is_bool($val)) return ($val == true ? '1' : '0');
         if(is_string($val)) {
@@ -99,22 +99,25 @@ class MySQLSchema implements Schema {
              * ['kontak.idKontak', 1]
              * ['kontak.idKontak', '=' ,1]
              */
-            foreach($where as $w) {
+            foreach($where as $index => $w) {
+                if ($index !== 0 ) $tmp .= " AND ";
                 if(is_string($w)) {
-
+                    $tmp .= $w;
                 }
 
                 if(is_array($w)) {
-                    if(count($w) == 2) {
 
+                    if(count($w) == 2) {
+                        $tmp .= "{$w[0]} = {$this->prepareValue($w[1])}";
                     }
 
                     if(count($w) == 3) {
-
+                        $tmp .= "{$w[0]} {$w[1]} {$this->prepareValue($w[2])}";
                     }
                 }
             }
         }
+
 
         if(strlen($tmp) > 0) {
             if($this->_where == null) {
@@ -123,6 +126,7 @@ class MySQLSchema implements Schema {
                 $this->_where .= " AND ({$tmp})";
             }
         }
+
         return $this;
     }
 

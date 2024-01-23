@@ -51,7 +51,10 @@ Route::get('/db', function () {
     $db->select_db('test');
 
     $db->select(['kontak.nmKontak', 'kontak.idKontak'])
-       ->where('kontak.idKontak=1');
+       ->where([
+        ['kontak.tunai', '<' , 1],
+        ["kontak.nmKontak" , "Qur'an"]
+    ]);
     $queryKontak = $db->get('kontak');
 
     return new Response(json_encode([
