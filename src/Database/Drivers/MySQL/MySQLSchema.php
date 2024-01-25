@@ -94,39 +94,16 @@ class MySQLSchema implements Schema {
         $tmp = "";
         if(is_string($where)) $tmp = $where;
         if(is_array($where)) {
-            /**
-             * ['(kontak.idKontak=1)']
-             * ['kontak.idKontak', 1]
-             * ['kontak.idKontak', '=' ,1]
-             */
             foreach($where as $index => $w) {
                 if ($index !== 0 ) $tmp .= " AND ";
-                if(is_string($w)) {
-                    $tmp .= $w;
-                }
-
+                if(is_string($w)) $tmp .= $w;
                 if(is_array($w)) {
-
-                    if(count($w) == 2) {
-                        $tmp .= "{$w[0]} = {$this->prepareValue($w[1])}";
-                    }
-
-                    if(count($w) == 3) {
-                        $tmp .= "{$w[0]} {$w[1]} {$this->prepareValue($w[2])}";
-                    }
+                    if(count($w) == 2) $tmp .= "{$w[0]} = {$this->prepareValue($w[1])}";
+                    if(count($w) == 3) $tmp .= "{$w[0]} {$w[1]} {$this->prepareValue($w[2])}";
                 }
             }
         }
-
-
-        if(strlen($tmp) > 0) {
-            if($this->_where == null) {
-                $this->_where = "WHERE ({$tmp})";
-            } else {
-                $this->_where .= " AND ({$tmp})";
-            }
-        }
-
+        $this->_where .= (strlen($tmp) > 0 ? ($this->_where == null ? "WHERE" : " AND")." ({$tmp})" : "");
         return $this;
     }
 

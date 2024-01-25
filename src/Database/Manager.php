@@ -3,11 +3,13 @@
 namespace Selvi\Database;
 
 use Selvi\Database\Drivers\MySQL\MySQLSchema;
+use Selvi\Database\Drivers\SQLSrv\SQLSrvSchema;
 
 class Manager {
 
     private static Array $drivers = [
-        'mysql' => MySQLSchema::class
+        'mysql' => MySQLSchema::class,
+        'sqlsrv' => SQLSrvSchema::class
     ];
 
     private static Array $schemas = [];

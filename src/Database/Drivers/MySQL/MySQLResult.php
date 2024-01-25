@@ -15,7 +15,8 @@ class MySQLResult implements Result {
         $this->result = $result;
     }
 
-    function num_rows(): int {
+    function num_rows(): int | bool {
+        if(is_bool($this->result)) return $this->result;
         return $this->result->num_rows;
     }
 

@@ -10,11 +10,11 @@ interface Schema {
     public function select_db(string $db): bool;
     public function query(string $sql): Result;
 
-    public function getSql(string $tbl): string;
-    public function get(string $tbl): Result;
+    // public function getSql(string $tbl): string;
+    // public function get(string $tbl): Result;
 
-    public function select(string|array $cols): self;
-    public function where(string|array $where): self;
+    // public function select(string|array $cols): self;
+    // public function where(string|array $where): self;
 
     // public function limit (int $limit): void;
     // public function offset(): void;

@@ -47,21 +47,23 @@ Manager::add('main', $config);
 
 Route::get('/db', function () {
     $db = Manager::get('main');
-    $db->connect();
+    $connectRes = $db->connect();
+    // $disconnectRes = $db->disconnect();
     $db->select_db('test');
+    $queryKontak = $db->query("SELECT * FROM kontak");
 
-    $db->select(['kontak.nmKontak', 'kontak.idKontak'])
-       ->where([
-        ['kontak.tunai', '<' , 1],
-        ["kontak.nmKontak" , "Qur'an"]
-    ]);
-    $queryKontak = $db->get('kontak');
+    // $db->select(['kontak.nmKontak', 'kontak.idKontak'])->where([
+    //     ['kontak.tunai', '<' , 1], ["kontak.nmKontak" , "Qur'an"]
+    // ]);
+    // $queryKontak = $db->get('kontak');
 
     return new Response(json_encode([
+        'connect' => $connectRes,
+        // 'disconnect' => $disconnectRes
         'kontak' => [
             'num_rows' => $queryKontak->num_rows(),
-            'row' => $queryKontak->row(),
-            'result' => $queryKontak->result()
+            'result' => $queryKontak->result(),
+            'row' => $queryKontak->row()
         ]
     ], JSON_PRETTY_PRINT));
 });
