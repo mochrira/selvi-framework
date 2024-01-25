@@ -43,27 +43,45 @@ Route::get('/dependency/{name}', function (string $name, Uri $uri) {
 });
 
 $config = json_decode(file_get_contents(__DIR__.'/private/.DBCONFIG'), true);
+$configMysql = [
+    "driver" => "mysql",
+    "host"=>"mariadb.database",
+    "username" => "root",
+    "password" => "root"
+
+];
+Manager::add('slave', $configMysql);
 Manager::add('main', $config);
 
 Route::get('/db', function () {
     $db = Manager::get('main');
-    $connectRes = $db->connect();
-    // $disconnectRes = $db->disconnect();
-    $db->select_db('test');
-    $queryKontak = $db->query("SELECT * FROM kontak");
+    $mysqlDb = Manager::get('slave');
+    
+    $db->connect();
 
-    // $db->select(['kontak.nmKontak', 'kontak.idKontak'])->where([
-    //     ['kontak.tunai', '<' , 1], ["kontak.nmKontak" , "Qur'an"]
-    // ]);
-    // $queryKontak = $db->get('kontak');
+    $mysqlDb->connect();
+    $mysqlDb->select_db("test");
+
+    // sql server
+    $penggunaSqlServer = $db->limit(4)->get("Pengguna");
+
+
+    // mysql
+    $PenggunaMysql = $mysqlDb->order(cols:"Pengguna.PenggunaId")->limit(2)->offset(3)->get('Pengguna');
 
     return new Response(json_encode([
-        'connect' => $connectRes,
+        // 'connect' => $connectRes,
         // 'disconnect' => $disconnectRes
-        'kontak' => [
-            'num_rows' => $queryKontak->num_rows(),
-            'result' => $queryKontak->result(),
-            'row' => $queryKontak->row()
+        // 'kontak' => [
+        //     'num_rows' => $queryKontak->num_rows(),
+        //     'result' => $queryKontak->result(),
+        //     'row' => $queryKontak->row()
+        // ]
+        'penggunaSQLServer'=> [
+            'result'=>$penggunaSqlServer->result()
+        ],
+        'penggunaMYSQL'=> [
+            'result'=>$PenggunaMysql->result()
         ]
     ], JSON_PRETTY_PRINT));
 });

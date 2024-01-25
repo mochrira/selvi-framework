@@ -9,15 +9,13 @@ interface Schema {
     public function disconnect(): bool;
     public function select_db(string $db): bool;
     public function query(string $sql): Result;
-
-    // public function getSql(string $tbl): string;
-    // public function get(string $tbl): Result;
-
-    // public function select(string|array $cols): self;
-    // public function where(string|array $where): self;
-
-    // public function limit (int $limit): void;
-    // public function offset(): void;
+    public function getSql(string $tbl): string;
+    public function get(string $tbl): Result;
+    public function select(string|array $cols): self;
+    public function where(string|array $where): self;
+    public function order(string $cols, ?string $param = "ASC"): self;
+    public function limit (int $limit): self;
+    public function offset(): self;
     // public function innerJoin(string $tbl, string $cond): self;
     // public function leftJoin(string $tbl, string $cond): self;
     // public function join(string $tbl, string $cond): self;
@@ -53,6 +51,5 @@ interface Schema {
     // public function rollback(): string;
     // public function commit(): string;
     // public function alter(string $table): string;
-    // public function order(mixed $param, mixed $param2): void;
     
 }

@@ -59,9 +59,9 @@ class MySQLSchema implements Schema {
         $select = "*";
         if($this->_select != null) $select = $this->_select;
 
-        $res = $this->instance->query(
-            "SELECT {$select} FROM {$tbl} {$this->_where}"
-        );
+        $queryString = "SELECT {$select} FROM {$tbl} {$this->_where} {$this->_order} {$this->_limit}";
+        if ($this->_limit !== null && $this->_offset !== null) $queryString .= " {$this->_offset}";
+        $res = $this->instance->query($queryString);
         return new MySQLResult($res);
     }
 
@@ -104,6 +104,31 @@ class MySQLSchema implements Schema {
             }
         }
         $this->_where .= (strlen($tmp) > 0 ? ($this->_where == null ? "WHERE" : " AND")." ({$tmp})" : "");
+        return $this;
+    }
+
+    private ?string $_order = null;
+
+    function order(string $cols, ?string $param = "ASC"): Schema
+    {
+        if ($cols !== null)  $this->_order = "ORDER BY {$cols} {$param}";
+        return $this;
+    }
+
+    private ?string $_limit = null;
+
+    function limit(int $limit = null): Schema
+    {
+        if ($limit !== null) $this->_limit = "LIMIT {$limit}";
+        
+        return $this;
+    }
+
+    private ?string $_offset = null;
+
+    function offset(int $offset = null) : Schema {
+        if ($offset !== null) $this->_offset = "OFFSET {$offset}";
+        
         return $this;
     }
 
