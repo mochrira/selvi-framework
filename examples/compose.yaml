@@ -3,10 +3,10 @@ name: selvi_framework
 services:
   backend: 
     container_name: selvi_framework_container
-    image: mochrira/php:7.4.33-apache
+    image: mochrira/dev:latest
     volumes:
-      - ./:/var/www/html
-      - ../src:/var/www/src
+      - ./:/workspace/www
+      - ../src:/workspace/src
     ports:
       - 8091:80
     networks:

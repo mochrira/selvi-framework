@@ -7,6 +7,8 @@ use Selvi\Database\Manager;
 
 class HomeController extends Controller {
 
+    private $db;
+
     function __construct() {
         $this->db = Manager::add([
             'host' => 'mariadb.database',

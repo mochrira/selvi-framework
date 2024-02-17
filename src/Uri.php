@@ -41,12 +41,21 @@ class Uri {
     }
 
     private function cleanUri($uri) {
-        return implode(array_reduce(explode('/', $uri), function ($carry, $item) {
+        if(version_compare(phpversion(), '8.0.0', '<')) {
+            return implode(array_reduce(explode('/', $uri), function ($carry, $item) {
+                if(strlen($item) > 0) {
+                    $carry[] = $item;
+                }
+                return $carry;
+            }, []), '/');
+        }
+
+        return implode('/', array_reduce(explode('/', $uri), function ($carry, $item) {
             if(strlen($item) > 0) {
                 $carry[] = $item;
             }
             return $carry;
-        }, []), '/');
+        }, []));
     }
 
     public function string() {
