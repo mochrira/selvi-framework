@@ -7,6 +7,8 @@ use Selvi\Database\Manager;
 
 class HomeController {
 
+    private $db;
+
     function __construct() {
         Manager::add(json_decode(file_get_contents(BASEPATH.'/private/.DBCONFIG'), true), 'main');
         $this->db = Manager::get('main');

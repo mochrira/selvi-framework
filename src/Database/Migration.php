@@ -48,7 +48,7 @@ class Migration {
             'filename' => $filename, 
             'direction' => $direction,
             'start' => $start,
-            'finish' => mktime(),
+            'finish' => time(),
             'output' => $output
         ]);
     }
@@ -89,11 +89,11 @@ class Migration {
         $files = $this->getFiles($paths, $direction == 'down' ? 'DESC' : 'ASC', $step);
 
         $prepareResult = $this->prepareTables($db);
-        if($prepareResult === false) throw new Exception("Failed to prepare _migration table");
+        if($prepareResult === false) throw new Exception("Failed to prepare _migration table", "migration/error");
 
         foreach($files as $index => $file) {
             $label = "[".($index + 1)."] ".$file;
-            $start = mktime();
+            $start = time();
             try {
                 if(!is_file($file)) throw new Exception("File not found : ".$file, "migration/run/invalid-file");
 
