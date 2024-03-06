@@ -220,4 +220,20 @@ class SQLSrvSchema implements Schema {
         return $this->query($sql);
     }
 
+    function update(string $tbl, array $data): Result | bool {
+        $columns = [];
+        foreach($data as $c => $v){
+            $columns[] = "{$c} = " . $this->prepareValue($v);
+        }
+        $col_str = implode(", ", $columns);
+        $sql = " UPDATE {$tbl} SET {$col_str} {$this->_where}";
+
+        return $this->query($sql);
+    }
+
+    function delete(string $tbl): Result | bool {
+        $sql = "DELETE FROM {$tbl} {$this->_where}";
+        return $this->query($sql); 
+    }
+
 }

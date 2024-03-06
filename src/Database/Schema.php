@@ -21,9 +21,9 @@ interface Schema {
     public function drop(string $table): Result | bool;
     public function prepareMigrationTables(): Result | bool;
     public function error(): mixed;
+    public function update(string $tbl, array $data): Result | bool;
+    public function delete(string $tbl): Result | bool;
 
-    // public function update(string $tbl, array $data): string;
-    // public function delete(string $tbl): string;
     // public function join(string $tbl, string $cond): self;
     // public function innerJoin(string $tbl, string $cond): self;
     // public function leftJoin(string $tbl, string $cond): self;
