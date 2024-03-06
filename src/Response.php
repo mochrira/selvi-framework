@@ -13,8 +13,9 @@ class Response {
     }
 
     function send() {
-        http_response_code($this->code);
+        if(php_sapi_name() != 'cli') http_response_code($this->code);
         echo $this->content;
+        if(php_sapi_name() == 'cli') echo "\n";
         die();
     }
 

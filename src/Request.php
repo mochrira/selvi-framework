@@ -14,6 +14,18 @@ class Request {
         return $this->_method;
     }
 
+    function header($name = null) {
+        $headers = apache_request_headers();
+		if($name==null){
+			return $headers;
+		}else{
+			if(isset($headers[$name])) {
+				return $headers[$name];
+			}
+			return null;
+		}
+    }
+
     function post($name) {
         if(!$this->_post) $this->_post = $_POST;
         return $this->_post[$name] ?? null;

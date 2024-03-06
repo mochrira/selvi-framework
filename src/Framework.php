@@ -7,10 +7,16 @@ use Selvi\Factory;
 use Selvi\Uri;
 use Selvi\Request;
 use Selvi\Route;
+use Selvi\Cli;
 
 class Framework {
 
     static function run() {
+        if(php_sapi_name() == 'cli') {
+            Cli::listen()->send();
+            die();
+        }
+
         $uri = Factory::load(Uri::class);
         $request = Factory::load(Request::class);
 
