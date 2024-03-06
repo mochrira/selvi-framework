@@ -174,7 +174,12 @@ class SQLSrvSchema implements Schema {
             if(strlen($this->_limit) > 0) $order .= " ".$this->_limit;
         }
 
-        return "{$select}{$from}{$where}{$order}";
+        $join = $this->_join;
+        if(strlen($join) > 0) $join = " ".$join;
+
+        $group = $this->_groupBy;
+        if(strlen($group) > 0) $group = " ".$group;
+        return "{$select}{$from}{$join}{$where}{$group}{$order}";
     }
 
     function get(string $table): Result
@@ -234,6 +239,53 @@ class SQLSrvSchema implements Schema {
     function delete(string $tbl): Result | bool {
         $sql = "DELETE FROM {$tbl} {$this->_where}";
         return $this->query($sql); 
+    }
+
+    private ?string $_join = "";
+
+    function join(string $tbl, string $cond): Schema {
+        $this->_join = "JOIN {$tbl} ON {$cond}";
+        return $this;
+    }
+
+    function innerJoin(string $tbl, string $cond): Schema {
+        if (strlen($this->_join) > 0) {
+            $this->_join .= " INNER JOIN {$tbl} ON {$cond}";
+        }else {
+            $this->_join = "INNER JOIN {$tbl} ON {$cond}";
+        } 
+        return $this;
+    }
+
+    function leftJoin(string $tbl, string $cond): Schema {
+        if (strlen($this->_join) > 0) {
+            $this->_join .= " LEFT JOIN {$tbl} ON {$cond}";
+        }else {
+            $this->_join = "LEFT JOIN {$tbl} ON {$cond}";
+        } 
+        return $this;
+    }
+
+    function startTransaction(): bool {
+        return $this->query("BEGIN TRANSACTION");
+    }
+
+    function commit(): bool {
+        return $this->query("COMMIT");
+    }
+    
+    function rollback(): bool {
+        return $this->query("ROLLBACK");
+    }
+
+    private ?string $_groupBy = "";
+
+    function groupBy(mixed $group): Schema {
+        $str = "GROUP BY ";
+        if(is_string($group)) $str .= $group;
+        if (is_array($group)) $str .= implode(",", $group);
+        (strlen($this->_groupBy) > 0) ? $this->_groupBy .= $str : $this->_groupBy = $str;
+        return $this;   
     }
 
 }

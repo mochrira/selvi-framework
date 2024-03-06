@@ -22,16 +22,16 @@ interface Schema {
     public function prepareMigrationTables(): Result | bool;
     public function error(): mixed;
     public function update(string $tbl, array $data): Result | bool;
-    public function delete(string $tbl): Result | bool;
-
-    // public function join(string $tbl, string $cond): self;
-    // public function innerJoin(string $tbl, string $cond): self;
-    // public function leftJoin(string $tbl, string $cond): self;
-    // public function groupBy(mixed $group): self;
+    public function delete(string $tbl): Result | bool; 
+    public function join(string $tbl, string $cond): self;
+    public function innerJoin(string $tbl, string $cond): self;
+    public function leftJoin(string $tbl, string $cond): self;
+    
+    public function groupBy(mixed $group): self;
     // public function orWhere(mixed $param, mixed $param2): self;
-    // public function startTransaction(): string;
-    // public function rollback(): string;
-    // public function commit(): string;
+    public function startTransaction(): bool;
+    public function rollback(): bool;
+    public function commit(): bool;
 
     // public function modifyColumn(string $column, string $type): void;
     // public function changeColumn(string $table,  string $column, string $new_column, string $type): void;

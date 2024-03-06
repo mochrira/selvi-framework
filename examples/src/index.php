@@ -15,11 +15,18 @@ use Selvi\Framework;
 /** Simplest way */
 Route::get('/',function() { 
     $db = Manager::get('main');
-    $pengguna = $db->query("SELECT * FROM pengguna");
-    $data = [
-        "nmPengguna" => "Saya",
-        "akses" => "ADMIN"
-    ];
+    $pengguna = $db->select([
+        "count(pengguna.idAkses) as jml",
+        "akses.nmAkses"
+    ])
+    ->leftjoin("pengguna","pengguna.idAkses = akses.idAkses")
+    ->groupBy(['akses.nmAkses'])
+    ->get("akses")->result();
+    var_dump($pengguna);
+    // $data = [
+    //     "nmPengguna" => "Saya",
+    //     "akses" => "ADMIN"
+    // ];
     // $isUpdate = $db->where([['pengguna.idPengguna', 2]])->update(tbl:"pengguna", data:$data);
     // $isDelete = $db->where([['pengguna.akses', "USER"]])->delete("pengguna");
 
