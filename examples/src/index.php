@@ -33,5 +33,4 @@ Route::get('/',function() {
     return new Response('Index');
 });
 
-
 Framework::run();

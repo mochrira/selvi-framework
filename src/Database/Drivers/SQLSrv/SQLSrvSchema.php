@@ -158,34 +158,55 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
+    private ?string $_groupBy = "";
+
+    function groupBy(mixed $group): Schema {
+        $str = "GROUP BY ";
+        if(is_string($group)) $str .= $group;
+        if (is_array($group)) $str .= implode(",", $group);
+        (strlen($this->_groupBy) > 0) ? $this->_groupBy .= $str : $this->_groupBy = $str;
+        return $this;   
+    }
+
+    private ?string $_join = "";
+
+    function join(string $tbl, string $cond): Schema {
+        $this->_join .= (strlen($this->_join) > 0 ? " " : "")."JOIN {$tbl} ON {$cond}";
+        return $this;
+    }
+
+    function innerJoin(string $tbl, string $cond): Schema {
+        $this->_join .= (strlen($this->_join) > 0 ? " " : "")."INNER JOIN {$tbl} ON {$cond}";
+        return $this;
+    }
+
+    function leftJoin(string $tbl, string $cond): Schema {
+        $this->_join .= (strlen($this->_join) > 0 ? " " : "")."LEFT JOIN {$tbl} ON {$cond}";
+        return $this;
+    }
+
     function getSql(string $table): string {
         $select = "SELECT *";
         if(strlen($this->_select) > 0) $select = "SELECT {$this->_select}";
 
-        $from = " FROM {$table}";
-
+        $from = "FROM {$table}";
         $where = $this->_where;
-        if(strlen($where) > 0) $where = " ".$where;
 
         $order = $this->_order;
         if(strlen($order) > 0) {
-            $order = " ".$order;
+            $order = $order;
             if(strlen($this->_offset) > 0) $order .= " ".$this->_offset;
             if(strlen($this->_limit) > 0) $order .= " ".$this->_limit;
         }
 
         $join = $this->_join;
-        if(strlen($join) > 0) $join = " ".$join;
-
         $group = $this->_groupBy;
-        if(strlen($group) > 0) $group = " ".$group;
-        return "{$select}{$from}{$join}{$where}{$group}{$order}";
+        return implode(" ", [$select, $from, $join, $where, $group, $order]);
     }
 
     function get(string $table): Result
     {
-        $res = sqlsrv_query($this->instance, $this->getSql($table), params: [], options: ['Scrollable' => SQLSRV_CURSOR_CLIENT_BUFFERED]);
-        return new SQLSrvResult($res);
+        return $this->query($this->getSql($table));
     }
 
     public function create(string $table, array $columns): Result | bool{
@@ -216,54 +237,37 @@ class SQLSrvSchema implements Schema {
         $values = [];
         foreach($data as $c => $v){
             $columns[] = $c;
-            $values[] = self::prepareValue($v);
+            $values[] = $this->prepareValue($v);
         }
 
         $col_str = implode(', ', $columns);
+        $insert = "INSERT INTO {$table} ({$col_str})";
+
         $val_str = implode(', ', $values);
-        $sql = "INSERT INTO {$table} ({$col_str}) VALUES ({$val_str})";
+        $values = "VALUES ({$val_str})";
+
+        $sql = implode(" ", [$insert, $values]);
         return $this->query($sql);
     }
 
     function update(string $tbl, array $data): Result | bool {
+        $update = "UPDATE {$tbl}";
+
         $columns = [];
         foreach($data as $c => $v){
             $columns[] = "{$c} = " . $this->prepareValue($v);
         }
         $col_str = implode(", ", $columns);
-        $sql = " UPDATE {$tbl} SET {$col_str} {$this->_where}";
+        $set = "SET {$col_str}";
 
+        $where = $this->_where;
+        $sql = implode(" ", [$update, $set, $where]);
         return $this->query($sql);
     }
 
     function delete(string $tbl): Result | bool {
         $sql = "DELETE FROM {$tbl} {$this->_where}";
         return $this->query($sql); 
-    }
-
-    private ?string $_join = "";
-
-    function join(string $tbl, string $cond): Schema {
-        $this->_join = "JOIN {$tbl} ON {$cond}";
-        return $this;
-    }
-
-    function innerJoin(string $tbl, string $cond): Schema {
-        if (strlen($this->_join) > 0) {
-            $this->_join .= " INNER JOIN {$tbl} ON {$cond}";
-        }else {
-            $this->_join = "INNER JOIN {$tbl} ON {$cond}";
-        } 
-        return $this;
-    }
-
-    function leftJoin(string $tbl, string $cond): Schema {
-        if (strlen($this->_join) > 0) {
-            $this->_join .= " LEFT JOIN {$tbl} ON {$cond}";
-        }else {
-            $this->_join = "LEFT JOIN {$tbl} ON {$cond}";
-        } 
-        return $this;
     }
 
     function startTransaction(): bool {
@@ -276,16 +280,6 @@ class SQLSrvSchema implements Schema {
     
     function rollback(): bool {
         return $this->query("ROLLBACK");
-    }
-
-    private ?string $_groupBy = "";
-
-    function groupBy(mixed $group): Schema {
-        $str = "GROUP BY ";
-        if(is_string($group)) $str .= $group;
-        if (is_array($group)) $str .= implode(",", $group);
-        (strlen($this->_groupBy) > 0) ? $this->_groupBy .= $str : $this->_groupBy = $str;
-        return $this;   
     }
 
 }
