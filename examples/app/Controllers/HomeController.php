@@ -7,23 +7,25 @@ use Selvi\Database\Manager;
 
 class HomeController {
 
-    private $db;
+    // private $db;
 
     function __construct() {
-        Manager::add(json_decode(file_get_contents(BASEPATH.'/private/.DBCONFIG'), true), 'main');
-        $this->db = Manager::get('main');
+        // $this->db = Manager::add([
+        //     'host' => 'mariadb.database',
+        //     'username' => 'root',
+        //     'password' => 'RDF?jq8eec',
+        //     'database' => 'test'
+        // ]);
     }
 
     function index() {
-        // $this->db->insert('kontak', [
-        //     'nmKontak' => "Qur\"an",
-        //     'noHp' => "View\Update",
-        //     'penjualan' => 15.84,
-        //     'tunai' => false
+        // $this->db->where([['kontak.idKontak', 1]]);
+        // $this->db->update('kontak', [
+        //     'nmKontak' => "Yayasan Al Qur'an",
+        //     'noHp' => 'App\Contact\Quran',
         // ]);
-
-        $query = $this->db->where([['kontak.nmKontak', 'LIKE', "%Qur\"an%"]])->get('kontak');
-        return jsonResponse($query->result());
+        //     'penjualan' => 15000.89
+        return response('Halo');
     }
 
 }
