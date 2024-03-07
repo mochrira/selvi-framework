@@ -29,13 +29,10 @@ class Response {
     }
 
     public function send() {
+        if(php_sapi_name() !== 'cli') http_response_code($this->code ?? 200);
         $content = $this->getContent();
         if($content != null) echo $content;
-        if(php_sapi_name() == 'cli') {
-            echo "\n";
-        } else {
-            http_response_code($this->code ?? 200);
-        }
+        if(php_sapi_name() == 'cli') echo "\n";
         die();
     }
 
