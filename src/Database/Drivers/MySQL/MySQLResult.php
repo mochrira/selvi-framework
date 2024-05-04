@@ -41,4 +41,9 @@ class MySQLResult implements Result {
         return null;
     }
 
+    function affected(): int|bool {
+        if(is_bool($this->result)) return $this->result;
+        return true;
+    }
+
 }

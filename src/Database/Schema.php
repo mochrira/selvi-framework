@@ -20,10 +20,10 @@ interface Schema {
     public function create(string $table, array $columns): Result | bool;
     public function drop(string $table): Result | bool;
     public function prepareMigrationTables(): Result | bool;
-    public function error(): mixed;
+    // public function error(): mixed;
     public function update(string $tbl, array $data): Result | bool;
     public function delete(string $tbl): Result | bool;
-
+    
     public function groupBy(mixed $group): self;
     public function join(string $tbl, string $cond): self;
     public function innerJoin(string $tbl, string $cond): self;
@@ -32,7 +32,7 @@ interface Schema {
     public function startTransaction(): bool;
     public function rollback(): bool;
     public function commit(): bool;
-    public function orWhere(string|array $orWhere): self;
+    // public function orWhere(string|array $orWhere): self;
 
     public function modifyColumn(string $column, string $type): self;
     public function addColumn(string $column, string $type): self;
@@ -45,14 +45,13 @@ interface Schema {
 
     public function createIndex(string $table, string $index_name, array $cols): Result | bool;
     public function truncate(string $table): Result | bool;
+    public function dropIndex(string $table, string $index_name): Result|bool;
+    public function addPrimary(string $column, string $primary_name): self;
+    public function dropPrimary(): self;
     // public function createSchema(string $name): string;
     // public function dropSchema(string $name): string;
     // public function createLike(string $table,string $new_table): string;
     // public function copyData(string $table,string $new_table): string;
-    // public function truncate( string $table): string;
-    public function dropIndex(string $table, string $index_name): Result|bool;
-    public function addPrimary(string $column, string $primary_name): self;
-    public function dropPrimary(): self;
     // public function is_json(string $json): bool;
     
 }

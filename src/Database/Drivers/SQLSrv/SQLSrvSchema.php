@@ -2,7 +2,7 @@
 
 namespace Selvi\Database\Drivers\SQLSrv;
 
-use Exception;
+use Selvi\Exception;
 use Selvi\Database\Drivers\SQLSrv\SQLSrvResult;
 use Selvi\Database\Result;
 use Selvi\Database\Schema;
@@ -50,8 +50,7 @@ class SQLSrvSchema implements Schema {
         return false;
     }
 
-    public function prepareMigrationTables(): Result | bool
-    {
+    public function prepareMigrationTables(): Result | bool {
         return $this->create('_migration', [
             'id' => 'INT IDENTITY(1,1) PRIMARY KEY',
             'filename' => 'VARCHAR(150) NOT NULL',
@@ -73,7 +72,7 @@ class SQLSrvSchema implements Schema {
         if(is_bool($res)) {
             if($res === false) {
                 $error = $this->error();
-                throw new Exception($error[0]['message']);
+                throw new Exception($error[0]['message'],'db/query-error');
             }
             return $res;
         }
@@ -426,6 +425,10 @@ class SQLSrvSchema implements Schema {
     }
     function dropIndex(string $table, string $index_name): Result|bool {
         $sql = "DROP INDEX {$index_name} ON {$table};";
+        return $this->query($sql);
+    }
+    function truncate(string $table): Result|bool {
+        $sql = "TRUNCATE TABLE {$table}";
         return $this->query($sql);
     }
 

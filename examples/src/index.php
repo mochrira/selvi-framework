@@ -14,7 +14,9 @@ use Selvi\Framework;
 
 /** Simplest way */
 Route::get('/',function() { 
-    $db = Manager::get('main');
+    $db = Manager::get('mysql');
+    $db->connect();
+    // $db->dropColumn('user')->alter('Pengguna');
     // $pengguna = $db->select([
     //     "count(pengguna.idAkses) as jml",
     //     "akses.nmAkses"
