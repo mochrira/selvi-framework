@@ -384,7 +384,6 @@ class SQLSrvSchema implements Schema {
         $this->resetAltertable();
         return $this->query($sql);
     }
-
     private ?string $_modifyColumn = "";
 
     function modifyColumn(string $column, string $type): Schema {
