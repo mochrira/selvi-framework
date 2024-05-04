@@ -30,4 +30,8 @@ class SQLSrvResult implements Result {
         return sqlsrv_fetch_object($this->result, null, null, SQLSRV_SCROLL_ABSOLUTE, 0);
     }
 
+    function affected(): int | bool {
+        return sqlsrv_rows_affected($this->result);
+    }
+
 }

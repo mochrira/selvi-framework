@@ -42,7 +42,8 @@ class Migration {
             'direction' => $direction,
             'start' => $start,
             'finish' => time(),
-            'output' => $output
+            'output' => $output,
+            'dbuser' => $db->config['username']
         ]);
     }
 
@@ -59,6 +60,15 @@ class Migration {
 
         $direction = isset($args[1]) ? $args[1] : null;
         if(!isset($direction)) throw new Exception("Second arguments must be direction of migration", "migration/run/invalid-arguments");
+
+        echo "Anda yakin akan menjalankan migrasi pada database '{$schema}' dengan direction '{$direction}' ? (Y/n) ";
+        $handle = fopen ("php://stdin","r");
+        $line = fgets($handle);
+        if(trim($line) != 'Y'){
+            fclose($handle);
+            return response('Proses digagalkan.');
+        }
+        fclose($handle);
 
         $step = -1;
         if($direction == 'down') $step = 1;
