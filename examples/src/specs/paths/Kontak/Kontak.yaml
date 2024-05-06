@@ -1,0 +1,27 @@
+get:
+  tags: [Kontak]
+  summary: Mengambil semua data kontak
+  responses:
+    '200':
+      description: Semua data kontak dalam format JSON
+
+post:
+  tags: [Kontak]
+  summary: Menambahkan kontak
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            nmKontak:
+              type: string
+            idGrup:
+              type: integer
+          example:
+            nmKontak: John Doe
+            idGrup: 1
+  responses:
+    '201':
+      description: Created

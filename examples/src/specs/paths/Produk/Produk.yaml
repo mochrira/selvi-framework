@@ -1,0 +1,24 @@
+get:
+  tags: [Produk]
+  summary: Mengambil semua data Produk
+  responses:
+    '200':
+      description: Semua data produk dalam format JSON
+
+post:
+  tags: [Produk]
+  summary: Menambahkan produk
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            nmProduk:
+              type: string
+          example:
+            nmProduk: Galon
+  responses:
+    '201':
+      description: Created

@@ -1,0 +1,40 @@
+get:
+  tags: [Transaksi]
+  summary: Mengambil semua data Transaksi
+  responses:
+    '200':
+      description: Semua data Transaksi dalam format JSON
+
+post:
+  tags: [Transaksi]
+  summary: Menambahkan Transaksi
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            idKontak:
+              type: integer
+            tanggal:
+              type: integer
+            transaksiDetail:
+              type: array
+              items:
+                anyOf:
+                  - type: object
+                    properties:
+                      idProduk: integer
+                      harga: integer
+                      jumlah: integer
+          example:
+            idKontak: 1
+            tanggal: "2024-05-06"
+            transaksiDetail: 
+              - idProduk: 1
+                harga: 10000
+                jumlah: 1
+  responses:
+    '201':
+      description: Created

@@ -78,7 +78,7 @@ class MySQLSchema implements Schema {
         $join = $this->_join;
         $group = $this->_group;
         
-        $query = implode(" ", array_filter([$select, $from, $where, $join, $group, $order, $limit, $offset], function ($v) {
+        $query = implode(" ", array_filter([$select, $from, $join, $where, $group, $order, $limit, $offset], function ($v) {
             return strlen($v) > 0;
         }));
         return $query;
@@ -314,10 +314,14 @@ class MySQLSchema implements Schema {
         $this->_group = '';
     }
 
+    function getLastId(){
+        return $this->instance->insert_id;
+    }
+
     // Transaction
 
     function startTransaction(): bool {
-        return $this->query("BEGIN TRANSACTION");
+        return $this->query("START TRANSACTION");
     }
 
     function commit(): bool {

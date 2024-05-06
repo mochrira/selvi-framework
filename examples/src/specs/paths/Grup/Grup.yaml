@@ -1,0 +1,23 @@
+get:
+    tags: [Grup]
+    summary: Mengambil semua data grup
+    responses:
+      '200':
+        description: Semua data grup dalam format JSON
+
+post:
+  tags: [Grup]
+  summary: Menambahkan Grup
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            nmGrup:
+              type: string
+          example:
+            nmGrup: Sales
+  responses:
+    '201':
+      description: Created

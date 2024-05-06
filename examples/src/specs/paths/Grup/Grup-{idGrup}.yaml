@@ -1,0 +1,50 @@
+get:
+  summary: Mengambil Grup berdasarkan ID
+  tags: [Grup]
+  parameters:
+    - in: path
+      required: true
+      name: idGrup
+      schema: 
+        type: integer
+  responses:
+    '200':
+      description: Object Grup terpilih
+
+patch:
+  summary: Mengubah Grup berdasarkan ID
+  tags: [Grup]
+  parameters:
+    - in: path
+      required: true
+      name: idGrup
+      schema: 
+        type: integer
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            nmGrup:
+              type: string
+          example:
+            nmGrup: Sales
+
+  responses:
+    '200':
+      description: Updated
+
+delete:
+  summary: Menghapus Grup berdasarkan ID
+  tags: [Grup]
+  parameters:
+    - in: path
+      required: true
+      name: idGrup
+      schema: 
+        type: integer
+  responses:
+    '200' :
+      description: Grup berhasil dihapus

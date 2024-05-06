@@ -12,58 +12,32 @@ servers:
 tags:
   - name: Kontak
     description: Mengelola data kontak
+  - name: Grup
+    description: Mengelola data Grup
+  - name: Produk
+    description: Mengelola data Produk
+  - name: Transaksi
+    description: Mengelola data Transaksi
 
 paths:
   /kontak:
-    get:
-      tags: [Kontak]
-      summary: Mengambil semua data kontak
-      responses:
-        '200':
-          description: Semua data kontak dalam format JSON
+    $ref: './paths/Kontak/Kontak.yaml'
 
-    post:
-      tags: [Kontak]
-      summary: Menambahkan kontak
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                nmKontak:
-                  type: string
-                idGrup:
-                  type: int
-              example:
-                nmKontak: John Doe
-                idGrup: 1
-      responses:
-        '201':
-          description: Created
+  /kontak/{idKontak}:
+    $ref: './paths/Kontak/Kontak-{idKontak}.yaml'
 
   /grup:
-    get:
-      tags: [Grup]
-      summary: Mengambil semua data grup
-      responses:
-        '200':
-          description: Semua data grup dalam format JSON
+   $ref: './paths/Grup/Grup.yaml'
+  
+  /grup/{idGrup} :
+    $ref: './paths/Grup/Grup-{idGrup}.yaml'
 
-    post:
-      tags: [Grup]
-      summary: Menambahkan Grup
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                nmGrup:
-                  type: string
-              example:
-                nmGrup: Sales
-      responses:
-        '201':
-          description: Created
+  /produk:
+    $ref: './paths/Produk/Produk.yaml'
+
+  /produk/{idProduk}:
+    $ref: './paths/Produk/Produk-{idProduk}.yaml'
+
+  /transaksi:
+    $ref: './paths/Transaksi/Transaksi.yaml'
+         
