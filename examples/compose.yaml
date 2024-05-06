@@ -5,8 +5,8 @@ services:
     container_name: selvi_framework_container
     image: rsyasmin/dev:latest
     volumes:
-      - ./src:/workspace/www/test
-      - ../src:/workspace/www/src
+      - ./src:/workspace/www
+      - ../src:/workspace/src
     ports:
       - 8091:80
     networks:

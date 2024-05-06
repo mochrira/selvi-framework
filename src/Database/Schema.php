@@ -5,6 +5,7 @@ namespace Selvi\Database;
 interface Schema {
 
     public function __construct(Array $config);
+    public function getConfig(): Array | null;
     public function connect(): bool;
     public function disconnect(): bool;
     public function select_db(string $db): bool;

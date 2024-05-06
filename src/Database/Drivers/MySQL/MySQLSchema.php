@@ -9,12 +9,16 @@ use Selvi\Exception;
 
 class MySQLSchema implements Schema {
 
-    private Array $config;
+    private Array | null $config;
     private mysqli $instance;
 
     public function __construct(Array $config)
     {
         $this->config = $config;
+    }
+
+    public function getConfig(): Array | null {
+        return $this->config;
     }
 
     public function connect(): bool
@@ -63,9 +67,9 @@ class MySQLSchema implements Schema {
         $select = "SELECT *";
         if(strlen($this->_select) > 0) $select = "SELECT {$this->_select}";
 
-        $from = " FROM {$table}";
+        $from = "FROM {$table}";
         $where = $this->_where;
-        if(strlen($where) > 0) $where = " ".$where;
+        if(strlen($where) > 0) $where = $where;
 
         $order = $this->_order;
         $offset = $this->_offset;
@@ -74,14 +78,17 @@ class MySQLSchema implements Schema {
         $join = $this->_join;
         $group = $this->_group;
         
-        $query = implode(" ", [$select, $from, $where, $join, $group, $order, $limit, $offset]);
+        $query = implode(" ", array_filter([$select, $from, $where, $join, $group, $order, $limit, $offset], function ($v) {
+            return strlen($v) > 0;
+        }));
         return $query;
     }
 
 
     public function get(string $tbl): Result
     {
-        $res = $this->instance->query($this->getSql($tbl));
+        $sql = $this->getSql($tbl);
+        $res = $this->instance->query($sql);
         $this->reset();
         return new MySQLResult($res);
     }
@@ -131,7 +138,7 @@ class MySQLSchema implements Schema {
         return $this->join($tbl, $cond, 'RIGHT');
     }
 
-    private ?string $_where = null;
+    private ?string $_where = "";
 
     public function where(string|array $where): Schema
     {
@@ -147,7 +154,7 @@ class MySQLSchema implements Schema {
                 }
             }
         }
-        $this->_where .= (strlen($tmp) > 0 ? ($this->_where == null ? "WHERE" : " AND")." ({$tmp})" : "");
+        $this->_where .= (strlen($tmp) > 0 ? ($this->_where == "" ? "WHERE" : " AND")." ({$tmp})" : "");
         return $this;
     }
 
@@ -179,7 +186,7 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    private ?string $_order = null;
+    private ?string $_order = "";
 
     function order(string|array $order, ?string $direction = null): Schema
     {
@@ -196,7 +203,7 @@ class MySQLSchema implements Schema {
 
         if(is_string($order)) {
             if($direction !== null) {
-                $this->_order .= $order. ' '.$direction;
+                $this->_order .= $order.' '.$direction;
             } else {
                 $this->_order .= $order;
             }
@@ -221,13 +228,13 @@ class MySQLSchema implements Schema {
 
     public function prepareMigrationTables(): Result | bool {
         return $this->create('_migration', [
-            'id' => 'INT IDENTITY(1,1) PRIMARY KEY',
+            'id' => 'INT PRIMARY KEY AUTO_INCREMENT',
             'filename' => 'VARCHAR(150) NOT NULL',
             'direction' => 'VARCHAR(15) NOT NULL',
             'start' => 'INT NOT NULL',
             'finish' => 'INT NOT NULL',
             'output' => 'TEXT NOT NULL',
-            'dbuser' => 'VARCHAR(15)'
+            'dbuser' => 'VARCHAR(15) NOT NULL'
         ]);
     }
 
@@ -301,7 +308,7 @@ class MySQLSchema implements Schema {
         $this->_select = '';
         $this->_where = '';
         $this->_order = '';
-        $this->_offset = "OFFSET 0 ROWS";
+        $this->_offset = "OFFSET 0";
         $this->_limit = '';
         $this->_join = '';
         $this->_group = '';

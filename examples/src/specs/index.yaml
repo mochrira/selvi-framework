@@ -1,0 +1,69 @@
+openapi: 3.0.0
+
+info:
+  title: Spesifikasi Testing
+  description: Digunakan untuk melakukan testing fitur dan performa Selvi Framework
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8091/
+    description: URL default untuk testing
+
+tags:
+  - name: Kontak
+    description: Mengelola data kontak
+
+paths:
+  /kontak:
+    get:
+      tags: [Kontak]
+      summary: Mengambil semua data kontak
+      responses:
+        '200':
+          description: Semua data kontak dalam format JSON
+
+    post:
+      tags: [Kontak]
+      summary: Menambahkan kontak
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nmKontak:
+                  type: string
+                idGrup:
+                  type: int
+              example:
+                nmKontak: John Doe
+                idGrup: 1
+      responses:
+        '201':
+          description: Created
+
+  /grup:
+    get:
+      tags: [Grup]
+      summary: Mengambil semua data grup
+      responses:
+        '200':
+          description: Semua data grup dalam format JSON
+
+    post:
+      tags: [Grup]
+      summary: Menambahkan Grup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nmGrup:
+                  type: string
+              example:
+                nmGrup: Sales
+      responses:
+        '201':
+          description: Created

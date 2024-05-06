@@ -33,17 +33,18 @@ class Migration {
     }
 
     private function prepareTables($db) {
-        return $db->prepareMigrationTables()->result();
+        return $db->prepareMigrationTables();
     }
 
     private function report($db, $filename, $direction, $start, $output) {
+        $config = $db->getConfig();
         return $db->insert('_migration', [
             'filename' => $filename, 
             'direction' => $direction,
             'start' => $start,
             'finish' => time(),
             'output' => $output,
-            'dbuser' => $db->config['username']
+            'dbuser' => $config['username']
         ]);
     }
 

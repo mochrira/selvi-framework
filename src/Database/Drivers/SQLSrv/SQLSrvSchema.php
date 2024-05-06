@@ -9,13 +9,17 @@ use Selvi\Database\Schema;
 
 class SQLSrvSchema implements Schema {
 
-    public Array $config;
+    private Array | null $config;
     private $instance;
 
     function __construct(Array $config)
     {
         $this->config = $config;
         $this->connect();
+    }
+
+    function getConfig(): Array | null{
+        return $this->config;
     }
 
     function connect(): bool

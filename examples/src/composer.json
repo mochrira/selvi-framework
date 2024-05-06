@@ -1,6 +1,9 @@
 {
     "name": "mochrira/selvi-framework-examples",
     "autoload": {
+        "files": [
+            "../src/Helpers.php"
+        ],
         "psr-4": {
             "Selvi\\": "../src",
             "App\\": "./app"
