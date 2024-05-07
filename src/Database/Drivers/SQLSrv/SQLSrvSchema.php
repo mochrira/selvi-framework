@@ -11,6 +11,18 @@ class SQLSrvSchema implements Schema {
 
     private Array | null $config;
     private $instance;
+    private ?string $_select;
+    private ?string $_where;
+    private ?string $_order ;
+    private ?string $_offset;
+    private ?string $_limit;
+    private ?string $_join;
+    private ?string $_group;
+    private ?string $_modifyColumn;
+    private ?string $_addColumn;
+    private ?string $_dropColumn;
+    private ?string $_dropPrimary;
+    private ?string $_addPrimary;
 
     function __construct(Array $config)
     {
@@ -96,16 +108,12 @@ class SQLSrvSchema implements Schema {
         return $val;
     }
 
-    private ?string $_select = "";
-
     public function select(string|array $cols): Schema
     {
         if(is_string($cols)) $this->_select = $cols;
         if(is_array($cols)) $this->_select = implode(",", $cols);
         return $this;
     }
-
-    private ?string $_where = "";
 
     public function where(string|array $where): Schema
     {
@@ -125,23 +133,18 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
-    private ?string $_limit = "";
-
     function limit(int $limit): Schema
     {
         $this->_limit = "FETCH NEXT {$limit} ROWS ONLY";
         return $this;
     }
 
-    private ?string $_offset = "OFFSET 0 ROWS";
 
     function offset(int $offset): Schema
     {
         $this->_offset = "OFFSET {$offset} ROWS";
         return $this;
     }
-
-    private ?string $_order = "";
 
     function order(string|array $order, ?string $direction = null): Schema
     {
@@ -177,8 +180,6 @@ class SQLSrvSchema implements Schema {
     //     return $this;   
     // }
 
-    private ?string $_join = "";
-
     function join(string $tbl, string $cond, string $direction = null): Schema {
         $str = "";
         $str .= (strlen($this->_join) > 0 ? " " : "");
@@ -201,20 +202,31 @@ class SQLSrvSchema implements Schema {
     }
 
     private function reset() {
-        $this->_select = '';
-        $this->_where = '';
-        $this->_order = '';
-        $this->_offset = "OFFSET 0 ROWS";
-        $this->_limit = '';
-        $this->_join = '';
-        $this->_group = '';
+        $this->_select = null;
+        $this->_where = null;
+        $this->_order = null;
+        $this->_offset = null;
+        $this->_limit = null;
+        $this->_join = null;
+        $this->_group = null;
+
+        $this->_modifyColumn = null;
+        $this->_addColumn = null;
+        $this->_dropColumn = null;
+        $this->_dropPrimary = null;
+        $this->_addPrimary = null;
     }
 
-    function getSql(string $table): string {
+    public function lastId(): int {
+        return $this->select('SCOPE_IDENTITY() AS lastid')
+            ->get()->row()->lastid;
+    }
+
+    function getSql(string $table = null): string {
         $select = "SELECT *";
         if(strlen($this->_select) > 0) $select = "SELECT {$this->_select}";
 
-        $from = " FROM {$table}";
+        $from = $table != null ? "FROM {$table}" : "";
         $where = $this->_where;
         if(strlen($where) > 0) $where = " ".$where;
 
@@ -232,7 +244,7 @@ class SQLSrvSchema implements Schema {
         return $query;
     }
 
-    function get(string $table): Result
+    function get(string $table = null): Result
     {
         // $res = sqlsrv_query($this->instance, $this->getSql($table), params: [], options: ['Scrollable' => SQLSRV_CURSOR_CLIENT_BUFFERED]);
         // return new SQLSrvResult($res);
@@ -302,8 +314,6 @@ class SQLSrvSchema implements Schema {
         return $this->query($sql); 
     }
 
-    private ?string $_group = "";
-
     function groupBy(mixed $group): Schema {
         $str = "GROUP BY ";
         if(is_string($group)) $str .= $group;
@@ -359,15 +369,6 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
-    // ALTER TABLE
-    function resetAltertable() {
-        $this->_modifyColumn = "";
-        $this->_addColumn = "";
-        $this->_dropColumn = "";
-        $this->_dropPrimary = "";
-        $this->_addPrimary = "";
-    }
-
     function getNamePrimaryKey(string $table){
         return $this->query("SELECT name FROM sys.key_constraints WHERE type = 'PK' AND OBJECT_NAME(parent_object_id) = N'{$table}';")->row();
     }
@@ -384,38 +385,31 @@ class SQLSrvSchema implements Schema {
 
         $addPrimary = $this->_addPrimary;
         $sql = implode(" ", [$alter, $modifyColumn, $addColumn, $dropColumn, $dropPrimary, $addPrimary]);
-        $this->resetAltertable();
+        $this->reset();
         return $this->query($sql);
     }
-    private ?string $_modifyColumn = "";
 
     function modifyColumn(string $column, string $type): Schema {
         $this->_modifyColumn = "ALTER COLUMN {$column} {$type}";
         return $this;
     }
 
-    private ?string $_addColumn = "";
 
     function addColumn(string $column, string $type): Schema {
         $this->_addColumn = "ADD {$column} {$type}";
         return $this;
     }
 
-    private ?string $_dropColumn = "";
 
     function dropColumn(string $column): Schema {
         $this->_dropColumn = "DROP COLUMN {$column}";
         return $this;
     }
 
-    private ?string $_dropPrimary = "";
-
     function dropPrimary(): Schema {
         $this->_dropPrimary = "DROP CONSTRAINT";
         return $this;
     }
-
-    private ?string $_addPrimary = "";
 
     function addPrimary(string $column, string $primary_name): Schema {
         $this->_addPrimary = "ADD CONSTRAINT {$primary_name} PRIMARY KEY CLUSTERED ({$column})";
