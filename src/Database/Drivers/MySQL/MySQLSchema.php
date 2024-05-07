@@ -11,6 +11,18 @@ class MySQLSchema implements Schema {
 
     private Array | null $config;
     private mysqli $instance;
+    private ?string $_select;
+    private ?string $_where;
+    private ?string $_order;
+    private ?string $_offset;
+    private ?string $_limit;
+    private ?string $_join;
+    private ?string $_group;
+    private ?string $_modifyColumn;
+    private ?string $_addColumn;
+    private ?string $_dropColumn;
+    private ?string $_dropPrimary;
+    private ?string $_addPrimary;
 
     public function __construct(Array $config)
     {
@@ -94,8 +106,6 @@ class MySQLSchema implements Schema {
         return new MySQLResult($res);
     }
 
-    private ?string $_select = null;
-
     public function select(string|array $cols): Schema
     {
         if(is_string($cols)) $this->_select = $cols;
@@ -115,8 +125,6 @@ class MySQLSchema implements Schema {
         }
         return $val;
     }
-
-    private ?string $_join = null;
 
     function join(string $tbl, string $cond, string $direction = null): Schema {
         $str = "";
@@ -138,8 +146,6 @@ class MySQLSchema implements Schema {
     function rightJoin(string $tbl, string $cond): Schema {
         return $this->join($tbl, $cond, 'RIGHT');
     }
-
-    private ?string $_where = null;
 
     public function where(string|array $where): Schema
     {
@@ -178,8 +184,6 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    private ?string $_group = null;
-
     function groupBy(mixed $group): Schema {
         $str = "GROUP BY ";
         if(is_string($group)) $str .= $group;
@@ -187,8 +191,6 @@ class MySQLSchema implements Schema {
         (strlen($this->_group) > 0) ? $this->_group .= $str : $this->_group = $str;
         return $this;
     }
-
-    private ?string $_order = null;
 
     function order(string|array $order, ?string $direction = null): Schema
     {
@@ -214,14 +216,10 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    private ?string $_limit = null;
-
     function limit(int $limit = null): Schema {
         if ($limit !== null) $this->_limit = "LIMIT {$limit}";
         return $this;
     }
-
-    private ?string $_offset = null;
 
     function offset(int $offset = null) : Schema {
         if ($offset !== null) $this->_offset = "OFFSET {$offset}";
@@ -348,35 +346,25 @@ class MySQLSchema implements Schema {
         return $this->query($sql);
     }
 
-    private ?string $_modifyColumn = null;
-
     function modifyColumn(string $column, string $type): Schema {
         $this->_modifyColumn = "MODIFY COLUMN {$column} {$type}";
         return $this;
     }
-
-    private ?string $_addColumn = null;
 
     function addColumn(string $column, string $type): Schema {
         $this->_addColumn = "ADD {$column} {$type}";
         return $this;
     }
 
-    private ?string $_dropColumn = null;
-
     function dropColumn(string $column): Schema {
         $this->_dropColumn = "DROP COLUMN {$column}";
         return $this;
     }
 
-    private ?string $_dropPrimary = null;
-
     function dropPrimary(): Schema {
         $this->_dropPrimary = "DROP PRIMARY KEY";
         return $this;
     }
-
-    private ?string $_addPrimary = null;
 
     function addPrimary(string $column, string $primary_name): Schema {
         $this->_addPrimary = "ADD CONSTRAINT {$primary_name} PRIMARY KEY ({$column})";
