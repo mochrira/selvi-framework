@@ -88,6 +88,7 @@ class Migration {
 
         $db = Manager::get($schema);
         if(!$db) throw new Exception("Invalid database \"".$schema."\"", "migration/run/invalid-db");
+        $db->connect();
 
         $paths = isset(self::$paths[$schema]) ? self::$paths[$schema] : [];
         $files = $this->getFiles($paths, $direction == 'down' ? 'DESC' : 'ASC', $step);

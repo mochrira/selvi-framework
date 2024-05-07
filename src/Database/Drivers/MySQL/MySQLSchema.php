@@ -93,7 +93,6 @@ class MySQLSchema implements Schema {
         $query = implode(" ", array_filter([$select, $from, $join, $where, $group, $order, $limit, $offset], function ($v) {
             return strlen($v) > 0;
         }));
-        error_log($query);
         return $query;
     }
 
