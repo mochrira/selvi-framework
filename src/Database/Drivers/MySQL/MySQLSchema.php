@@ -63,11 +63,11 @@ class MySQLSchema implements Schema {
         return new MySQLResult($res);
     }
 
-    function getSql(string $table): string {
+    function getSql(string $table = null): string {
         $select = "SELECT *";
         if(strlen($this->_select) > 0) $select = "SELECT {$this->_select}";
 
-        $from = "FROM {$table}";
+        $from = $table != null ? "FROM {$table}" : "";
         $where = $this->_where;
         if(strlen($where) > 0) $where = $where;
 
@@ -81,11 +81,12 @@ class MySQLSchema implements Schema {
         $query = implode(" ", array_filter([$select, $from, $join, $where, $group, $order, $limit, $offset], function ($v) {
             return strlen($v) > 0;
         }));
+        error_log($query);
         return $query;
     }
 
 
-    public function get(string $tbl): Result
+    public function get(string $tbl = null): Result
     {
         $sql = $this->getSql($tbl);
         $res = $this->instance->query($sql);
@@ -115,7 +116,7 @@ class MySQLSchema implements Schema {
         return $val;
     }
 
-    private ?string $_join = "";
+    private ?string $_join = null;
 
     function join(string $tbl, string $cond, string $direction = null): Schema {
         $str = "";
@@ -138,7 +139,7 @@ class MySQLSchema implements Schema {
         return $this->join($tbl, $cond, 'RIGHT');
     }
 
-    private ?string $_where = "";
+    private ?string $_where = null;
 
     public function where(string|array $where): Schema
     {
@@ -159,6 +160,7 @@ class MySQLSchema implements Schema {
     }
 
     private ?string $_orWhere = null;
+
     function orWhere(string|array $orWhere): Schema {
         $tmp = "";
         if(is_string($orWhere)) $tmp = $orWhere;
@@ -176,7 +178,7 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    private ?string $_group = "";
+    private ?string $_group = null;
 
     function groupBy(mixed $group): Schema {
         $str = "GROUP BY ";
@@ -186,7 +188,7 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    private ?string $_order = "";
+    private ?string $_order = null;
 
     function order(string|array $order, ?string $direction = null): Schema
     {
@@ -238,9 +240,6 @@ class MySQLSchema implements Schema {
         ]);
     }
 
-
-    // create drop table
-
     public function create(string $table, array $columns): Result | bool {
         $sql = "CREATE TABLE IF NOT EXISTS {$table} (";
         $names = array_keys($columns);
@@ -255,15 +254,12 @@ class MySQLSchema implements Schema {
         $this->reset();
         return $this->query($sql);
     }
-
     
     public function drop(string $table): Result|bool {
         $sql = "DROP TABLE IF EXISTS {$table};";
         $this->reset();
         return $this->query($sql);
     }
-
-    // insert update delete
 
     public function insert(string $table, array $data): Result | bool {
         $columns = [];
@@ -305,20 +301,25 @@ class MySQLSchema implements Schema {
     }
 
     private function reset() {
-        $this->_select = '';
-        $this->_where = '';
-        $this->_order = '';
-        $this->_offset = "OFFSET 0";
-        $this->_limit = '';
-        $this->_join = '';
-        $this->_group = '';
+        $this->_select = null;
+        $this->_where = null;
+        $this->_order = null;
+        $this->_offset = null;
+        $this->_limit = null;
+        $this->_join = null;
+        $this->_group = null;
+
+        $this->_modifyColumn = null;
+        $this->_addColumn = null;
+        $this->_dropColumn = null;
+        $this->_dropPrimary = null;
+        $this->_addPrimary = null;
     }
 
-    function getLastId(){
-        return $this->instance->insert_id;
+    public function lastId(): int {
+        return $this->select('LAST_INSERT_ID() AS lastid')
+            ->get()->row()->lastid;
     }
-
-    // Transaction
 
     function startTransaction(): bool {
         return $this->query("START TRANSACTION");
@@ -340,48 +341,42 @@ class MySQLSchema implements Schema {
         $dropPirmaryKey = $this->_dropPrimary;
 
         $addPrimary = $this->_addPrimary;
-        $sql = implode(" ", [$alter, $modifyColumn, $addColumn, $dropPirmaryKey, $dropColumn, $addPrimary]);
-        $this->resetAltertable();
+        $sql = implode(" ", array_filter([$alter, $modifyColumn, $addColumn, $dropPirmaryKey, $dropColumn, $addPrimary], function ($v) {
+            return strlen($v) > 0;
+        }));
+        $this->reset();
         return $this->query($sql);
     }
 
-    function resetAltertable() {
-        $this->_modifyColumn = "";
-        $this->_addColumn = "";
-        $this->_dropColumn = "";
-        $this->_dropPrimary = "";
-        $this->_addPrimary = "";
-    }
-
-    private ?string $_modifyColumn = "";
+    private ?string $_modifyColumn = null;
 
     function modifyColumn(string $column, string $type): Schema {
         $this->_modifyColumn = "MODIFY COLUMN {$column} {$type}";
         return $this;
     }
 
-    private ?string $_addColumn = "";
+    private ?string $_addColumn = null;
 
     function addColumn(string $column, string $type): Schema {
         $this->_addColumn = "ADD {$column} {$type}";
         return $this;
     }
 
-    private ?string $_dropColumn = "";
+    private ?string $_dropColumn = null;
 
     function dropColumn(string $column): Schema {
         $this->_dropColumn = "DROP COLUMN {$column}";
         return $this;
     }
 
-    private ?string $_dropPrimary = "";
+    private ?string $_dropPrimary = null;
 
     function dropPrimary(): Schema {
         $this->_dropPrimary = "DROP PRIMARY KEY";
         return $this;
     }
 
-    private ?string $_addPrimary = "";
+    private ?string $_addPrimary = null;
 
     function addPrimary(string $column, string $primary_name): Schema {
         $this->_addPrimary = "ADD CONSTRAINT {$primary_name} PRIMARY KEY ({$column})";
@@ -393,10 +388,12 @@ class MySQLSchema implements Schema {
         $sql = "CREATE INDEX {$index_name} ON {$table} ({$column});";
         return $this->query($sql);
     }
+
     function dropIndex(string $table, string $index_name): Result|bool {
         $sql = "DROP INDEX {$index_name} ON {$table};";
         return $this->query($sql);
     }
+
     function truncate(string $table): Result|bool {
         $sql = "TRUNCATE TABLE {$table}";
         return $this->query($sql);

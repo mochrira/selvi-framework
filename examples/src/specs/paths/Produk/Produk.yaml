@@ -17,8 +17,11 @@ post:
           properties:
             nmProduk:
               type: string
+            harga:
+              type: integer
           example:
             nmProduk: Galon
+            harga: 5000
   responses:
     '201':
       description: Created

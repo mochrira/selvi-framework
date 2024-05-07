@@ -14,7 +14,8 @@ return function(Schema $schema, $direction) {
 
         $schema->create('produk', [
             'idProduk' => 'INT(11) PRIMARY KEY AUTO_INCREMENT',
-            'nmProduk' => 'VARCHAR(50)'
+            'nmProduk' => 'VARCHAR(50)',
+            'harga' => 'INT(11)'
         ]);
 
         $schema->create('transaksiDetail', [

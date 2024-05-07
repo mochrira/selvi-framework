@@ -23,8 +23,8 @@ class ProdukController {
 
     function insert(Request $request) {
         $data = json_decode($request->raw(),true);
-        $this->Produk->insert($data);
-        return \jsonResponse(null , 201);
+        $idProduk = $this->Produk->insert($data);
+        return \jsonResponse(['idProduk' => $idProduk] , 201);
     }
 
     function update(Request $request, String $idProduk) {

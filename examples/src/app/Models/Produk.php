@@ -22,7 +22,10 @@ class Produk extends Model {
     }
 
     function insert(Array $data) {
-        return $this->db->insert("produk", $data);
+        if($this->db->insert("produk", $data) !== false) {
+            return $this->db->lastId();
+        }
+        return false;
     }
 
     function update(Array $where, Array $data) {

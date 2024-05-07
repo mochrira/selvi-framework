@@ -10,14 +10,15 @@ interface Schema {
     public function disconnect(): bool;
     public function select_db(string $db): bool;
     public function query(string $sql): Result | bool;
-    public function getSql(string $tbl): string;
-    public function get(string $tbl): Result;
+    public function getSql(string $tbl = null): string;
+    public function get(string $tbl = null): Result;
     public function select(string|array $cols): self;
     public function where(string|array $where): self;
     public function order(string|array $order, ?string $direction = null): self;
     public function limit (int $limit): self;
     public function offset(int $offset): self;
     public function insert(string $tbl, array $data): Result | bool;
+    public function lastId(): int;
     public function create(string $table, array $columns): Result | bool;
     public function drop(string $table): Result | bool;
     public function prepareMigrationTables(): Result | bool;
@@ -29,7 +30,6 @@ interface Schema {
     public function join(string $tbl, string $cond): self;
     public function innerJoin(string $tbl, string $cond): self;
     public function leftJoin(string $tbl, string $cond): self;
-
     public function startTransaction(): bool;
     public function rollback(): bool;
     public function commit(): bool;
