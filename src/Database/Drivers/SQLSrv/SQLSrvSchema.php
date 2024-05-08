@@ -2,10 +2,10 @@
 
 namespace Selvi\Database\Drivers\SQLSrv;
 
-use Selvi\Exception;
 use Selvi\Database\Drivers\SQLSrv\SQLSrvResult;
 use Selvi\Database\Result;
 use Selvi\Database\Schema;
+use Selvi\Exception\DatabaseException;
 
 class SQLSrvSchema implements Schema {
 
@@ -87,8 +87,8 @@ class SQLSrvSchema implements Schema {
         $res = sqlsrv_query($this->instance, $sql, null, ['Scrollable' => SQLSRV_CURSOR_CLIENT_BUFFERED]);
         if(is_bool($res)) {
             if($res === false) {
-                $error = $this->error();
-                throw new Exception($error[0]['message'],'db/query-error');
+                $error = $this->error()[0];
+                throw new DatabaseException($error['message'], 500, $error['SQLSTATE'], $sql);
             }
             return $res;
         }
@@ -111,7 +111,7 @@ class SQLSrvSchema implements Schema {
     public function select(string|array $cols): Schema
     {
         if(is_string($cols)) $this->_select = $cols;
-        if(is_array($cols)) $this->_select = implode(",", $cols);
+        if(is_array($cols)) $this->_select = implode(", ", $cols);
         return $this;
     }
 
@@ -169,16 +169,6 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
-    // private ?string $_group = "";
-
-    // function groupBy(mixed $group): Schema {
-    //     $str = "";
-    //     if(is_string($group)) $str = $group;
-    //     if(is_array($group)) $str = implode(", ", $group);
-    //     $this->_group .= (strlen($this->_group) > 0) ? ", ".$str : "GROUP BY ".$str; 
-    //     return $this;   
-    // }
-
     function join(string $tbl, string $cond, string $direction = null): Schema {
         $str = "";
         $str .= (strlen($this->_join) > 0 ? " " : "");
@@ -227,25 +217,26 @@ class SQLSrvSchema implements Schema {
 
         $from = $table != null ? "FROM {$table}" : "";
         $where = $this->_where;
-        if(strlen($where) > 0) $where = " ".$where;
 
         $order = $this->_order;
         if(strlen($order) > 0) {
-            $order = " ".$order;
             if(strlen($this->_offset) > 0) $order .= " ".$this->_offset;
             if(strlen($this->_limit) > 0) $order .= " ".$this->_limit;
         }
 
         $join = $this->_join;
         $group = $this->_group;
-        $query = implode(" ", [$select, $from, $join, $where, $group, $order]);
+        $query = implode(" ", array_filter([$select, $from, $join, $where, $group, $order], function ($v) {
+            return strlen($v) > 0;
+        }));
         $this->reset();
         return $query;
     }
 
     function get(string $table = null): Result
     {
-        return $this->query($this->getSql($table));
+        $sql = $this->getSql($table);
+        return $this->query($sql);
     }
 
     public function create(string $table, array $columns): Result | bool{
@@ -321,23 +312,6 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
-    // private ?string $_join = "";
-
-    // function join(string $tbl, string $cond): Schema {
-    //     $this->_join .= (strlen($this->_join) > 0 ? " " : "")."JOIN {$tbl} ON {$cond}";
-    //     return $this;
-    // }
-
-    // function innerJoin(string $tbl, string $cond): Schema {
-    //     $this->_join .= (strlen($this->_join) > 0 ? " " : "")."INNER JOIN {$tbl} ON {$cond}";
-    //     return $this;
-    // }
-
-    // function leftJoin(string $tbl, string $cond): Schema {
-    //     $this->_join .= (strlen($this->_join) > 0 ? " " : "")."LEFT JOIN {$tbl} ON {$cond}";
-    //     return $this;
-    // }
-
     function startTransaction(): bool {
         return $this->query("BEGIN TRANSACTION");
     }
@@ -350,7 +324,6 @@ class SQLSrvSchema implements Schema {
         return $this->query("ROLLBACK");
     }
 
-    private ?string $_orWhere = null;
     function orWhere(string|array $orWhere): Schema {
         $tmp = "";
         if(is_string($orWhere)) $tmp = $orWhere;
@@ -364,7 +337,7 @@ class SQLSrvSchema implements Schema {
                 }
             }
         }
-        $this->_orWhere .= (strlen($tmp) > 0 ? ($this->_orWhere == null ? "WHERE" : " OR")." ({$tmp})" : "");
+        $this->_where .= (strlen($tmp) > 0 ? ($this->_where == null ? "WHERE" : " AND")." ({$tmp})" : "");
         return $this;
     }
 
@@ -420,10 +393,12 @@ class SQLSrvSchema implements Schema {
         $sql = "CREATE CLUSTERED INDEX {$index_name} ON {$table} ({$column});";
         return $this->query($sql);
     }
+
     function dropIndex(string $table, string $index_name): Result|bool {
         $sql = "DROP INDEX {$index_name} ON {$table};";
         return $this->query($sql);
     }
+
     function truncate(string $table): Result|bool {
         $sql = "TRUNCATE TABLE {$table}";
         return $this->query($sql);

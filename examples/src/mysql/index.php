@@ -6,12 +6,14 @@ try {
     require './Config/database.php';
     require '../app/Config/routes.php';
     Selvi\Framework::run();
+} catch(Selvi\Exception\HttpException $e) {
+    jsonResponse([
+        'code' => $e->getCodeString(),
+        'message' => $e->getMessage(),
+        'uri' => $e->getUri(),
+        'method' => $e->getMethod()
+    ], $e->getCode())->send();
 } catch(Selvi\Exception\DatabaseException $e) {
-    // view('error.database.php', [
-    //     'codeString' => $e->getCodeString(),
-    //     'message' => $e->getMessage(),
-    //     'query' => $e->getSql()
-    // ])->render($e->getCode())->send();
     jsonResponse([
         'code' => $e->getCodeString(),
         'message' => $e->getMessage(),

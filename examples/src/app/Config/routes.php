@@ -2,7 +2,7 @@
 
 use Selvi\Route;
 
-Route::get('/kontak', '\\App\\Controllers\\KontakController@result');
+Route::get('/kontak', '\\App\\Controllers\\KontakController@results');
 Route::get('/kontak/{id}', '\\App\\Controllers\\KontakController@row');
 Route::post('/kontak', '\\App\\Controllers\\KontakController@insert');
 Route::patch('/kontak/{id}', '\\App\\Controllers\\KontakController@update');

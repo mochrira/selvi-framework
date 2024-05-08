@@ -50,7 +50,7 @@ class MySQLSchema implements Schema {
             }
             return true;
         } catch(mysqli_sql_exception $e) {
-            throw new DatabaseException($e);
+            throw new DatabaseException($e->getMessage(), 500, $e->getSqlState());
         }
     }
 
@@ -76,7 +76,7 @@ class MySQLSchema implements Schema {
             if(is_bool($res)) return $res;
             return new MySQLResult($res);
         } catch(mysqli_sql_exception $e) {
-            throw new DatabaseException($e, $sql);
+            throw new DatabaseException($e->getMessage(), 500, $e->getSqlState(), $sql);
         }
     }
 

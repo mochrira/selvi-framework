@@ -2,6 +2,8 @@
 
 namespace Selvi;
 
+use Selvi\Exception\HttpException;
+
 class Route {
 
     private static $routes = [
@@ -43,7 +45,7 @@ class Route {
                 }
             }
         }
-        return null;
+        throw new HttpException("Route ".$method." '".$current_uri."'  not found", 404, $method, $current_uri);
     }
 
 }
