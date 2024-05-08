@@ -38,11 +38,19 @@ class Grup extends Model {
     }
 
     function row (Array $where){
+
+        $a = $this->db->select([
+            'grup.idGrup',
+            'COUNT(kontak.idKontak) AS jmlKontak'
+        ])
+        ->leftJoin('kontak', 'kontak.idGrup = grup.idGrup')
+        ->groupBy(['grup.idGrup'])->getSql('grup');
+
         return $this->db->select([
             'grup.*',
-            'COUNT(kontak.idKontak) as jmlKontak'
+            'a.jmlKontak'
         ])
-        ->innerJoin('kontak','kontak.idGrup = grup.idGrup')
+        ->leftJoin('('.$a.') a','a.idGrup = grup.idGrup')
         ->where($where)->get("grup")->row();
     }
 
