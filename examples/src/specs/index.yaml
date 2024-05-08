@@ -6,8 +6,10 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:8091/
-    description: URL default untuk testing
+  - url: http://localhost:8091/mysql/
+    description: MySQL Driver
+  - url: http://localhost:8091/sqlsrv/
+    description: SQLSrv Driver
 
 tags:
   - name: Kontak
@@ -22,22 +24,18 @@ tags:
 paths:
   /kontak:
     $ref: './paths/Kontak/Kontak.yaml'
-
   /kontak/{idKontak}:
     $ref: './paths/Kontak/Kontak-{idKontak}.yaml'
 
   /grup:
-   $ref: './paths/Grup/Grup.yaml'
-  
+    $ref: './paths/Grup/Grup.yaml'
   /grup/{idGrup} :
     $ref: './paths/Grup/Grup-{idGrup}.yaml'
 
   /produk:
     $ref: './paths/Produk/Produk.yaml'
-
   /produk/{idProduk}:
     $ref: './paths/Produk/Produk-{idProduk}.yaml'
 
   /transaksi:
     $ref: './paths/Transaksi/Transaksi.yaml'
-         

@@ -5,7 +5,6 @@ use Selvi\Database\Schema;
 return function(Schema $schema, $direction) {
 
     if($direction == 'up') :
-        $schema->connect();
         $schema->create('transaksi', [
             'idTransaksi' => 'INT(11) PRIMARY KEY AUTO_INCREMENT',
             'idKontak' => 'INT(11)',
@@ -29,7 +28,6 @@ return function(Schema $schema, $direction) {
     endif;
 
     if($direction == 'down') :
-        $schema->connect();
         $schema->drop('transaksiDetail');
         $schema->drop('produk');
         $schema->drop('transaksi');

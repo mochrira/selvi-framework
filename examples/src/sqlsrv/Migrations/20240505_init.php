@@ -5,21 +5,19 @@ use Selvi\Database\Schema;
 return function(Schema $schema, $direction) {
 
     if($direction == 'up') :
-        $schema->connect();
         $schema->create('kontak', [
-            'idKontak' => 'INT(11) PRIMARY KEY AUTO_INCREMENT',
+            'idKontak' => 'INT IDENTITY(1,1) PRIMARY KEY',
             'nmKontak' => 'VARCHAR(150)',
-            'idGrup' => 'INT(11)'
+            'idGrup' => 'INT'
         ]);
 
         $schema->create('grup', [
-            'idGrup' => 'INT(11) PRIMARY KEY AUTO_INCREMENT',
+            'idGrup' => 'INT IDENTITY(1,1) PRIMARY KEY',
             'nmGrup' => 'VARCHAR(50)'
         ]);
     endif;
 
     if($direction == 'down') :
-        $schema->connect();
         $schema->drop('grup');
         $schema->drop('kontak');
     endif;

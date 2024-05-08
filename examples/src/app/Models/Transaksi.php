@@ -10,7 +10,7 @@ class Transaksi extends Model {
     private Schema $db;
     
     function __construct(){
-        $this->db = Manager::get('mysql');
+        $this->db = Manager::get('main');
     } 
 
     function row(Array $where) {
@@ -23,7 +23,7 @@ class Transaksi extends Model {
 
     function insert(Array $data) {
         $result = $this->db->insert("transaksi", $data);
-        if ($result) return $this->db->getLastId();
+        if ($result) return $this->db->lastId();
     }
 
     function update(Array $where, Array $data){

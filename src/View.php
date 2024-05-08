@@ -6,7 +6,9 @@ use Selvi\Response;
 
 class View {
 
-    static $paths = [];
+    static $paths = [
+        __DIR__.'/views'
+    ];
 
     static function addPath($path) {
         self::$paths[] = $path;

@@ -23,8 +23,8 @@ class GrupController {
 
     function insert(Request $request) {
         $data = json_decode($request->raw(), true);
-        if($this->Grup->insert($data) === true)
-            return response(null, 201);
+        $idGrup = $this->Grup->insert($data);
+        if($idGrup !== false) return \jsonResponse(['idGrup' => $idGrup], 201);
     }
 
     function update(Request $request, String $id) {

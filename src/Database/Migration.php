@@ -49,7 +49,7 @@ class Migration {
     }
 
     private function lastrecord($db, $filename) {
-        return $db->where([['filename', $filename]])->limit(1)
+        return $db->where([['filename', $filename]])->offset(0)->limit(1)
             ->order(['start' => 'DESC'])->get('_migration')->row();
     }
 
@@ -88,7 +88,6 @@ class Migration {
 
         $db = Manager::get($schema);
         if(!$db) throw new Exception("Invalid database \"".$schema."\"", "migration/run/invalid-db");
-        $db->connect();
 
         $paths = isset(self::$paths[$schema]) ? self::$paths[$schema] : [];
         $files = $this->getFiles($paths, $direction == 'down' ? 'DESC' : 'ASC', $step);

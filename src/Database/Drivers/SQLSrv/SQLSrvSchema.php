@@ -11,18 +11,18 @@ class SQLSrvSchema implements Schema {
 
     private Array | null $config;
     private $instance;
-    private ?string $_select;
-    private ?string $_where;
-    private ?string $_order ;
-    private ?string $_offset;
-    private ?string $_limit;
-    private ?string $_join;
-    private ?string $_group;
-    private ?string $_modifyColumn;
-    private ?string $_addColumn;
-    private ?string $_dropColumn;
-    private ?string $_dropPrimary;
-    private ?string $_addPrimary;
+    private ?string $_select = null;
+    private ?string $_where = null;
+    private ?string $_order = null;
+    private ?string $_offset = null;
+    private ?string $_limit = null;
+    private ?string $_join = null;
+    private ?string $_group = null;
+    private ?string $_modifyColumn = null;
+    private ?string $_addColumn = null;
+    private ?string $_dropColumn = null;
+    private ?string $_dropPrimary = null;
+    private ?string $_addPrimary = null;
 
     function __construct(Array $config)
     {
@@ -139,7 +139,6 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
-
     function offset(int $offset): Schema
     {
         $this->_offset = "OFFSET {$offset} ROWS";
@@ -218,7 +217,7 @@ class SQLSrvSchema implements Schema {
     }
 
     public function lastId(): int {
-        return $this->select('SCOPE_IDENTITY() AS lastid')
+        return $this->select('@@IDENTITY AS lastid')
             ->get()->row()->lastid;
     }
 
@@ -246,8 +245,6 @@ class SQLSrvSchema implements Schema {
 
     function get(string $table = null): Result
     {
-        // $res = sqlsrv_query($this->instance, $this->getSql($table), params: [], options: ['Scrollable' => SQLSRV_CURSOR_CLIENT_BUFFERED]);
-        // return new SQLSrvResult($res);
         return $this->query($this->getSql($table));
     }
 
@@ -287,7 +284,9 @@ class SQLSrvSchema implements Schema {
         $val_str = implode(', ', $values);
         $sql = "INSERT INTO {$table} ({$col_str}) VALUES ({$val_str})";
         $this->reset();
-        return $this->query($sql);
+        $result = $this->query($sql);
+        if($result !== false) return true;
+        return false;
     }
 
     function update(string $tbl, array $data): Result | bool {

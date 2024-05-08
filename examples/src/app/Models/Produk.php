@@ -7,10 +7,11 @@ use Selvi\Database\Schema;
 use Selvi\Model;
 
 class Produk extends Model {
+    
     private Schema $db;
 
     function __construct() {
-        $this->db = Manager::get('mysql');
+        $this->db = Manager::get('main');
     }
 
     function row(Array $where) {

@@ -11,22 +11,23 @@ class MySQLSchema implements Schema {
 
     private Array | null $config;
     private mysqli $instance;
-    private ?string $_select;
-    private ?string $_where;
-    private ?string $_order;
-    private ?string $_offset;
-    private ?string $_limit;
-    private ?string $_join;
-    private ?string $_group;
-    private ?string $_modifyColumn;
-    private ?string $_addColumn;
-    private ?string $_dropColumn;
-    private ?string $_dropPrimary;
-    private ?string $_addPrimary;
+    private ?string $_select = null;
+    private ?string $_where = null;
+    private ?string $_order = null;
+    private ?string $_offset = null;
+    private ?string $_limit = null;
+    private ?string $_join = null;
+    private ?string $_group = null;
+    private ?string $_modifyColumn = null;
+    private ?string $_addColumn = null;
+    private ?string $_dropColumn = null;
+    private ?string $_dropPrimary = null;
+    private ?string $_addPrimary = null;
 
     public function __construct(Array $config)
     {
         $this->config = $config;
+        $this->connect();
     }
 
     public function getConfig(): Array | null {

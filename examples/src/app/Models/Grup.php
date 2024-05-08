@@ -11,21 +11,30 @@ class Grup extends Model {
     private Schema $db;
 
     function __construct() {
-        $this->db = Manager::get('mysql');
+        $this->db = Manager::get('main');
     }
 
     function result() {
-        return $this->db->select([
-        'grup.*',
-        'IFNULL(COUNT(kontak.idKontak), 0) AS jmlKontak'
+        $a = $this->db->select([
+            'grup.idGrup',
+            'COUNT(kontak.idKontak) AS jmlKontak'
         ])
-        ->leftJoin('kontak','kontak.idGrup = grup.idGrup')
-        ->groupBy("grup.nmGrup")
+        ->leftJoin('kontak', 'kontak.idGrup = grup.idGrup')
+        ->groupBy(['grup.idGrup'])->getSql('grup');
+
+        return $this->db->select([
+            'grup.*',
+            'a.jmlKontak'
+        ])
+        ->leftJoin('('.$a.') a','a.idGrup = grup.idGrup')
         ->get("grup")->result();
     }
 
     function insert(array $data) {
-        return $this->db->insert('grup', $data);
+        if($this->db->insert("grup", $data) !== false) {
+            return $this->db->lastId();
+        }
+        return false;
     }
 
     function row (Array $where){

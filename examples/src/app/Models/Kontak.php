@@ -11,7 +11,7 @@ class Kontak extends Model {
     private Schema $db;
 
     function __construct() {
-        $this->db = Manager::get('mysql');
+        $this->db = Manager::get('main');
     }
 
     function result() {
