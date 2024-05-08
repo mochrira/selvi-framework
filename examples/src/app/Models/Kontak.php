@@ -14,12 +14,21 @@ class Kontak extends Model {
         $this->db = Manager::get('main');
     }
 
-    function result() {
+    function result($where = [], $orWhere = []) {
+        // echo $this->db->select([
+        //     'kontak.idKontak',
+        //     'kontak.nmKontak',
+        //     'grup.nmGrup'
+        // ])
+        // ->where($where)->orWhere($orWhere)
+        // ->innerJoin('grup', 'grup.idGrup = kontak.idGrup')
+        // ->getSql('kontak');
         return $this->db->select([
             'kontak.idKontak',
             'kontak.nmKontak',
             'grup.nmGrup'
         ])
+        ->where($where)->orWhere($orWhere)
         ->innerJoin('grup', 'grup.idGrup = kontak.idGrup')
         ->get('kontak')->result();
     }

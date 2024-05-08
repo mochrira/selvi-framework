@@ -15,9 +15,12 @@ class Grup extends Model {
     }
 
     function result() {
+        $config = $this->db->getConfig();
+        $driver = $config['driver'];
+
         $a = $this->db->select([
             'grup.idGrup',
-            'COUNT(kontak.idKontak) AS jmlKontak'
+            ($driver == 'sqlsrv' ? 'ISNULL' : 'IFNULL').'(COUNT(kontak.idKontak), 0) AS jmlKontak'
         ])
         ->leftJoin('kontak', 'kontak.idGrup = grup.idGrup')
         ->groupBy(['grup.idGrup'])->getSql('grup');
@@ -38,7 +41,6 @@ class Grup extends Model {
     }
 
     function row (Array $where){
-
         $a = $this->db->select([
             'grup.idGrup',
             'COUNT(kontak.idKontak) AS jmlKontak'

@@ -3,9 +3,10 @@
 namespace Selvi\Database\Drivers\MySQL;
 
 use mysqli;
+use mysqli_sql_exception;
 use Selvi\Database\Schema;
 use Selvi\Database\Result;
-use Selvi\Exception;
+use Selvi\Exception\DatabaseException;
 
 class MySQLSchema implements Schema {
 
@@ -36,17 +37,21 @@ class MySQLSchema implements Schema {
 
     public function connect(): bool
     {
-        if(!isset($this->instance)) {
-            $this->instance = new mysqli(
-                $this->config['host'], 
-                $this->config['username'], 
-                $this->config['password'], 
-                $this->config['database'] ?? null, 
-                $this->config['port'] ?? null, 
-                $this->config['socket'] ?? null
-            );
+        try {
+            if(!isset($this->instance)) {
+                $this->instance = new mysqli(
+                    $this->config['host'], 
+                    $this->config['username'], 
+                    $this->config['password'], 
+                    $this->config['database'] ?? null, 
+                    $this->config['port'] ?? null, 
+                    $this->config['socket'] ?? null
+                );
+            }
+            return true;
+        } catch(mysqli_sql_exception $e) {
+            throw new DatabaseException($e);
         }
-        return ($this->instance->connect_errno > 0) ? false : true;
     }
 
     public function disconnect(): bool
@@ -66,14 +71,13 @@ class MySQLSchema implements Schema {
     }
 
     public function query(string $sql): Result | bool {
-        $res = $this->instance->query($sql);
-        if (is_bool($res)) {
-            if ($res ===  false) {
-                throw new Exception($this->error(), 'db/query-error');
-            }
-            return $res;
+        try {
+            $res = $this->instance->query($sql);
+            if(is_bool($res)) return $res;
+            return new MySQLResult($res);
+        } catch(mysqli_sql_exception $e) {
+            throw new DatabaseException($e, $sql);
         }
-        return new MySQLResult($res);
     }
 
     function getSql(string $table = null): string {
@@ -94,16 +98,15 @@ class MySQLSchema implements Schema {
         $query = implode(" ", array_filter([$select, $from, $join, $where, $group, $order, $limit, $offset], function ($v) {
             return strlen($v) > 0;
         }));
+        $this->reset();
         return $query;
     }
 
 
-    public function get(string $tbl = null): Result
+    public function get(string $tbl = null): Result | bool
     {
         $sql = $this->getSql($tbl);
-        $res = $this->instance->query($sql);
-        $this->reset();
-        return new MySQLResult($res);
+        return $this->query($sql);
     }
 
     public function select(string|array $cols): Schema
@@ -165,8 +168,6 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    private ?string $_orWhere = null;
-
     function orWhere(string|array $orWhere): Schema {
         $tmp = "";
         if(is_string($orWhere)) $tmp = $orWhere;
@@ -180,7 +181,7 @@ class MySQLSchema implements Schema {
                 }
             }
         }
-        $this->_orWhere .= (strlen($tmp) > 0 ? ($this->_orWhere == null ? "WHERE" : " OR")." ({$tmp})" : "");
+        $this->_where .= (strlen($tmp) > 0 ? ($this->_where == null ? "WHERE" : " AND")." ({$tmp})" : "");
         return $this;
     }
 

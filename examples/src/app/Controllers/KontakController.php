@@ -11,8 +11,16 @@ class KontakController {
         private Kontak $Kontak
     ) { }
 
-    function result() {
-        $data = $this->Kontak->result();
+    function result(Request $request) {
+        $where = [['grup.idGrup', 1]];
+        $orWhere = [];
+
+        $search = $request->get('search');
+        if($search != null) {
+            $orWhere[] = ['kontak.nmKontak', 'LIKE', '%'.$search.'%']; 
+        }
+
+        $data = $this->Kontak->result($where, $orWhere);
         return \jsonResponse($data, 200);
     }
 

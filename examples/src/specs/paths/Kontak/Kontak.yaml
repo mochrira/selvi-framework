@@ -1,6 +1,11 @@
 get:
   tags: [Kontak]
   summary: Mengambil semua data kontak
+  parameters:
+    - in: query
+      name: search
+      schema:
+        type: string
   responses:
     '200':
       description: Semua data kontak dalam format JSON

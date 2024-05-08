@@ -18,8 +18,12 @@ if(!function_exists('jsonResponse')) {
 }
 
 if(!function_exists('view')) {
-    function view($file) {
-        return new View($file);
+    function view($file, $vars = []) {
+        $view = new View($file);
+        foreach($vars as $key => $value) {
+            $view->setVar($key, $value);
+        }
+        return $view;
     }
 }
 

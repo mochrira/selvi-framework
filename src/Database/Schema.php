@@ -11,7 +11,7 @@ interface Schema {
     public function select_db(string $db): bool;
     public function query(string $sql): Result | bool;
     public function getSql(string $tbl = null): string;
-    public function get(string $tbl = null): Result;
+    public function get(string $tbl = null): Result | bool;
     public function select(string|array $cols): self;
     public function where(string|array $where): self;
     public function order(string|array $order, ?string $direction = null): self;
@@ -33,7 +33,7 @@ interface Schema {
     public function startTransaction(): bool;
     public function rollback(): bool;
     public function commit(): bool;
-    // public function orWhere(string|array $orWhere): self;
+    public function orWhere(string|array $orWhere): self;
 
     public function modifyColumn(string $column, string $type): self;
     public function addColumn(string $column, string $type): self;
