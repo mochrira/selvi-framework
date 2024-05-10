@@ -14,7 +14,7 @@ class Produk extends Model {
         $this->db = Manager::get('main');
     }
 
-    function row(Array $where) {
+    function row(array $where) {
         return $this->db->where($where)->get("produk")->row();
     }
 
@@ -22,18 +22,18 @@ class Produk extends Model {
         return $this->db->get("produk")->result();
     }
 
-    function insert(Array $data) {
+    function insert(array $data) {
         if($this->db->insert("produk", $data) !== false) {
             return $this->db->lastId();
         }
         return false;
     }
 
-    function update(Array $where, Array $data) {
+    function update(array $where, array $data) {
         return $this->db->where($where)->update("produk",$data);
     }
 
-    function delete(Array $where){
+    function delete(array $where){
         return $this->db->where($where)->delete("produk");    
     }
 }

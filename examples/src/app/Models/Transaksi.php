@@ -13,7 +13,7 @@ class Transaksi extends Model {
         $this->db = Manager::get('main');
     } 
 
-    function row(Array $where) {
+    function row(array $where) {
         return $this->db->select([
             'transaksi.*',
             'kontak.nmKontak'
@@ -32,16 +32,16 @@ class Transaksi extends Model {
         ->get("transaksi")->result();
     }
 
-    function insert(Array $data) {
+    function insert(array $data) {
         $result = $this->db->insert("transaksi", $data);
         if ($result) return $this->db->lastId();
     }
 
-    function update(Array $where, Array $data){
+    function update(array $where, array $data){
         return $this->db->where($where)->update("transaksi", $data);
     }
 
-    function delete(Array $where) {
+    function delete(array $where) {
         return $this->db->where($where)->delete("transaksi");
     }
 }

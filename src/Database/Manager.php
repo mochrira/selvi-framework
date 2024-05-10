@@ -16,7 +16,6 @@ class Manager {
 
     public static function add(string $name, Array $config): void {
         if(!isset(self::$schemas[$name])) self::$schemas[$name] = new self::$drivers[$config['driver']]($config);
-        // echo 'helo from manager';
     }
 
     public static function get(string $name): Schema {

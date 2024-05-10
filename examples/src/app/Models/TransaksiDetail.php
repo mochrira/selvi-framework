@@ -13,7 +13,7 @@ class TransaksiDetail extends Model {
         $this->db = Manager::get('main');
     }
 
-    function row(Array $where) {
+    function row(array $where) {
         return $this->db->where($where)->get("transaksiDetail")->row();
     }
 
@@ -21,15 +21,15 @@ class TransaksiDetail extends Model {
         return $this->db->get("transaksiDetail")->result();
     }
     
-    function insert(Array $data) {
-        return $this->db->insert("transaksiDetail" , $data);
+    function insert(array $data) {
+        return $this->db->insert("transaksiDetails" , $data);
     }
 
-    function update(Array $where, Array $data){
+    function update(array $where, array $data){
         return $this->db->where($where)->update("transaksiDetail", $data);
     }
 
-    function delete(Array $where) {
+    function delete(array $where) {
         return $this->db->where($where)->delete("transaksiDetail");
     }
     

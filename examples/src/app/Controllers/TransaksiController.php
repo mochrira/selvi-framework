@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Transaksi;
 use App\Models\TransaksiDetail;
+
 use Selvi\Database\Manager;
 use Selvi\Exception;
 use Selvi\Request;
@@ -15,8 +16,8 @@ class TransaksiController {
         private TransaksiDetail $TransaksiDetail
     ){ }
 
-    function row(String $idTransaksi) {
-        $row =(array)$this->Transaksi->row([['transaksi.idTransaksi', $idTransaksi]]);
+    function row(string $idTransaksi) {
+        $row = (array)$this->Transaksi->row([['transaksi.idTransaksi', $idTransaksi]]);
         $row['detail'] = $this->TransaksiDetail->result();
         return jsonResponse($row, 200);
     }
@@ -26,7 +27,7 @@ class TransaksiController {
         return jsonResponse($result, 200);
     }
 
-    function insert(Request $request, Manager $Manager){
+    function insert(Request $request){
         $data = json_decode($request->raw(), true);
         $detailTransaksi = $data['transaksiDetail'];
         unset($data['transaksiDetail']);
@@ -35,7 +36,7 @@ class TransaksiController {
         });
 
         try {
-            $Manager::get("main")->startTransaction();
+            Manager::get("main")->startTransaction();
             $idTransaksi = $this->Transaksi->insert($data);
 
             foreach ($detailTransaksi as $detail) {
@@ -49,16 +50,15 @@ class TransaksiController {
                 $this->TransaksiDetail->insert($dataDetailTransaksi);
             }
 
-            $Manager::get("main")->commit();
-
+            Manager::get("main")->commit();
             return \jsonResponse(null, 201);
         } catch (Exception $e ) {
-            $Manager::get("main")->rollback();
+            Manager::get("main")->rollback();
             throw $e;
         }
     }
 
-    function update(Request $request, String $idTransaksi, Manager $manager){
+    function update(Request $request, string $idTransaksi){
         $data = json_decode($request->raw(), true);
         $detailTransaksi = $data['transaksiDetail'];
         unset($data['transaksiDetail']);
@@ -67,7 +67,7 @@ class TransaksiController {
         });
 
         try {
-            $manager::get('main')->startTransaction();
+            Manager::get('main')->startTransaction();
             $this->TransaksiDetail->delete([['transaksiDetail.idTransaksi', $idTransaksi]]);
 
             $this->Transaksi->update([['transaksi.idTransaksi' , $idTransaksi]], $data);
@@ -82,18 +82,17 @@ class TransaksiController {
                 $this->TransaksiDetail->insert($dataDetailTransaksi);
             }
             
-            $manager::get('main')->commit();
+            Manager::get('main')->commit();
             return \jsonResponse(null, 200);
-
         } catch (Exception $e) {
-            $manager::get('main')->rollback();
+            Manager::get('main')->rollback();
             throw $e;
         }
     }
 
-    function delete(String $idTransaksi) {
-        $this->Transaksi->delete([['transaksi.idTransaksi', $idTransaksi]]);
+    function delete(string $idTransaksi) {
         $this->TransaksiDetail->delete([['transaksiDetail.idTransaksi', $idTransaksi]]);
+        $this->Transaksi->delete([['transaksi.idTransaksi', $idTransaksi]]);
         return \jsonResponse(null, 200);
     }
 }

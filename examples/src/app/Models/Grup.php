@@ -40,7 +40,7 @@ class Grup extends Model {
         return false;
     }
 
-    function row (Array $where){
+    function row (array $where){
         $a = $this->db->select([
             'grup.idGrup',
             'COUNT(kontak.idKontak) AS jmlKontak'
@@ -56,11 +56,11 @@ class Grup extends Model {
         ->where($where)->get("grup")->row();
     }
 
-    function update(Array $where, Array $data) {
+    function update(array $where, array $data) {
         return $this->db->where($where)->update("grup", $data);
     }
 
-    function delete (Array $where) {
+    function delete (array $where) {
         return $this->db->where($where)->delete("grup");
     }
 

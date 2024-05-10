@@ -311,15 +311,15 @@ class SQLSrvSchema implements Schema {
     }
 
     function startTransaction(): bool {
-        return $this->query("BEGIN TRANSACTION");
+        return sqlsrv_begin_transaction($this->instance);
     }
 
     function commit(): bool {
-        return $this->query("COMMIT");
+        return sqlsrv_commit($this->instance);
     }
 
     function rollback(): bool {
-        return $this->query("ROLLBACK");
+        return sqlsrv_rollback($this->instance);
     }
 
     function orWhere(string|array $orWhere): Schema {
