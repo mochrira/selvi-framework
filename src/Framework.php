@@ -56,7 +56,7 @@ class Framework {
             $response = $callable(...$parameters);
             $response->send();
         } catch(\ReflectionException $e) {
-            throw new Exception($e->getMessage(), "reflection/error", 500);
+            throw new \Selvi\Exception($e->getMessage(), "reflection/error", 500);
         }
     }
 
