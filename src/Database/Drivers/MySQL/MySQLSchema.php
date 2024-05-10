@@ -15,8 +15,8 @@ class MySQLSchema implements Schema {
     private ?string $_select = null;
     private ?string $_where = null;
     private ?string $_order = null;
-    private ?string $_offset = null;
-    private ?string $_limit = null;
+    private ?int $_offset = 0;
+    private ?int $_limit = -1;
     private ?string $_join = null;
     private ?string $_group = null;
     private ?string $_modifyColumn = null;
@@ -85,21 +85,21 @@ class MySQLSchema implements Schema {
         if(strlen($this->_select) > 0) $select = "SELECT {$this->_select}";
 
         $from = $table != null ? "FROM {$table}" : "";
-        $where = $this->_where;
-        if(strlen($where) > 0) $where = $where;
-
-        $order = $this->_order;
-        $offset = $this->_offset;
-        $limit = $this->_limit;
-
         $join = $this->_join;
+        $where = $this->_where;
         $group = $this->_group;
+        $order = $this->_order;
+
+        $limit = "";
+        if($this->_limit > -1) {
+            $limit = ($this->_limit > -1 ? "LIMIT ".$this->_limit : "").($this->_offset > 0 ? " OFFSET ".$this->_offset : "");
+        }
         
-        $query = implode(" ", array_filter([$select, $from, $join, $where, $group, $order, $limit, $offset], function ($v) {
+        $sql = implode(" ", array_filter([$select, $from, $join, $where, $group, $order, $limit], function ($v) {
             return strlen($v) > 0;
         }));
         $this->reset();
-        return $query;
+        return $sql;
     }
 
 
@@ -195,35 +195,33 @@ class MySQLSchema implements Schema {
 
     function order(string|array $order, ?string $direction = null): Schema
     {
-        $this->_order .= strlen($this->_order) > 0 ? ', ' : 'ORDER BY ';
-        if(is_array($order)) {
-            if(array_is_list($order)) {
-                $this->_order .= implode(', ', $order, array_keys($order));
-            } else {
-                $this->_order .= implode(', ', array_map(function ($field) use ($order) {
-                    return $field.' '.$order[$field];
-                }, array_keys($order)));
-            }
+        $tmp = '';
+        if(is_array($order) && count($order) > 0) {
+            $tmp .= implode(', ', array_map(function ($key, $value) {
+                if(is_int($key)) return $value;
+                return "$key $value";
+            }, array_keys($order), $order));
         }
 
         if(is_string($order)) {
             if($direction !== null) {
-                $this->_order .= $order.' '.$direction;
+                $tmp .= $order.' '.$direction;
             } else {
-                $this->_order .= $order;
+                $tmp .= $order;
             }
         }
 
+        $this->_order .= (strlen($tmp) > 0) ? (strlen($this->_order) > 0 ? ', '.$tmp : 'ORDER BY '.$tmp) : "";
         return $this;
     }
 
     function limit(int $limit = null): Schema {
-        if ($limit !== null) $this->_limit = "LIMIT {$limit}";
+        $this->_limit = $limit;
         return $this;
     }
 
     function offset(int $offset = null) : Schema {
-        if ($offset !== null) $this->_offset = "OFFSET {$offset}";
+        $this->_offset = $offset;
         return $this;
     }
 
@@ -384,7 +382,7 @@ class MySQLSchema implements Schema {
     }
 
     function truncate(string $table): Result|bool {
-        $sql = "TRUNCATE TABLE {$table}";
+        $sql = "TRUNCATE {$table}";
         return $this->query($sql);
     }
 

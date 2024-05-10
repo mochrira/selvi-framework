@@ -33,7 +33,7 @@ patch:
             nmGrup: Sales
 
   responses:
-    '200':
+    '204':
       description: Updated
 
 delete:
@@ -46,5 +46,5 @@ delete:
       schema: 
         type: integer
   responses:
-    '200' :
+    '204' :
       description: Grup berhasil dihapus

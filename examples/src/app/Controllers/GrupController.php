@@ -16,7 +16,7 @@ class GrupController {
         return \jsonResponse($data, 200);
     }
 
-    function row(String $id) {
+    function row(string $id) {
         $data = $this->Grup->row([['grup.idGrup',$id]]);
         return \jsonResponse($data, 200);
     }
@@ -24,18 +24,18 @@ class GrupController {
     function insert(Request $request) {
         $data = json_decode($request->raw(), true);
         $idGrup = $this->Grup->insert($data);
-        if($idGrup !== false) return \jsonResponse(['idGrup' => $idGrup], 201);
+        return \jsonResponse(['idGrup' => $idGrup], 201);
     }
 
-    function update(Request $request, String $id) {
+    function update(Request $request, string $id) {
         $data = json_decode($request->raw(), true);
         $this->Grup->update([['grup.idGrup' , $id]], $data);
-        return \jsonResponse(null, 200);
+        return \jsonResponse(null, 204);
     }
 
-    function delete(String $id) {
+    function delete(string $id) {
         $this->Grup->delete([['grup.idGrup', $id]]);
-        return \jsonResponse(null, 200);
+        return \jsonResponse(null, 204);
     }
 
 }

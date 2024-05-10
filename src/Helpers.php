@@ -13,7 +13,7 @@ if(!function_exists('response')) {
 
 if(!function_exists('jsonResponse')) {
     function jsonResponse($content = null, $code = 200, $options = JSON_PRETTY_PRINT) {
-        return response(json_encode($content, $options), $code);
+        return response($content !== null ? json_encode($content, $options) : null, $code);
     }
 }
 

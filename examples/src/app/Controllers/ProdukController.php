@@ -11,13 +11,13 @@ class ProdukController {
         private Produk $Produk
     ) { }
 
-    function row(String $idProduk) {
-        $result = $this->Produk->row([['produk.idProduk', $idProduk]]);
+    function result() {
+        $result = $this->Produk->result();
         return \jsonResponse($result, 200);
     }
 
-    function result(){
-        $result = $this->Produk->result();
+    function row(String $idProduk) {
+        $result = $this->Produk->row([['produk.idProduk', $idProduk]]);
         return \jsonResponse($result, 200);
     }
 
@@ -33,7 +33,7 @@ class ProdukController {
         return \jsonResponse(null, 200);
     }
 
-    function delete(){
+    function delete() {
         $this->Produk->delete([['produk.idProduk']]);
         return \jsonResponse(null, 200);
         

@@ -147,25 +147,23 @@ class SQLSrvSchema implements Schema {
 
     function order(string|array $order, ?string $direction = null): Schema
     {
-        $this->_order .= strlen($this->_order) > 0 ? ', ' : 'ORDER BY ';
-        if(is_array($order)) {
-            if(array_is_list($order)) {
-                $this->_order .= implode(', ', $order, array_keys($order));
-            } else {
-                $this->_order .= implode(', ', array_map(function ($field) use ($order) {
-                    return $field.' '.$order[$field];
-                }, array_keys($order)));
-            }
+        $tmp = "";
+        if(is_array($order) && count($order) > 0) {
+            $tmp .= implode(', ', array_map(function ($key, $value) {
+                if(is_int($key)) return $value;
+                return "$key $value";
+            }, array_keys($order), $order));
         }
 
         if(is_string($order)) {
             if($direction !== null) {
-                $this->_order .= $order. ' '.$direction;
+                $tmp .= $order.' '.$direction;
             } else {
-                $this->_order .= $order;
+                $tmp .= $order;
             }
         }
 
+        $this->_order .= (strlen($tmp) > 0) ? (strlen($this->_order) > 0 ? ', '.$tmp : 'ORDER BY '.$tmp) : "";
         return $this;
     }
 

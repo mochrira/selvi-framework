@@ -10,6 +10,5 @@ interface Result {
     function num_rows(): int | bool;
     function result(): array | bool | null;
     function row(): stdClass | bool | null;
-    function affected(): int | bool;
 
 }

@@ -21,17 +21,15 @@ class SQLSrvResult implements Result {
     function result(): array | bool | null {
         if(is_bool($this->result)) return $this->result;
         $res = [];
-        while($row = sqlsrv_fetch_object($this->result)) $res[] = $row;
+        while($row = sqlsrv_fetch_object($this->result)) {
+            $res[] = $row;
+        }
         return $res;
     }
 
     function row(): stdClass | bool | null {
         if(is_bool($this->result)) return $this->result;
         return sqlsrv_fetch_object($this->result, null, null, SQLSRV_SCROLL_ABSOLUTE, 0);
-    }
-
-    function affected(): int | bool {
-        return sqlsrv_rows_affected($this->result);
     }
 
 }

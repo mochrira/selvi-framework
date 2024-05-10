@@ -3,9 +3,25 @@ get:
   summary: Mengambil semua data kontak
   parameters:
     - in: query
+      name: idGrup
+      schema:
+        type: integer
+    - in: query
       name: search
       schema:
         type: string
+    - in: query
+      name: sort
+      schema:
+        type: string
+    - in: query
+      name: offset
+      schema:
+        type: integer
+    - in: query
+      name: limit
+      schema:
+        type: integer
   responses:
     '200':
       description: Semua data kontak dalam format JSON
