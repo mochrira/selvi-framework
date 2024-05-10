@@ -386,5 +386,8 @@ class MySQLSchema implements Schema {
         return $this->query($sql);
     }
 
+    function rename(string $table, string $new_table): Result | bool {
+        return $this->query('RENAME TABLE '.$table.' TO '.$new_table);
+    }
 
 }

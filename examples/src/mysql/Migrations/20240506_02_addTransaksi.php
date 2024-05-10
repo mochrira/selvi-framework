@@ -6,30 +6,30 @@ return function(Schema $schema, $direction) {
 
     if($direction == 'up') :
         $schema->create('transaksi', [
-            'idTransaksi' => 'INT IDENTITY(1,1) PRIMARY KEY',
-            'idKontak' => 'INT',
+            'idTransaksi' => 'INT(11) PRIMARY KEY AUTO_INCREMENT',
+            'idKontak' => 'INT(11)',
             'tanggal' => 'DATE',
-            'total' => 'INT'
+            'total' => 'INT(11)'
         ]);
 
-        $schema->create('produk', [
-            'idProduk' => 'INT IDENTITY(1,1) PRIMARY KEY',
+        $schema->create('item', [
+            'idProduk' => 'INT(11) PRIMARY KEY AUTO_INCREMENT',
             'nmProduk' => 'VARCHAR(50)',
-            'harga' => 'INT'
+            'harga' => 'INT(11)'
         ]);
 
         $schema->create('transaksiDetail', [
-            'idTransaksi' => 'INT',
-            'idProduk' => 'INT',
+            'idTransaksi' => 'INT(11)',
+            'idProduk' => 'INT(11)',
             'harga' => 'DECIMAL(13,2)',
-            'jumlah' => 'INT',
-            'total' => 'INT'
+            'jumlah' => 'INT(11)',
+            'total' => 'INT(11)'
         ]);
     endif;
 
     if($direction == 'down') :
         $schema->drop('transaksiDetail');
-        $schema->drop('produk');
+        $schema->drop('item');
         $schema->drop('transaksi');
     endif;
 

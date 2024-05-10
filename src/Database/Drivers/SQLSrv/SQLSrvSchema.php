@@ -49,6 +49,8 @@ class SQLSrvSchema implements Schema {
         if(!$this->instance) {
             return false;
         }
+
+        sqlsrv_configure('WarningsReturnAsErrors', 0);
         return true;
     }
 
@@ -400,6 +402,10 @@ class SQLSrvSchema implements Schema {
     function truncate(string $table): Result|bool {
         $sql = "TRUNCATE TABLE {$table}";
         return $this->query($sql);
+    }
+
+    function rename(string $table, string $new_table): Result | bool {
+        return $this->query('sp_rename '.$table.', '.$new_table);
     }
 
 }
