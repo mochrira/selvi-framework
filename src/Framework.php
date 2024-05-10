@@ -16,8 +16,6 @@ class Framework {
             Cli::listen()->send();
             die();
         }
-
-        try {
             $uri = Factory::load(Uri::class);
             $request = Factory::load(Request::class);
             $result = Route::translate($request->method(), $uri->string());
@@ -55,9 +53,6 @@ class Framework {
             /** @var Response $response */
             $response = $callable(...$parameters);
             $response->send();
-        } catch(\ReflectionException $e) {
-            throw new \Selvi\Exception($e->getMessage(), "reflection/error", 500);
-        }
     }
 
 }

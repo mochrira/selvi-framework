@@ -6,7 +6,7 @@ class Handler  {
 
     public static array $handlers = [];
 
-    private static function getHandler(\Exception $e) {
+    private static function getHandler(\Throwable $e) {
         $desiredName = (new \ReflectionClass($e))->getName();
         foreach(self::$handlers as $name => $handler) {
             $methodRef = new \ReflectionFunction($handler);
@@ -18,7 +18,7 @@ class Handler  {
         return self::$handlers['default'];
     }
 
-    private static function handler(\Exception $e) {
+    private static function handler(\Throwable $e) {
         $handler = self::getHandler($e);
         call_user_func_array($handler, [$e]);
     }
@@ -53,16 +53,17 @@ class Handler  {
             ])->send();
         });
 
-        self::set('default', function (\Exception $e) {
+        self::set('default', function (\Throwable $e) {
             \jsonResponse([
                 'code' => $e->getCode(),
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ])->send();
         });
     }
 
     public static function listen() {
-        set_exception_handler(function (\Exception $e) {
+        set_exception_handler(function (\Throwable $e) {
             self::handler($e);
         });
     }
