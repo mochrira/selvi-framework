@@ -39,3 +39,6 @@ paths:
 
   /transaksi:
     $ref: './paths/Transaksi/Transaksi.yaml'
+
+  /transaksi/{idTransaksi}:
+    $ref: './paths/Transaksi/Transaksi-{idTransaksi}.yaml'

@@ -53,7 +53,7 @@ class KontakController {
     function insert(Request $request) {
         $data = json_decode($request->raw(), true);
         $idKontak = $this->Kontak->insert($data);
-        return response(['idKontak' => $idKontak], 201);
+        return \jsonResponse(['idKontak' => $idKontak], 201);
     }
 
     function update(Request $request, String $id) {

@@ -14,11 +14,22 @@ class Transaksi extends Model {
     } 
 
     function row(Array $where) {
-        return $this->db->where($where)->get("transaksi")->row();
+        return $this->db->select([
+            'transaksi.*',
+            'kontak.nmKontak'
+        ])
+        ->innerJoin("kontak", 'kontak.idKontak = transaksi.idKontak')
+        ->where($where)
+        ->get("transaksi")->row();
     }
 
     function Result() {
-        return $this->db->get("transaksi")->result();
+        return $this->db->select([
+            'transaksi.*',
+            'kontak.nmKontak'
+        ])
+        ->innerJoin("kontak", 'kontak.idKontak = transaksi.idKontak')
+        ->get("transaksi")->result();
     }
 
     function insert(Array $data) {
