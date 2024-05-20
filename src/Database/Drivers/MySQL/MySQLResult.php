@@ -8,8 +8,7 @@ use stdClass;
 
 class MySQLResult implements Result {
 
-    public mysqli_result $result;
-    public int $num_rows;
+    private mysqli_result $result;
 
     function __construct(mixed $result) {
         $this->result = $result;
@@ -25,8 +24,9 @@ class MySQLResult implements Result {
         if($this->result instanceof mysqli_result) {
             $this->result->data_seek(0);
             $res = [];
-            while($row = $this->result->fetch_object()) 
+            while($row = $this->result->fetch_object()) {
                 $res[] = $row;
+            }
             return $res;
         }
         return null;

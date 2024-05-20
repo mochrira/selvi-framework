@@ -21,7 +21,9 @@ class SQLSrvResult implements Result {
     function result(): array | bool | null {
         if(is_bool($this->result)) return $this->result;
         $res = [];
-        while($row = sqlsrv_fetch_object($this->result)) $res[] = $row;
+        while($row = sqlsrv_fetch_object($this->result)) {
+            $res[] = $row;
+        }
         return $res;
     }
 

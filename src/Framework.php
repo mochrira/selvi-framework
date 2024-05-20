@@ -19,25 +19,20 @@ class Framework {
 
         $uri = Factory::load(Uri::class);
         $request = Factory::load(Request::class);
-
         $result = Route::translate($request->method(), $uri->string());
-
+        
         $callable = $result['callable'];
         if(is_callable($callable) && !is_array($callable)) {
             /** @var \ReflectionFunction  \ReflectionMethod  */
             if($callable instanceof \Closure || is_string($callable)) 
                 $methodRef = new \ReflectionFunction($callable);
-        
         } else {
             if(is_string($callable) && strpos($callable, '@') !== false) {
                 $defs = explode('@', $result['callable']);
                 $callable = [Factory::load($defs[0]), $defs[1]];
             }
-
             $methodRef = new \ReflectionMethod($callable[0], $callable[1]);
         }
-        
-        if($methodRef == null) throw new \Exception('Method reference not available');
 
         $parameters = array_map(function (\ReflectionParameter $parameter) use ($result) {
             if(isset($result['params'][$parameter->name])) 

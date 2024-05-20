@@ -33,21 +33,23 @@ class Migration {
     }
 
     private function prepareTables($db) {
-        return $db->prepareMigrationTables()->result();
+        return $db->prepareMigrationTables();
     }
 
     private function report($db, $filename, $direction, $start, $output) {
+        $config = $db->getConfig();
         return $db->insert('_migration', [
             'filename' => $filename, 
             'direction' => $direction,
             'start' => $start,
             'finish' => time(),
-            'output' => $output
+            'output' => $output,
+            'dbuser' => $config['username']
         ]);
     }
 
     private function lastrecord($db, $filename) {
-        return $db->where([['filename', $filename]])->limit(1)
+        return $db->where([['filename', $filename]])->offset(0)->limit(1)
             ->order(['start' => 'DESC'])->get('_migration')->row();
     }
 
@@ -59,6 +61,15 @@ class Migration {
 
         $direction = isset($args[1]) ? $args[1] : null;
         if(!isset($direction)) throw new Exception("Second arguments must be direction of migration", "migration/run/invalid-arguments");
+
+        echo "Anda yakin akan menjalankan migrasi pada database '{$schema}' dengan direction '{$direction}' ? (Y/n) ";
+        $handle = fopen ("php://stdin","r");
+        $line = fgets($handle);
+        if(trim($line) != 'Y'){
+            fclose($handle);
+            return response('Proses digagalkan.');
+        }
+        fclose($handle);
 
         $step = -1;
         if($direction == 'down') $step = 1;
