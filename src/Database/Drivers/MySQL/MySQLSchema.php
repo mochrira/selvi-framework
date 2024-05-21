@@ -345,6 +345,18 @@ class MySQLSchema implements Schema {
         return $this->query($sql);
     }
 
+    function addColumnFirst(string $column, string $type){
+        $this->addColumn($column, $type);
+        $this->_addColumn .= " FIRST";
+        return $this;
+    }
+
+    function addColumnAfter(string $afterCol, string $column, string $type){
+        $this->addColumn($column, $type);
+        $this->_addColumn .= " AFTER {$afterCol}";
+        return $this;
+    }
+
     function modifyColumn(string $column, string $type): Schema {
         $this->_modifyColumn = "MODIFY COLUMN {$column} {$type}";
         return $this;
@@ -384,6 +396,12 @@ class MySQLSchema implements Schema {
     function truncate(string $table): Result|bool {
         $sql = "TRUNCATE {$table}";
         return $this->query($sql);
+    }
+
+    function rename(string $table, string $newTable){
+        $sql = "RENAME TABLE {$table} TO {$newTable}";
+        return $this->query($sql);
+
     }
 
 
