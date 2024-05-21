@@ -4,6 +4,7 @@ namespace Selvi\Database;
 
 use Selvi\Exception;
 use Selvi\Database\Manager;
+use Selvi\Exception\DatabaseException;
 
 class Migration {
 
@@ -36,7 +37,12 @@ class Migration {
         return $db->prepareMigrationTables();
     }
 
-    private function report($db, $filename, $direction, $start, $output) {
+    private function report($db, $filename, $direction, $start, $output , array $log = null) {
+
+        $error_msg = $log['msg'] ?? null;
+        $error_state = $log['state'] ?? null;
+        $error_query = $log['query'] ?? null;
+
         $config = $db->getConfig();
         return $db->insert('_migration', [
             'filename' => $filename, 
@@ -44,11 +50,15 @@ class Migration {
             'start' => $start,
             'finish' => time(),
             'output' => $output,
-            'dbuser' => $config['username']
+            'dbuser' => $config['username'],
+            'error_msg' => $error_msg,
+            'error_state' => $error_state,
+            'error_query' => $error_query
         ]);
     }
 
-    private function lastrecord($db, $filename) {
+    private function lastrecord($db, $filename, string $direction = null) {
+        if ($direction != null) $db->where([['direction', $direction]]);
         return $db->where([['filename', $filename]])->offset(0)->limit(1)
             ->order(['start' => 'DESC'])->get('_migration')->row();
     }
@@ -98,13 +108,21 @@ class Migration {
             $start = time();
             try {
                 if(!is_file($file)) throw new Exception("File not found : ".$file, "migration/run/invalid-file");
+                if($direction == 'down') {
+                    $cekUp = $this->lastrecord($db, basename($file), direction:'up');
+                    
+                    if($cekUp == null) {
+                        echo "[skipped] [direction=".$direction."] ".$label." up direction never executed before\n";
+                        continue;
+                    }
 
-                $cek = $this->lastrecord($db, basename($file));
-                if($cek == null && $direction == 'down') {
-                    echo "[skipped] [direction=".$direction."] ".$label." up direction never executed before\n";
-                    continue;
+                    if ($cekUp != null && $cekUp->output == 'failed') {
+                        echo "[skipped] [direction=".$direction."] ".$label." up direction failed\n";
+                        continue;
+                    }
                 }
 
+                $cek = $this->lastrecord($db, basename($file));
                 if($cek != null && ($cek->output == "success" && $cek->direction == $direction)) {
                     echo "[skipped] [direction=".$direction."] ".$label.' success at '.date('d F Y H:i:s', $cek->finish)."\n";
                     continue;
@@ -113,9 +131,14 @@ class Migration {
                 \call_user_func(include_once $file, $db, $direction);
                 $this->report($db, basename($file), $direction, $start, 'success');
                 echo "[success] ".$label."\n";
-            } catch(Exception $e) {
+            } catch(DatabaseException $e) {
                 try {
-                    $this->report($db, basename($file), $direction, $start, 'failed');
+                    $log = [
+                        'msg' => $e->getMessage(),
+                        'state' => $e->getState(),
+                        'query' => $e->getSql()
+                    ]; 
+                    $this->report($db, basename($file), $direction, $start, 'failed', log: $log);
                     echo "[failed] ". $label."\n";
                     throw $e;
                 } catch(Exception $e) {

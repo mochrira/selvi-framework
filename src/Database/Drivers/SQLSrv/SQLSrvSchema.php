@@ -75,8 +75,9 @@ class SQLSrvSchema implements Schema {
             'direction' => 'VARCHAR(15) NOT NULL',
             'start' => 'INT NOT NULL',
             'finish' => 'INT NOT NULL',
-            'output' => 'TEXT NOT NULL',
-            'dbuser' => 'VARCHAR(15)'
+            'output' => 'VARCHAR(15) NOT NULL',
+            'dbuser' => 'VARCHAR(15)',
+            'error_log' => 'TEXT'
         ]);
     }
 
@@ -102,9 +103,9 @@ class SQLSrvSchema implements Schema {
         if(is_bool($val)) return ($val == true ? '1' : '0');
         if(is_string($val)) {
             $val = str_replace("\\", "\\\\", $val); // replace backslash View\Update => View\\Update
-            $val = str_replace("'", "\\'", $val); // replace single quotes Qur'an => Qur\'an
-            $val = str_replace("\'", "\\\'", $val); // replace double quotes Qur"an => Qur\"an
-            $val = "'".$val."'"; // add double quotes before and after "Qur\'an", "Qur\"an", "View\\Update"
+            $val = str_replace("'", "''", $val); // replace single quotes Qur'an => Qur''an
+            $val = str_replace("\"", "\\\"", $val); // replace double quotes Qur"an => Qur\"an
+            $val = "'".$val."'"; // add single quotes before and after 'Qur''an', 'Qur\"an', 'View\\Update'
             return $val;
         }
         return $val;
