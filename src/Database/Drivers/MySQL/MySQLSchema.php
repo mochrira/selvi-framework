@@ -232,8 +232,11 @@ class MySQLSchema implements Schema {
             'direction' => 'VARCHAR(15) NOT NULL',
             'start' => 'INT NOT NULL',
             'finish' => 'INT NOT NULL',
-            'output' => 'TEXT NOT NULL',
-            'dbuser' => 'VARCHAR(15) NOT NULL'
+            'output' => 'VARCHAR(15) NOT NULL',
+            'dbuser' => 'VARCHAR(15) NOT NULL',
+            'error_msg' => 'TEXT',
+            'error_state' => 'VARCHAR(50)',
+            'error_query' => 'TEXT'
         ]);
     }
 
@@ -343,6 +346,18 @@ class MySQLSchema implements Schema {
         }));
         $this->reset();
         return $this->query($sql);
+    }
+
+    function addColumnFirst(string $column, string $type){
+        $this->addColumn($column, $type);
+        $this->_addColumn .= " FIRST";
+        return $this;
+    }
+
+    function addColumnAfter(string $afterCol, string $column, string $type){
+        $this->addColumn($column, $type);
+        $this->_addColumn .= " AFTER {$afterCol}";
+        return $this;
     }
 
     function modifyColumn(string $column, string $type): Schema {
