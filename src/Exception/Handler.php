@@ -28,7 +28,7 @@ class Handler  {
             \jsonResponse([
                 'code' => $e->getCodeString(),
                 'message' => $e->getMessage()
-            ])->send();
+            ], $e->getCode())->send();
         });
         
         self::set('exception/database', function (\Selvi\Exception\DatabaseException $e) {
@@ -39,7 +39,7 @@ class Handler  {
                     'state' => $e->getState(),
                     'query' => $e->getSql()
                 ]
-            ])->send();
+            ], $e->getCode())->send();
         });
         
         self::set('exception/http', function (\Selvi\Exception\HttpException $e) {
@@ -50,7 +50,7 @@ class Handler  {
                     'uri' => $e->getUri(),
                     'method' => $e->getMethod()
                 ]
-            ])->send();
+            ], $e->getCode())->send();
         });
 
         self::set('default', function (\Throwable $e) {
@@ -58,7 +58,7 @@ class Handler  {
                 'code' => $e->getCode(),
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
-            ])->send();
+            ], $e->getCode())->send();
         });
     }
 
