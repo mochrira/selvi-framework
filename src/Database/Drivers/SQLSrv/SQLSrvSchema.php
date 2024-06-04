@@ -373,6 +373,9 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
+    function addColumnAfter(string $afterCol, string $column, string $type): Schema {
+        return $this;
+    }
 
     function dropColumn(string $column): Schema {
         $this->_dropColumn = "DROP COLUMN {$column}";

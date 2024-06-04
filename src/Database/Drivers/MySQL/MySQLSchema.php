@@ -348,13 +348,13 @@ class MySQLSchema implements Schema {
         return $this->query($sql);
     }
 
-    function addColumnFirst(string $column, string $type){
+    function addColumnFirst(string $column, string $type) {
         $this->addColumn($column, $type);
         $this->_addColumn .= " FIRST";
         return $this;
     }
 
-    function addColumnAfter(string $afterCol, string $column, string $type){
+    function addColumnAfter(string $afterCol, string $column, string $type): Schema {
         $this->addColumn($column, $type);
         $this->_addColumn .= " AFTER {$afterCol}";
         return $this;

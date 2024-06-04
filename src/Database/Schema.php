@@ -37,11 +37,11 @@ interface Schema {
 
     public function modifyColumn(string $column, string $type): self;
     public function addColumn(string $column, string $type): self;
+    public function addColumnAfter(string $afterCol, string $column, string $type): self;
     public function dropColumn(string $column): self;
     public function alter(string $table): Result | bool;
     // public function changeColumn(string $table,  string $column, string $new_column, string $type): void;
     // public function addColumnFirst(string $column, string $type): void;
-    // public function addColumnAfter(string $afterCol, string $column, string $type): void;
     public function rename(string $table,string $new_table): Result | bool;
 
     public function createIndex(string $table, string $index_name, array $cols): Result | bool;
