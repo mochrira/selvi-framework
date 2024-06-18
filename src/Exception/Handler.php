@@ -58,7 +58,7 @@ class Handler  {
                 'code' => $e->getCode(),
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
-            ], $e->getCode())->send();
+            ], 500)->send();
         });
     }
 
