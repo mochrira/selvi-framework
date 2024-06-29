@@ -25,10 +25,14 @@ class Handler  {
 
     public static function setDefaultHandlers() {
         self::set('exception/framework', function (\Selvi\Exception $e) {
-            \jsonResponse([
+            $data = [
                 'code' => $e->getCodeString(),
                 'message' => $e->getMessage()
-            ], $e->getCode())->send();
+            ];
+            if($e->getAdditionalData() !== null) {
+                $data['data'] = $e->getAdditionalData();
+            }
+            \jsonResponse($data, $e->getCode())->send();
         });
         
         self::set('exception/database', function (\Selvi\Exception\DatabaseException $e) {

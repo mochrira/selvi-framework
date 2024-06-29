@@ -41,4 +41,8 @@ class Request {
         return $this->_raw ?? null;
     }
 
+    function cookie($name) {
+        return $_COOKIE[$name];
+    }
+
 }

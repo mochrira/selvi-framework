@@ -4,12 +4,24 @@ namespace Selvi;
 
 class Response {
 
-    private $content;
-    private $code;
+    protected $content;
+    protected $code;
 
     function __construct($content = '', $code = 200) {
         $this->content = $content;
         $this->code = $code;
+    }
+
+    function setContent($content) {
+        $this->content = $content;
+    }
+
+    function setCode($code) {
+        $this->code = $code;
+    }
+
+    function cookie($name, $value = "", $expire = 0, $path = "", $domain = "", $secure = false, $httponly = false) {
+        setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
     }
 
     function send() {

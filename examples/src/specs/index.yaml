@@ -5,6 +5,13 @@ info:
   description: Digunakan untuk melakukan testing fitur dan performa Selvi Framework
   version: 1.0.0
 
+components:
+  securitySchemes:
+    token:
+      type: apiKey
+      in: header
+      name: Authorization
+
 servers:
   - url: http://localhost:8091/mysql/
     description: MySQL Driver
@@ -12,6 +19,8 @@ servers:
     description: SQLSrv Driver
 
 tags:
+  - name: Auth
+    description: Mengelola autentikasi pengguna
   - name: Kontak
     description: Mengelola data kontak
   - name: Grup
@@ -22,6 +31,9 @@ tags:
     description: Mengelola data Transaksi
 
 paths:
+  /auth:
+    $ref: './paths/Auth/Auth.yaml'
+    
   /kontak:
     $ref: './paths/Kontak/Kontak.yaml'
   /kontak/{idKontak}:
