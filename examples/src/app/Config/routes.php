@@ -2,6 +2,10 @@
 
 use Selvi\Route;
 
+Route::post('/auth', '\\App\\Controllers\\AuthController@getToken');
+Route::get('/auth', '\\App\\Controllers\\AuthController@info');
+Route::patch('/auth', '\\App\\Controllers\\AuthController@refreshToken');
+
 Route::get('/kontak', '\\App\\Controllers\\KontakController@result');
 Route::get('/kontak/{id}', '\\App\\Controllers\\KontakController@row');
 Route::post('/kontak', '\\App\\Controllers\\KontakController@insert');

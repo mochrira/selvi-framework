@@ -9,5 +9,8 @@
             "App\\": "./app"
         }
     },
-    "require": {}
+    "require": {
+        "lcobucci/jwt": "^5.3",
+        "lcobucci/clock": "^3.2"
+    }
 }
