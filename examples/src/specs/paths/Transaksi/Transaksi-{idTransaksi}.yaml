@@ -1,6 +1,8 @@
 get:
   tags: [Transaksi]
   summary: Mengambil semua data Transaksi bedasarkan ID
+  security: 
+    - token: [read]
   parameters:
     - in: path
       required: true
@@ -14,6 +16,8 @@ get:
 
 patch:
   summary: Mengubah Transaksi berdasarkan ID
+  security: 
+    - token: [read]
   tags: [Transaksi]
   parameters:
     - in: path
@@ -56,6 +60,8 @@ patch:
 
 delete:
   summary: Menghapus Transaksi berdasarkan ID
+  security: 
+    - token: [read]
   tags: [Transaksi]
   parameters:
     - in: path

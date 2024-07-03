@@ -7,7 +7,7 @@ use Selvi\Database\Schema;
 use Selvi\Model;
 use stdClass;
 
-class Kontak extends Model {
+class Kontak {
 
     private Schema $db;
 

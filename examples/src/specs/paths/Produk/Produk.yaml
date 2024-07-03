@@ -1,6 +1,8 @@
 get:
   tags: [Produk]
   summary: Mengambil semua data Produk
+  security: 
+    - token: [read]
   responses:
     '200':
       description: Semua data produk dalam format JSON
@@ -8,6 +10,8 @@ get:
 post:
   tags: [Produk]
   summary: Menambahkan produk
+  security: 
+    - token: [read]
   requestBody:
     required: true
     content:

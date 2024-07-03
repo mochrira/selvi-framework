@@ -2,17 +2,18 @@
 
 namespace App\Controllers;
 
-use App\Controller;
+use App\Middlewares\AuthMiddleware;
+use App\Models\Pengguna;
 use Selvi\Exception;
 use Selvi\Request;
 
-class AuthController extends Controller {
+class AuthController {
 
-    function __construct() { 
-        parent::__construct();
-    }
+    function __construct(
+        private Pengguna $PenggunaModel
+    ) { }
 
-    function getToken(Request $request) {
+    function getToken(Request $request, AuthMiddleware $auth) {
         $data = json_decode($request->raw(), true);
 
         $error = [];
@@ -31,33 +32,22 @@ class AuthController extends Controller {
         if(count($error) > 0) throw new Exception('Periksa kembali isian anda', 'auth/invalid-input', 400, $error);
 
         $claims = ['idPengguna' => $pengguna->idPengguna];
-        $response = jsonResponse(['token' => $this->generateToken($claims)]);
-        $response->cookie('refresh', $this->generateRefreshToken($claims));
+        $response = jsonResponse(['token' => $auth->generateToken($claims)]);
+        $response->cookie('refresh', $auth->generateRefreshToken($claims));
         return $response;
     }
 
-    function info(Request $request) {
-        $this->validateToken($request);
-        $pengguna = (array)$this->penggunaAktif;
-        unset($pengguna['password']);
-        return jsonResponse($pengguna);
+    function info(AuthMiddleware $auth) {
+        $penggunaAktif = (array)$auth->user();
+        unset($penggunaAktif['password']);
+        return jsonResponse($penggunaAktif);
     }
 
-    function refreshToken(Request $request) {
+    function refreshToken(AuthMiddleware $auth) {
         $response = jsonResponse();
-        try {
-            $this->validateRefreshToken($request);
-        } catch(Exception $e) {
-            if($e->getCodeString()  == 'auth/refresh-token-need-regenerate') {
-                $response->cookie('refresh', $this->generateRefreshToken([
-                    'idPengguna' => $this->parsedRefreshToken->claims()->get('idPengguna')
-                ]));
-            } else {
-                throw $e;
-            }
-        }
-        $response->setData(['token' => $this->generateToken([
-            'idPengguna' => $this->parsedRefreshToken->claims()->get('idPengguna')
+        $penggunaAktif = $auth->user();
+        $response->setData(['token' => $auth->generateToken([
+            'idPengguna' => $penggunaAktif->idPengguna
         ])]);
         return $response;
     }

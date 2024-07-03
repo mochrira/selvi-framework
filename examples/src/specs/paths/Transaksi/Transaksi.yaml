@@ -1,6 +1,8 @@
 get:
   tags: [Transaksi]
   summary: Mengambil semua data Transaksi
+  security: 
+    - token: [read]
   responses:
     '200':
       description: Semua data Transaksi dalam format JSON
@@ -8,6 +10,8 @@ get:
 post:
   tags: [Transaksi]
   summary: Menambahkan Transaksi
+  security: 
+    - token: [read]
   requestBody:
     required: true
     content:

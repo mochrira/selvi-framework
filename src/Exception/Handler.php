@@ -29,8 +29,8 @@ class Handler  {
                 'code' => $e->getCodeString(),
                 'message' => $e->getMessage()
             ];
-            if($e->getAdditionalData() !== null) {
-                $data['data'] = $e->getAdditionalData();
+            if($e->getData() !== null) {
+                $data['data'] = $e->getData();
             }
             \jsonResponse($data, $e->getCode())->send();
         });

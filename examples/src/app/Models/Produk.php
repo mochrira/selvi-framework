@@ -6,7 +6,7 @@ use Selvi\Database\Manager;
 use Selvi\Database\Schema;
 use Selvi\Model;
 
-class Produk extends Model {
+class Produk {
     
     private Schema $db;
 

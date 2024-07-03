@@ -6,7 +6,8 @@ use Selvi\Database\Manager;
 use Selvi\Database\Schema;
 use Selvi\Model;
 
-class Transaksi extends Model {
+class Transaksi {
+    
     private Schema $db;
     
     function __construct(){
