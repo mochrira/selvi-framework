@@ -1,5 +1,7 @@
 get:
   summary: Mengambil Grup berdasarkan ID
+  security: 
+    - token: [read]
   tags: [Grup]
   parameters:
     - in: path
@@ -13,6 +15,8 @@ get:
 
 patch:
   summary: Mengubah Grup berdasarkan ID
+  security: 
+    - token: [read]
   tags: [Grup]
   parameters:
     - in: path
@@ -38,6 +42,8 @@ patch:
 
 delete:
   summary: Menghapus Grup berdasarkan ID
+  security: 
+    - token: [read]
   tags: [Grup]
   parameters:
     - in: path

@@ -1,13 +1,17 @@
 get:
-    tags: [Grup]
-    summary: Mengambil semua data grup
-    responses:
-      '200':
-        description: Semua data grup dalam format JSON
+  tags: [Grup]
+  summary: Mengambil semua data grup
+  security: 
+    - token: [read]
+  responses:
+    '200':
+      description: Semua data grup dalam format JSON
 
 post:
   tags: [Grup]
   summary: Menambahkan Grup
+  security: 
+    - token: [read]
   requestBody:
     content:
       application/json:

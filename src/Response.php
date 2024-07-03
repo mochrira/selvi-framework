@@ -12,6 +12,14 @@ class Response {
         $this->code = $code;
     }
 
+    function getContent() {
+        return $this->content;
+    }
+
+    function getCode() {
+        return $this->code;
+    }
+
     function setContent($content) {
         $this->content = $content;
     }

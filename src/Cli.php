@@ -10,7 +10,7 @@ class Cli {
 
     public static function register($command, $cliClass) {
         if(!isset(self::$commands[$command])) {
-            self::$commands[$command] = Factory::load($cliClass);
+            self::$commands[$command] = Factory::resolve($cliClass);
         }
     }
 

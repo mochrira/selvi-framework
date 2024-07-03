@@ -30,8 +30,6 @@ get:
 patch:
   tags: [Auth]
   summary: Mengambil token baru dari server
-  security: 
-    - token: [read]
   responses:
     '200':
       description: Berhasil mengambil token baru dari server

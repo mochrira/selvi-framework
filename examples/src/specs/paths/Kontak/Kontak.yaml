@@ -1,6 +1,8 @@
 get:
   tags: [Kontak]
   summary: Mengambil semua data kontak
+  security: 
+    - token: [read]
   parameters:
     - in: query
       name: idGrup
@@ -29,6 +31,8 @@ get:
 post:
   tags: [Kontak]
   summary: Menambahkan kontak
+  security: 
+    - token: [read]
   requestBody:
     required: true
     content:

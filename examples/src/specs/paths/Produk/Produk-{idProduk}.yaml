@@ -1,5 +1,7 @@
 get:
   summary: Mengambil Produk berdasarkan ID
+  security: 
+    - token: [read]
   tags: [Produk]
   parameters:
     - in: path
@@ -13,6 +15,8 @@ get:
 
 patch:
   summary: Mengubah Produk berdasarkan ID
+  security: 
+    - token: [read]
   tags: [Produk]
   parameters:
     - in: path
@@ -38,6 +42,8 @@ patch:
 
 delete:
   summary: Menghapus Produk berdasarkan ID
+  security: 
+    - token: [read]
   tags: [Produk]
   parameters:
     - in: path
