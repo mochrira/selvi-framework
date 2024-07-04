@@ -385,24 +385,28 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    function createIndex(string $table, string $index_name, array $cols): Result|bool {
+    function createIndex(string $table, string $index_name, array $cols): Result | bool {
         $column = implode(",", $cols);
         $sql = "CREATE INDEX {$index_name} ON {$table} ({$column});";
         return $this->query($sql);
     }
 
-    function dropIndex(string $table, string $index_name): Result|bool {
+    function dropIndex(string $table, string $index_name): Result | bool {
         $sql = "DROP INDEX {$index_name} ON {$table};";
         return $this->query($sql);
     }
 
-    function truncate(string $table): Result|bool {
+    function truncate(string $table): Result | bool {
         $sql = "TRUNCATE {$table}";
         return $this->query($sql);
     }
 
     function rename(string $table, string $new_table): Result | bool {
         return $this->query('RENAME TABLE '.$table.' TO '.$new_table);
+    }
+
+    function changeColumn(string $table, string $oldCol, string $newCol, string $type): Result | bool {
+        return $this->query('ALTER TABLE '.$table.' CHANGE COLUMN '.$oldCol.' '.$newCol.' '.$type);
     }
 
 }
