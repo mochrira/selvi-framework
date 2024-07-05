@@ -30,21 +30,21 @@ if(!function_exists('view')) {
 
 if(!function_exists('currentUrl')) {
     function currentUrl() {
-        $uri = Factory::load(Uri::class, 'uri');
+        $uri = Factory::resolve(Uri::class, 'uri');
         return $uri->currentUrl();
     }
 }
 
 if(!function_exists('baseUrl')) {
     function baseUrl() {
-        $uri = Factory::load(Uri::class, 'uri');
+        $uri = Factory::resolve(Uri::class, 'uri');
         return $uri->baseUrl();
     }
 }
 
 if(!function_exists('siteUrl')) {
     function siteUrl($uri_string) {
-        $uri = Factory::load(Uri::class, 'uri');
+        $uri = Factory::resolve(Uri::class, 'uri');
         return $uri->siteUrl($uri_string);
     }
 }
