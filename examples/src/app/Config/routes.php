@@ -5,13 +5,13 @@ use Selvi\Route;
 Route::post('/auth', 'App\\Controllers\\AuthController@getToken');
 Route::get('/auth', 'App\\Controllers\\AuthController@info', ['App\\Middlewares\\AuthMiddleware@validateToken']);
 Route::patch('/auth', 'App\\Controllers\\AuthController@refreshToken', ['App\\Middlewares\\AuthMiddleware@validateRefreshToken']);
-
-Route::withMiddlewares(['App\\Middlewares\\AuthMiddleware@validateToken'], function () {
-    Route::get('/kontak', 'App\\Controllers\\KontakController@result');
+ 
+Route::middleware(['App\\Middlewares\\AuthMiddleware@validateToken', 'App\\Middlewares\\TestMiddleware@testFunction'], function () {
+    Route::get('/kontak', 'App\\Controllers\\KontakController@result', ['App\\Middlewares\\TestMiddleware@testFunction']);
     Route::get('/kontak/{id}', 'App\\Controllers\\KontakController@row');
     Route::post('/kontak', 'App\\Controllers\\KontakController@insert');
     Route::patch('/kontak/{id}', 'App\\Controllers\\KontakController@update');
-    Route::delete('/kontak/{id}', 'App\\Controllers\\KontakController@delete');
+    Route::delete('/kontak/{id}', 'App\\Controllers\\KontakController@delete'); 
     
     Route::get('/grup', 'App\\Controllers\\GrupController@result');
     Route::get('/grup/{id}', 'App\\Controllers\\GrupController@row');

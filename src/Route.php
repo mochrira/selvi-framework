@@ -15,8 +15,18 @@ class Route {
         'DELETE' => []
     ];
 
-    static function withMiddlewares(array $middlewares, Closure $callback) {
-        self::$tmpMiddlewares = $middlewares;
+    static private function removeDuplicates(array $existing, array $new) {
+        $tmp = [];
+        array_push($tmp, ...(
+            array_filter($new, function ($v) use ($existing) {
+                return !in_array($v, $existing, true);
+            })
+        ));
+        return $tmp;
+    }
+
+    static function middleware(array $middlewares, Closure $callback) {
+        self::$tmpMiddlewares = self::removeDuplicates(self::$tmpMiddlewares, $middlewares);
         $callback();
         self::$tmpMiddlewares = [];
     }
@@ -24,28 +34,28 @@ class Route {
     static function get(string $uri, callable | string | array $callback, array $middlewares = []) {
         self::$routes['GET'][$uri] = [
             'cb' => $callback,
-            'mid' => array_merge(self::$tmpMiddlewares, $middlewares)
+            'mid' => array_merge(self::$tmpMiddlewares, self::removeDuplicates(self::$tmpMiddlewares, $middlewares))
         ];
     }
 
     static function post(string $uri, callable | string | array $callback, array $middlewares = []) {
         self::$routes['POST'][$uri] = [
             'cb' => $callback,
-            'mid' => array_merge(self::$tmpMiddlewares, $middlewares)
+            'mid' => array_merge(self::$tmpMiddlewares, self::removeDuplicates(self::$tmpMiddlewares, $middlewares))
         ];
     }
 
     static function patch(string $uri, callable | string | array $callback, array $middlewares = []) {
         self::$routes['PATCH'][$uri] = [
             'cb' => $callback,
-            'mid' => array_merge(self::$tmpMiddlewares, $middlewares)
+            'mid' => array_merge(self::$tmpMiddlewares, self::removeDuplicates(self::$tmpMiddlewares, $middlewares))
         ];
     }
 
     static function delete(string $uri, callable | string | array $callback, array $middlewares = []) {
         self::$routes['DELETE'][$uri] = [
             'cb' => $callback,
-            'mid' => array_merge(self::$tmpMiddlewares, $middlewares)
+            'mid' => array_merge(self::$tmpMiddlewares, self::removeDuplicates(self::$tmpMiddlewares, $middlewares))
         ];
     }
 
