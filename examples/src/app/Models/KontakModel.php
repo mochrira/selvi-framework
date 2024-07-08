@@ -4,10 +4,8 @@ namespace App\Models;
 
 use Selvi\Database\Manager;
 use Selvi\Database\Schema;
-use Selvi\Model;
-use stdClass;
 
-class Kontak {
+class KontakModel {
 
     private Schema $db;
 
@@ -36,7 +34,7 @@ class Kontak {
         ->get('kontak')->result();
     }
 
-    function row(array $where): stdClass {
+    function row(array $where) {
         return $this->db->select([
             'kontak.idKontak',
             'kontak.nmKontak',

@@ -3,14 +3,14 @@
 namespace App\Controllers;
 
 use App\Middlewares\AuthMiddleware;
-use App\Models\Pengguna;
+use App\Models\PenggunaModel;
 use Selvi\Exception;
 use Selvi\Request;
 
 class AuthController {
 
     function __construct(
-        private Pengguna $PenggunaModel
+        private PenggunaModel $PenggunaModel
     ) { }
 
     function getToken(Request $request, AuthMiddleware $auth) {

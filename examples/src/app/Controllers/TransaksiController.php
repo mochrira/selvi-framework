@@ -2,9 +2,8 @@
 
 namespace App\Controllers;
 
-use App\Models\Transaksi;
-use App\Models\TransaksiDetail;
-
+use App\Models\TransaksiDetailModel;
+use App\Models\TransaksiModel;
 use Selvi\Database\Manager;
 use Selvi\Exception;
 use Selvi\Request;
@@ -12,8 +11,8 @@ use Selvi\Request;
 class TransaksiController {
 
     function __construct(
-        private Transaksi $Transaksi,
-        private TransaksiDetail $TransaksiDetail
+        private TransaksiModel $Transaksi,
+        private TransaksiDetailModel $TransaksiDetail
     ){ }
 
     function row(string $idTransaksi) {

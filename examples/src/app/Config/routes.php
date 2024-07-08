@@ -1,13 +1,13 @@
 <?php 
 
-use Selvi\Route;
+use Selvi\Routing\Route;
 
 Route::post('/auth', 'App\\Controllers\\AuthController@getToken');
-Route::get('/auth', 'App\\Controllers\\AuthController@info', ['App\\Middlewares\\AuthMiddleware@validateToken']);
-Route::patch('/auth', 'App\\Controllers\\AuthController@refreshToken', ['App\\Middlewares\\AuthMiddleware@validateRefreshToken']);
+Route::get('/auth', 'App\\Controllers\\AuthController@info')->middleware('App\\Middlewares\\AuthMiddleware@validateToken');
+Route::patch('/auth', 'App\\Controllers\\AuthController@refreshToken')->middleware('App\\Middlewares\\AuthMiddleware@validateRefreshToken');
  
-Route::middleware(['App\\Middlewares\\AuthMiddleware@validateToken', 'App\\Middlewares\\TestMiddleware@testFunction'], function () {
-    Route::get('/kontak', 'App\\Controllers\\KontakController@result', ['App\\Middlewares\\TestMiddleware@testFunction']);
+Route::withMiddleware(['App\\Middlewares\\AuthMiddleware@validateToken', 'App\\Middlewares\\TestMiddleware@testFunction'], function () {
+    Route::get('/kontak', 'App\\Controllers\\KontakController@result');
     Route::get('/kontak/{id}', 'App\\Controllers\\KontakController@row');
     Route::post('/kontak', 'App\\Controllers\\KontakController@insert');
     Route::patch('/kontak/{id}', 'App\\Controllers\\KontakController@update');

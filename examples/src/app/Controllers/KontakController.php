@@ -2,13 +2,13 @@
 
 namespace App\Controllers;
 
-use App\Models\Kontak;
+use App\Models\KontakModel;
 use Selvi\Request;
 
 class KontakController {
 
     function __construct(
-        private Kontak $Kontak
+        private KontakModel $KontakModel
     ) { }
 
     function result(Request $request) {
@@ -37,8 +37,8 @@ class KontakController {
         $offset = $request->get('offset') ?? 0;
         $limit = $request->get('limit') ?? -1;
 
-        $data = $this->Kontak->result($where, $orWhere, $order, $offset, $limit);
-        $count = $this->Kontak->count($where, $orWhere);
+        $data = $this->KontakModel->result($where, $orWhere, $order, $offset, $limit);
+        $count = $this->KontakModel->count($where, $orWhere);
         return \jsonResponse([
             'data' => $data,
             'count' => $count
@@ -46,24 +46,24 @@ class KontakController {
     }
 
     function row(String $id) {
-        $data = $this->Kontak->row([['kontak.idKontak',$id]]);
+        $data = $this->KontakModel->row([['kontak.idKontak',$id]]);
         return \jsonResponse($data, 200);
     }
 
     function insert(Request $request) {
         $data = json_decode($request->raw(), true);
-        $idKontak = $this->Kontak->insert($data);
+        $idKontak = $this->KontakModel->insert($data);
         return \jsonResponse(['idKontak' => $idKontak], 201);
     }
 
     function update(Request $request, String $id) {
         $data = json_decode($request->raw(), true);
-        $this->Kontak->update([['kontak.idKontak', $id]], $data);
+        $this->KontakModel->update([['kontak.idKontak', $id]], $data);
         return \jsonResponse(null, 204);
     }
 
     function delete(String $id) {
-        $this->Kontak->delete([['kontak.idKontak', $id]]);
+        $this->KontakModel->delete([['kontak.idKontak', $id]]);
         return \jsonResponse(null, 204);
     }
 

@@ -5,7 +5,7 @@ namespace App\Models;
 use Selvi\Database\Manager;
 use Selvi\Database\Schema;
 
-class Grup {
+class GrupModel {
 
     private Schema $db;
 

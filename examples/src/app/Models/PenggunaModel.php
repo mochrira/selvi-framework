@@ -5,7 +5,7 @@ namespace App\Models;
 use Selvi\Database\Manager;
 use Selvi\Database\Schema;
 
-class Pengguna {
+class PenggunaModel {
 
     private Schema $db;
 

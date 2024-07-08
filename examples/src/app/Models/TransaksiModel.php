@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Selvi\Database\Manager;
 use Selvi\Database\Schema;
-use Selvi\Model;
 
-class Transaksi {
+class TransaksiModel {
     
     private Schema $db;
     
