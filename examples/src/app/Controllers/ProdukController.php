@@ -2,39 +2,39 @@
 
 namespace App\Controllers;
 
-use App\Models\Produk;
+use App\Models\ProdukModel;
 use Selvi\Request;
 
 class ProdukController {
 
     function __construct(
-        private Produk $Produk
+        private ProdukModel $ProdukModel
     ) { }
 
     function result() {
-        $result = $this->Produk->result();
+        $result = $this->ProdukModel->result();
         return \jsonResponse($result, 200);
     }
 
     function row(String $idProduk) {
-        $result = $this->Produk->row([['produk.idProduk', $idProduk]]);
+        $result = $this->ProdukModel->row([['produk.idProduk', $idProduk]]);
         return \jsonResponse($result, 200);
     }
 
     function insert(Request $request) {
         $data = json_decode($request->raw(),true);
-        $idProduk = $this->Produk->insert($data);
+        $idProduk = $this->ProdukModel->insert($data);
         return \jsonResponse(['idProduk' => $idProduk] , 201);
     }
 
     function update(Request $request, String $idProduk) {
         $data = json_decode($request->raw(), true);
-        $this->Produk->update([['produk.idProduk', $idProduk]],$data);
+        $this->ProdukModel->update([['produk.idProduk', $idProduk]],$data);
         return \jsonResponse(null, 200);
     }
 
     function delete() {
-        $this->Produk->delete([['produk.idProduk']]);
+        $this->ProdukModel->delete([['produk.idProduk']]);
         return \jsonResponse(null, 200);
         
     }

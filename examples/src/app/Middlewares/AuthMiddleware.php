@@ -2,7 +2,7 @@
 
 namespace App\Middlewares;
 
-use App\Models\Pengguna;
+use App\Models\PenggunaModel;
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -21,7 +21,7 @@ class AuthMiddleware {
     private mixed $penggunaAktif;
 
     function __construct(
-        private Pengguna $PenggunaModel
+        private PenggunaModel $PenggunaModel
     ) {
         $this->tokenConfig = Configuration::forSymmetricSigner(new Sha256(), 
             InMemory::plainText(file_get_contents(BASEPATH.'/../private/.JWT_KEY')));

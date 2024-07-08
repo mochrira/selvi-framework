@@ -2,12 +2,23 @@
 
 namespace Selvi;
 
+use Selvi\Routing\Route;
+
 class Request {
 
     private $_method = null;
     private $_post = null;
     private $_get = null;
     private $_raw = null;
+    private ?Route $_route = null;
+
+    function setRoute(Route $route): void {
+        $this->_route = $route;
+    }
+
+    function route(): Route {
+        return $this->_route;
+    }
 
     function method() {
         if(!$this->_method) $this->_method = $_SERVER['REQUEST_METHOD'];

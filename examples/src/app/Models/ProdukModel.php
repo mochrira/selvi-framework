@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Selvi\Database\Manager;
 use Selvi\Database\Schema;
-use Selvi\Model;
 
-class Produk {
+class ProdukModel {
     
     private Schema $db;
 
