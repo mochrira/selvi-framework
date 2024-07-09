@@ -3,53 +3,53 @@
 namespace Selvi\Routing;
 
 use Closure;
-use Selvi\Factory;
-use Selvi\Utils\Arr;
+use Selvi\Router;
 
-class Route {
+class Route implements RouteInterface {
 
-    private static $tmpMiddlewares = [];
+    private static ?RouteGroup $group = null;
 
-    static function withMiddleware(array $middlewares, Closure $callback) {
-        self::$tmpMiddlewares = Arr::removeDuplicates(self::$tmpMiddlewares, $middlewares);
-        $callback();
-        self::$tmpMiddlewares = [];
+    static function withMiddleware(Closure | array | string $middleware, Closure $callback) {
+        return self::group($callback)->setMiddleware($middleware);
+    }
+
+    static function group(Closure $callback) {
+        $group = new RouteGroup();
+            self::$group = $group;
+                $callback();
+            self::$group = null;
+        return Router::add($group);
+    }
+
+    private static function addRoute(string $method, string $uri, callable | string | array $callback) {
+        $route = new Route($method, $uri, $callback);
+        if(self::$group !== null) return self::$group->add($route);
+        return Router::add($route);
     }
 
     static function get(string $uri, callable | string | array $callback): Route {
-        /** @var RouteCollection $collection */
-        $collection = Factory::resolve(RouteCollection::class);
-        $route = new Route('GET', $uri, $callback);
-        $route->middleware(static::$tmpMiddlewares);
-        return $collection->add($route);
+        return self::addRoute('GET', $uri, $callback);
     }
 
     static function post(string $uri, callable | string | array $callback): Route {
-        /** @var RouteCollection $collection */
-        $collection = Factory::resolve(RouteCollection::class);
-        $route = new Route('POST', $uri, $callback);
-        $route->middleware(static::$tmpMiddlewares);
-        return $collection->add($route);
+        return self::addRoute('POST', $uri, $callback);
     }
 
     static function patch(string $uri, callable | string | array $callback): Route {
-        /** @var RouteCollection $collection */
-        $collection = Factory::resolve(RouteCollection::class);
-        $route = new Route('PATCH', $uri, $callback);
-        $route->middleware(static::$tmpMiddlewares);
-        return $collection->add($route);
+        return self::addRoute('PATCH', $uri, $callback);
     }
 
     static function delete(string $uri, callable | string | array $callback): Route {
-        /** @var RouteCollection $collection */
-        $collection = Factory::resolve(RouteCollection::class);
-        $route = new Route('DELETE', $uri, $callback);
-        $route->middleware(static::$tmpMiddlewares);
-        return $collection->add($route);
+        return self::addRoute('DELETE', $uri, $callback);
+    }
+
+    static function options(string $uri, callable | string | array $callback): Route {
+        return self::addRoute('OPTIONS', $uri, $callback);
     }
 
     private $middlewares = [];
-    private $params = [];
+    private $parameters = [];
+    private $uriParams = [];
 
     function __construct(
         private string $method,
@@ -69,22 +69,64 @@ class Route {
         return $this->callback;
     }
 
-    function param($name, mixed $value = null) {
-        if(is_null($value)) return $this->params[$name];
-        $this->params[$name] = $value;
+    function params(): array {
+        return $this->parameters;
+    }
+
+    function getParam(string $name): mixed {
+        return $this->parameters[$name];
+    }
+
+    function setParam(string $name, mixed $value): RouteInterface {
+        $this->parameters[$name] = $value;
         return $this;
     }
 
-    function middleware(Closure | array | string | null $middleware = null) {
-        if(is_null($middleware)) return $this->middlewares;
+    function setMiddleware(Closure | array | string $middleware): RouteInterface {
         $this->middlewares = array_merge(
-            $this->middlewares, 
-            Arr::removeDuplicates(
-                $this->middlewares, 
-                is_array($middleware) ? $middleware : [$middleware]
-            )
+            $this->middlewares, is_array($middleware) ? $middleware : [$middleware]
         );
         return $this;
+    }
+
+    function getMiddleware(): array {
+        return $this->middlewares;
+    }
+
+    function match(string $method, string $uri, RouteGroup | null $parent = null) {
+        if($this->method !== $method) return false;
+        if (preg_match('#^' . preg_replace('/\{(.*?)\}/', '(.+)', $this->uri) . '$#', $uri, $values)) {
+            if(preg_match('#^' . preg_replace('/\{(.*?)\}/', '\{(.+)\}', $this->uri) . '$#', $this->uri, $keys)) {
+                array_shift($keys); array_shift($values);
+                $this->uriParams = array_combine($keys, $values);
+                return $this->compile($parent);
+            }
+        }
+        return false;
+    }
+
+    function compile(RouteGroup | null $parent = null) {
+        $route = new Route($this->method, $this->uri, $this->callback);
+        $route->setMiddleware($this->getMiddleware());
+
+        if($parent !== null) {
+            $compiledParent = $parent->compile();
+            $route->setMiddleware($compiledParent->getMiddleware());
+
+            foreach($compiledParent->params() as $name => $value) {
+                $route->setParam($name, $value);
+            }
+        }
+
+        foreach($this->params() as $name => $value) {
+            $route->setParam($name, $value);
+        }
+
+        foreach($this->uriParams as $name => $value) {
+            $route->setParam($name, $value);
+        }
+
+        return $route;
     }
 
 }

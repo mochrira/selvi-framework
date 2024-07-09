@@ -3,10 +3,10 @@
 use Selvi\Routing\Route;
 
 Route::post('/auth', 'App\\Controllers\\AuthController@getToken');
-Route::get('/auth', 'App\\Controllers\\AuthController@info')->middleware('App\\Middlewares\\AuthMiddleware@validateToken');
-Route::patch('/auth', 'App\\Controllers\\AuthController@refreshToken')->middleware('App\\Middlewares\\AuthMiddleware@validateRefreshToken');
+Route::get('/auth', 'App\\Controllers\\AuthController@info')->setMiddleware('App\\Middlewares\\AuthMiddleware@validateToken');
+Route::patch('/auth', 'App\\Controllers\\AuthController@refreshToken')->setMiddleware('App\\Middlewares\\AuthMiddleware@validateRefreshToken');
  
-Route::withMiddleware(['App\\Middlewares\\AuthMiddleware@validateToken', 'App\\Middlewares\\TestMiddleware@testFunction'], function () {
+Route::withMiddleware(['App\\Middlewares\\AuthMiddleware@validateToken'], function () {
     Route::get('/kontak', 'App\\Controllers\\KontakController@result');
     Route::get('/kontak/{id}', 'App\\Controllers\\KontakController@row');
     Route::post('/kontak', 'App\\Controllers\\KontakController@insert');

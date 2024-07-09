@@ -1,6 +1,6 @@
 <?php 
 
-namespace Selvi;
+namespace Selvi\Input;
 
 use Selvi\Routing\Route;
 

@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\KontakModel;
-use Selvi\Request;
+use Selvi\Input\Request;
 
 class KontakController {
 

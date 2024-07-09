@@ -6,14 +6,14 @@ use App\Models\TransaksiDetailModel;
 use App\Models\TransaksiModel;
 use Selvi\Database\Manager;
 use Selvi\Exception;
-use Selvi\Request;
+use Selvi\Input\Request;
 
 class TransaksiController {
 
     function __construct(
         private TransaksiModel $Transaksi,
         private TransaksiDetailModel $TransaksiDetail
-    ){ }
+    ) { }
 
     function row(string $idTransaksi) {
         $row = (array)$this->Transaksi->row([['transaksi.idTransaksi', $idTransaksi]]);

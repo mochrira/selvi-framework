@@ -1,10 +1,10 @@
 <?php 
 
-use Selvi\Response;
+use Selvi\Output\Response;
 use Selvi\View;
 use Selvi\Factory;
-use Selvi\Response\JsonResponse;
-use Selvi\Uri;
+use Selvi\Output\JsonResponse;
+use Selvi\Input\Uri;
 
 if(!function_exists('response')) {
     function response($content = '', $code = 200) {
