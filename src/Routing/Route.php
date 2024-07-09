@@ -78,7 +78,7 @@ class Route implements RouteInterface {
     }
 
     function getParam(string $name): mixed {
-        return $this->parameters[$name];
+        return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
     }
 
     function setParam(string $name, mixed $value): RouteInterface {
@@ -109,7 +109,7 @@ class Route implements RouteInterface {
         return false;
     }
 
-    function compile(RouteGroup | null $parent = null) {
+    function compile(RouteGroup | null $parent = null): Route {
         $route = new Route($this->method, $this->uri, $this->callback);
         $route->setMiddleware($this->getMiddleware());
 

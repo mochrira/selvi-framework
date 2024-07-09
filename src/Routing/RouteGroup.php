@@ -23,7 +23,7 @@ class RouteGroup implements RouteInterface {
         return $this;
     }
 
-    function add(RouteInterface $route) {
+    function add(RouteInterface $route): RouteInterface {
         $this->routes[] = $route;
         return $route;
     }
@@ -33,7 +33,7 @@ class RouteGroup implements RouteInterface {
     }
 
     function getParam(string $name): mixed {
-        return $this->parameters[$name];
+        return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
     }
 
     function setParam(string $name, mixed $value): RouteInterface {
@@ -51,7 +51,7 @@ class RouteGroup implements RouteInterface {
         return false;
     }
 
-    function compile() {
+    function compile(): RouteGroup {
         $group = new RouteGroup();
         $group->setMiddleware($this->getMiddleware());
 

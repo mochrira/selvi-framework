@@ -12,5 +12,6 @@ interface RouteInterface {
     function getParam(string $name): mixed;
     function setParam(string $name, mixed $value): RouteInterface;
     function match(string $method, string $uri, RouteGroup | null $parent = null);
+    function compile(): RouteInterface;
 
 }
