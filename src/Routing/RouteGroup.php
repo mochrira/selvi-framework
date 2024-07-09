@@ -3,7 +3,6 @@
 namespace Selvi\Routing;
 
 use Closure;
-use Selvi\Utils\Arr;
 
 class RouteGroup implements RouteInterface {
 
