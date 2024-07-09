@@ -3,13 +3,13 @@
 namespace App\Controllers;
 
 use App\Models\GrupModel;
-use Selvi\Request;
+use Selvi\Input\Request;
 
 class GrupController {
 
     function __construct(
         private GrupModel $GrupModel
-    ) {}
+    ) { }
 
     function result() {
         $data = $this->GrupModel->result();

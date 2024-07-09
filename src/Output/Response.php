@@ -1,6 +1,6 @@
 <?php 
 
-namespace Selvi;
+namespace Selvi\Output;
 
 class Response {
 

@@ -3,6 +3,8 @@
 namespace Selvi;
 
 use Selvi\Exception\HttpException;
+use Selvi\Input\Request;
+use Selvi\Input\Uri;
 
 class Framework {
 
@@ -20,22 +22,19 @@ class Framework {
         $uri = Factory::resolve(Uri::class);
         $current_uri = $uri->string();
 
-        /** @var \Selvi\Router $router */
-        $router = Factory::resolve(Router::class);
-
         /** @var \Selvi\Routing\Route $route */
-        $route = $router->resolve($method, $current_uri);
-        if($route == null) throw new HttpException("Route ".$method." '".$current_uri."'  not found", 404, $method, $current_uri);
+        $route = Router::resolve($method, $current_uri);
+        if($route === false) throw new HttpException("Route ".$method." '".$current_uri."'  not found", 404, $method, $current_uri);
 
         $request->setRoute($route);
         $action = function () use ($route) {
-            $ref = Injector::resolve($route->getCallback(), $route->param('uri'));
+            $ref = Injector::resolve($route->getCallback(), $route->params());
             return call_user_func($ref['cb'], ...$ref['params']);
         };
 
-        foreach($route->middleware() as $middleware) {
+        foreach($route->getMiddleware() as $middleware) {
             $action = function () use ($middleware, $route, $action) {
-                $params = $route->param('uri');
+                $params = $route->params();
                 $params['next'] = $action;
                 $ref = Injector::resolve($middleware, $params);
                 return call_user_func($ref['cb'], ...$ref['params']);

@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ProdukModel;
-use Selvi\Request;
+use Selvi\Input\Request;
 
 class ProdukController {
 

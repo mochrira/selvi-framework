@@ -2,7 +2,10 @@
 
 namespace App\Middlewares;
 
-use App\Models\PenggunaModel;
+use Selvi\Exception;
+use Selvi\Input\Request;
+use Selvi\Output\Response;
+
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -10,9 +13,8 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Selvi\Exception;
-use Selvi\Request;
-use Selvi\Response;
+
+use App\Models\PenggunaModel;
 
 class AuthMiddleware {
 

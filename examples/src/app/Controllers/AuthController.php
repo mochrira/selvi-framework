@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Middlewares\AuthMiddleware;
 use App\Models\PenggunaModel;
 use Selvi\Exception;
-use Selvi\Request;
+use Selvi\Input\Request;
 
 class AuthController {
 

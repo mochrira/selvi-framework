@@ -1,8 +1,6 @@
 <?php 
 
-namespace Selvi\Response;
-
-use Selvi\Response;
+namespace Selvi\Output;
 
 class JsonResponse extends Response {
 
