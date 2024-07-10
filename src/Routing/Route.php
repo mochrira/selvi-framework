@@ -14,12 +14,12 @@ class Route implements RouteInterface {
     }
 
     static function group(Closure $callback) {
-        $group = new RouteGroup();
-        $action = function ($parent = null) use ($callback, $group) {
+        $action = function ($parent = null) use ($callback) {
+            $group = new RouteGroup();
             self::$group = $group;
             $callback();
-            if($parent !== null) return $parent->add($group);
             self::$group = null;
+            if($parent !== null) return $parent->add($group);
             return Router::add($group);
         };
         return $action(self::$group);
