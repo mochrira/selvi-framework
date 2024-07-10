@@ -14,6 +14,7 @@ class Router {
     }
 
     static function resolve(string $method, string $uri) {
+        var_dump(self::$routes);
         foreach(self::$routes as $route) {
             /** @var RouteInterface $route*/
             $r = $route->match($method, $uri);
