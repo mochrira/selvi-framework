@@ -9,5 +9,5 @@ header("Access-Control-Allow-Methods: OPTIONS, GET, POST, PATCH, DELETE");
 
 require '../app/Config/exception.php';
 require './Config/database.php';
-// require '../app/Config/routes.php';
+require '../app/Config/routes.php';
 Selvi\Framework::run();

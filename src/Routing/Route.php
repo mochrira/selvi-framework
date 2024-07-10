@@ -7,27 +7,27 @@ use Selvi\Router;
 
 class Route implements RouteInterface {
 
-    private static ?RouteGroup $group = null;
+    private static ?RouteGroup $parent = null;
 
     static function withMiddleware(Closure | array | string $middleware, Closure $callback) {
         return self::group($callback)->setMiddleware($middleware);
     }
 
     static function group(Closure $callback) {
-        $action = function ($parent = null) use ($callback) {
-            $group = new RouteGroup();
-            self::$group = $group;
+        $group = new RouteGroup();
+        $action = function ($parent) use ($group, $callback) {
+            self::$parent = $group;
             $callback();
-            self::$group = null;
+            self::$parent = $parent;
             if($parent !== null) return $parent->add($group);
             return Router::add($group);
         };
-        return $action(self::$group);
+        return $action(self::$parent);
     }
 
     private static function addRoute(string $method, string $uri, callable | string | array $callback) {
         $route = new Route($method, $uri, $callback);
-        if(self::$group !== null) return self::$group->add($route);
+        if(self::$parent !== null) return self::$parent->add($route);
         return Router::add($route);
     }
 
