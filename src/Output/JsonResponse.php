@@ -13,6 +13,14 @@ class JsonResponse extends Response {
         $this->setCode($code);
     }
 
+    function getData() {
+        return $this->jsonData;
+    }
+
+    function getOptions() {
+        return $this->jsonOptions;
+    }
+
     function setData(array $data) {
         $this->jsonData = $data;
     }
