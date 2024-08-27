@@ -2,7 +2,7 @@
 
 namespace Selvi;
 
-use Selvi\Response;
+use Selvi\Output\Response;
 
 class View {
 
