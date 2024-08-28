@@ -63,37 +63,44 @@ class Migration {
             ->order(['start' => 'DESC'])->get('_migration')->row();
     }
 
-    function run() {
+    function run(string $schema = null, string $direction = null, string $stepArgs = null, string $stepAll = null) {
+        $isCli = php_sapi_name() == 'cli';
+
         $args = func_get_args();
         
-        $schema = isset($args[0]) ? $args[0] : null;
+        if ($schema == null) $schema = isset($args[0]) ? $args[0] : null;
         if(!isset($schema)) throw new Exception("First arguments must be a valid database name", "migration/run/invalid-arguments");
 
-        $direction = isset($args[1]) ? $args[1] : null;
+        if ($direction == null) $direction = isset($args[1]) ? $args[1] : null;
         if(!isset($direction)) throw new Exception("Second arguments must be direction of migration", "migration/run/invalid-arguments");
 
-        echo "Anda yakin akan menjalankan migrasi pada database '{$schema}' dengan direction '{$direction}' ? (Y/n) ";
-        $handle = fopen ("php://stdin","r");
-        $line = fgets($handle);
-        if(trim($line) != 'Y'){
-            fclose($handle);
-            return response('Proses digagalkan.');
+        if ($isCli) {
+          echo "Anda yakin akan menjalankan migrasi pada database '{$schema}' dengan direction '{$direction}' ? (Y/n) ";
+          $handle = fopen ("php://stdin","r");
+          $line = fgets($handle);
+          if(trim($line) != 'Y'){
+              fclose($handle);
+              return response('Proses digagalkan.');
+          }
+          fclose($handle);
         }
-        fclose($handle);
 
         $step = -1;
         if($direction == 'down') $step = 1;
-
-        $stepIndex = \array_search('--step', $args);
+        $stepIndex = ($isCli) ? \array_search('--step', $args) : ($stepArgs !== null ? (int)$stepArgs : false);
         if($stepIndex !== false) {
+          if ($isCli) {
             if(!\is_numeric($args[$stepIndex + 1])) throw new Exception("Step arguments must be followed by number", "migration/run/invalid-step");
             $step = (int)$args[$stepIndex + 1];
+          } else {
+            $step = (int)$stepIndex;
+          };
         }
 
-        $allIndex = \array_search('--all', $args);
+        $allIndex = ($isCli) ? \array_search('--all', $args) : ($stepAll !== null ? (int)$stepAll : false);
         if($allIndex !== false) {
-            if($stepIndex !== false) throw new Exception("--step argument not allowed to be used along side --all argument", "migration/run/invalid-useage");
-            $step = -1;
+          if($stepIndex !== false) throw new Exception(($isCli) ? "--step argument not allowed to be used along side --all argument" : "step argument not allowed to be used along side all argument", "migration/run/invalid-useage");
+          $step = -1;
         }
 
         $db = Manager::get($schema);
@@ -103,8 +110,9 @@ class Migration {
         $files = $this->getFiles($paths, $direction == 'down' ? 'DESC' : 'ASC', $step);
 
         $this->prepareTables($db);
+        $resultMigration = [];
         foreach($files as $index => $file) {
-            $label = "[".($index + 1)."] ".$file;
+            $label = ($isCli) ? "[".($index + 1)."] ".$file : $file;
             $start = time();
             try {
                 if(!is_file($file)) throw new Exception("File not found : ".$file, "migration/run/invalid-file");
@@ -112,25 +120,63 @@ class Migration {
                     $cekUp = $this->lastrecord($db, basename($file), direction:'up');
                     
                     if($cekUp == null) {
-                        echo "[skipped] [direction=".$direction."] ".$label." up direction never executed before\n";
+                        if($isCli){
+                          echo "[skipped] [direction=".$direction."] ".$label." up direction never executed before\n";
+                        } else {
+                          $resultMigration[] = [
+                            "tanggal" => date('d F Y H:i:s', $cekUp->finish),
+                            "direction" => $direction,
+                            "fileName" => $label,
+                            "result" => "skipped",
+                            "message" => "up direction never executed before"
+                          ];
+                        }
                         continue;
                     }
 
                     if ($cekUp != null && $cekUp->output == 'failed') {
-                        echo "[skipped] [direction=".$direction."] ".$label." up direction failed\n";
+                        if($isCli) {
+                          echo "[skipped] [direction=".$direction."] ".$label." up direction failed\n";
+                        } else {
+                          $resultMigration[] = [
+                            "tanggal" => date('d F Y H:i:s', $cekUp->finish),
+                            "direction" => $direction,
+                            "fileName" => $label,
+                            "result" => "skipped",
+                            "message" => "up direction failed"
+                          ];
+                        }
                         continue;
                     }
                 }
 
                 $cek = $this->lastrecord($db, basename($file));
                 if($cek != null && ($cek->output == "success" && $cek->direction == $direction)) {
+                  if($isCli){
                     echo "[skipped] [direction=".$direction."] ".$label.' success at '.date('d F Y H:i:s', $cek->finish)."\n";
+                  } else {
+                    $resultMigration[] = [
+                      "tanggal" => date('d F Y H:i:s', $cek->finish),
+                      "direction" => $direction,
+                      "fileName" => $label,
+                      "result" => "skipped",
+                    ];
+                  }
                     continue;
                 }
 
                 \call_user_func(include_once $file, $db, $direction);
                 $this->report($db, basename($file), $direction, $start, 'success');
-                echo "[success] ".$label."\n";
+                if($isCli) {
+                  echo "[success] ".$label."\n";
+                } else {
+                  $resultMigration[] = [
+                    "tanggal" => date('d F Y H:i:s'),
+                    "direction" => $direction,
+                    "fileName" => $label,
+                    "result" => "success",
+                  ];
+                }
             } catch(DatabaseException $e) {
                 try {
                     $log = [
@@ -139,15 +185,18 @@ class Migration {
                         'query' => $e->getSql()
                     ]; 
                     $this->report($db, basename($file), $direction, $start, 'failed', log: $log);
-                    echo "[failed] ". $label."\n";
+                    if($isCli) echo "[failed] ". $label."\n";
                     throw $e;
                 } catch(Exception $e) {
                     throw $e;
                 }
             }
         }
-
-        return response('Migration Done. Files Count : '.count($files));
+        if ($isCli) {
+          return response('Migration Done. Files Count : '.count($files));
+        } else {
+          return $resultMigration;
+        }
     }
 
 }

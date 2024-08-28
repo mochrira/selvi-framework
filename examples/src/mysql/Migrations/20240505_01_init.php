@@ -8,7 +8,7 @@ return function(Schema $schema, $direction) {
         $schema->create('kontak', [
             'idKontak' => 'INT(11) PRIMARY KEY AUTO_INCREMENT',
             'nmKontak' => 'VARCHAR(150)',
-            'idGrup' => 'INT(11)'
+            'idGrup' => 'aINT(11)'
         ]);
 
         $schema->create('grup', [
