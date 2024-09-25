@@ -162,7 +162,7 @@ class Migration {
                       "result" => "skipped",
                     ];
                   }
-                    continue;
+                  continue;
                 }
 
                 \call_user_func(include_once $file, $db, $direction);
