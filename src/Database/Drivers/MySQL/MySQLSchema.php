@@ -409,4 +409,12 @@ class MySQLSchema implements Schema {
         return $this->query('ALTER TABLE '.$table.' CHANGE COLUMN '.$oldCol.' '.$newCol.' '.$type);
     }
 
+    function createDatabase(string $name) {
+        return $this->query('CREATE DATABASE '.$name.';');
+    }
+
+    function dropDatabase(string $name) {
+        return $this->query('DROP DATABASE '.$name.';');
+    }
+
 }
