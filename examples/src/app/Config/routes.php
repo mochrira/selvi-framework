@@ -30,4 +30,6 @@ Route::withMiddleware(['App\\Middlewares\\AuthMiddleware@validateToken'], functi
     Route::post('/transaksi', 'App\\Controllers\\TransaksiController@insert');
     Route::patch('/transaksi/{idTransaksi}', 'App\\Controllers\\TransaksiController@update');
     Route::delete('/transaksi/{idTransaksi}', 'App\\Controllers\\TransaksiController@delete');
+
+    Route::post('/file', 'App\\Controllers\\FileController@upload');
 });
