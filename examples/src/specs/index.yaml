@@ -29,6 +29,8 @@ tags:
     description: Mengelola data Produk
   - name: Transaksi
     description: Mengelola data Transaksi
+  - name: File
+    description: Operasi untuk upload dan download
 
 paths:
   /auth:
@@ -53,3 +55,6 @@ paths:
     $ref: './paths/Transaksi/Transaksi.yaml'
   /transaksi/{idTransaksi}:
     $ref: './paths/Transaksi/Transaksi-{idTransaksi}.yaml'
+
+  /file:
+    $ref: './paths/File/File-Upload.yaml'

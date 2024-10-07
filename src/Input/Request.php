@@ -37,6 +37,10 @@ class Request {
 		}
     }
 
+    function file($name) {
+        return (isset($_FILES[$name]) ? $_FILES[$name] : null);
+    }
+
     function post($name) {
         if(!$this->_post) $this->_post = $_POST;
         return $this->_post[$name] ?? null;
