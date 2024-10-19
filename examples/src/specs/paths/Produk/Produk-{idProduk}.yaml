@@ -1,0 +1,56 @@
+get:
+  summary: Mengambil Produk berdasarkan ID
+  security: 
+    - token: [read]
+  tags: [Produk]
+  parameters:
+    - in: path
+      required: true
+      name: idProduk
+      schema: 
+        type: integer
+  responses:
+    '200':
+      description: Object Produk terpilih
+
+patch:
+  summary: Mengubah Produk berdasarkan ID
+  security: 
+    - token: [read]
+  tags: [Produk]
+  parameters:
+    - in: path
+      required: true
+      name: idProduk
+      schema: 
+        type: integer
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            nmProduk:
+              type: string
+          example:
+            nmProduk: Galon
+
+  responses:
+    '200':
+      description: Updated
+
+delete:
+  summary: Menghapus Produk berdasarkan ID
+  security: 
+    - token: [read]
+  tags: [Produk]
+  parameters:
+    - in: path
+      required: true
+      name: idProduk
+      schema: 
+        type: integer
+  responses:
+    '200' :
+      description: Produk berhasil dihapus

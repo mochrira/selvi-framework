@@ -1,0 +1,59 @@
+get:
+  summary: Mengambil Kontak berdasarkan ID
+  security: 
+    - token: [read]
+  tags: [Kontak]
+  parameters:
+    - in: path
+      required: true
+      name: idKontak
+      schema: 
+        type: integer
+  responses:
+    '200':
+      description: Object Kontak terpilih
+
+patch:
+  summary: Mengubah Kontak berdasarkan ID
+  security: 
+    - token: [read]
+  tags: [Kontak]
+  parameters:
+    - in: path
+      required: true
+      name: idKontak
+      schema: 
+        type: integer
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            nmKontak:
+              type: string
+            idGrup:
+              type: integer
+          example:
+            nmKontak: John Doe
+            idGrup: 1
+
+  responses:
+    '200':
+      description: Updated
+
+delete:
+  summary: Menghapus Kontak berdasarkan ID
+  security: 
+    - token: [read]
+  tags: [Kontak]
+  parameters:
+    - in: path
+      required: true
+      name: idKontak
+      schema: 
+        type: integer
+  responses:
+    '200' :
+      description: Kontak berhasil dihapus

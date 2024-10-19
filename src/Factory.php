@@ -1,18 +1,26 @@
-<?php
+<?php 
 
 namespace Selvi;
 
-class Factory{
-    
-    private static $objects = [];
-    
-    public static function load($name, $params = [], $customName = ''){
-        $realName = $name;
-        if(is_string($params)) $customName = $params;
-        if(strlen($customName) > 0) $realName = $customName;
-        if(!isset(self::$objects[$realName])) 
-            self::$objects[$realName]=new $name(...(is_array($params) ? $params : []));
-        return self::$objects[$realName];
+class Factory {
+
+    public static $instances = [];
+
+    static function resolve($className, $knownParams = []) {
+        if(!isset(self::$instances[$className])) {
+            $reflector = new \ReflectionClass($className);
+            if(!$reflector->isInstantiable()) throw new \Exception('Could not resolve class '.$className);
+
+            $constructor = $reflector->getConstructor();
+            if(is_null($constructor)) {
+                self::$instances[$className] = $reflector->newInstance();
+            } else {
+                $dependencies = Injector::getDependencies($constructor, $knownParams);
+                self::$instances[$className] = $reflector->newInstanceArgs($dependencies);
+            }
+        }
+
+        return self::$instances[$className] ?? null;
     }
-    
+
 }

@@ -1,74 +1,58 @@
 <?php 
 
 namespace Selvi\Database;
-use Selvi\Database\QueryResult;
-use Selvi\Exception;
-use Selvi\Database\Migration;
-use Selvi\Factory;
-use Selvi\Cli;
 
-use mysqli;
+interface Schema {
 
-class Schema {
+    public function __construct(Array $config);
+    public function getConfig(): Array | null;
+    public function connect(): bool;
+    public function disconnect(): bool;
+    public function select_db(string $db): bool;
+    public function query(string $sql): Result | bool;
+    public function getSql(string $tbl = null): string;
+    public function get(string $tbl = null): Result | bool;
+    public function select(string|array $cols): self;
+    public function where(string|array $where): self;
+    public function order(string|array $order, ?string $direction = null): self;
+    public function limit (int $limit): self;
+    public function offset(int $offset): self;
+    public function insert(string $tbl, array $data): Result | bool;
+    public function lastId(): int;
+    public function create(string $table, array $columns): Result | bool;
+    public function drop(string $table): Result | bool;
+    public function prepareMigrationTables(): Result | bool;
+    // public function error(): mixed;
+    public function update(string $tbl, array $data): Result | bool;
+    public function delete(string $tbl): Result | bool;
+    
+    public function groupBy(mixed $group): self;
+    public function join(string $tbl, string $cond): self;
+    public function innerJoin(string $tbl, string $cond): self;
+    public function leftJoin(string $tbl, string $cond): self;
+    public function startTransaction(): bool;
+    public function rollback(): bool;
+    public function commit(): bool;
+    public function orWhere(string|array $orWhere): self;
 
-    private $db;
-    private $lastquery;
-    private $config;
+    public function modifyColumn(string $column, string $type): self;
+    public function addColumn(string $column, string $type): self;
+    public function addColumnAfter(string $afterCol, string $column, string $type): self;
+    public function dropColumn(string $column): self;
+    public function alter(string $table): Result | bool;
+    // public function changeColumn(string $table,  string $column, string $new_column, string $type): void;
+    // public function addColumnFirst(string $column, string $type): void;
+    public function rename(string $table,string $new_table): Result | bool;
 
-    function __construct($config) {
-        $this->config = $config;
-        $this->db = new mysqli($config['host'], $config['username'], $config['password'], $config['database']);
-        if($this->db->connect_error) {
-            Throw new Exception('Gagal membuka koneksi database', 'db/failed-to-connect');
-        }
-    }
-
-    public function __call($name, $args) {
-        if(!method_exists(__NAMESPACE__.'\QueryBuilder', $name)) {
-            Throw new Exception('Undefined function '.__CLASS__.'::'.$name, 'db/undefined-function');
-        }
-        $result = call_user_func(__NAMESPACE__.'\QueryBuilder::'.$name, ...$args);
-        if(empty($result)) {
-            return $this;
-        }
-        return $this->query($result);
-    }
-
-    public function getSql($tblName) {
-        return \Selvi\Database\QueryBuilder::get($tblName);
-    }
-
-    public function getConfig() {
-        return $this->config;
-    }
-
-    public function getlastid() {
-        $row = $this->select('LAST_INSERT_ID() AS lastid')->get()->row();
-        return $row->lastid;
-    }
-
-    public function query($sql) {
-        $this->lastquery = $sql;
-        $query = $this->db->query($sql);
-        if(is_bool($query)) {
-            if($query === false) {
-                $data = null;
-                if(isset($this->config['debug']) && ($this->config['debug'] == true)) {
-                    $data['query'] = $this->lastquery;
-                }
-                throw new Exception($this->error(), 'db/query-error', 500, $data);
-            }
-            return $query;
-        }
-        return new QueryResult($query);
-    }
-
-    public function getlastquery() {
-        return $this->lastquery;
-    }
-
-    public function error() {
-        return $this->db->error;
-    }
-
+    public function createIndex(string $table, string $index_name, array $cols): Result | bool;
+    public function truncate(string $table): Result | bool;
+    public function dropIndex(string $table, string $index_name): Result|bool;
+    public function addPrimary(string $column, string $primary_name): self;
+    public function dropPrimary(): self;
+    // public function createSchema(string $name): string;
+    // public function dropSchema(string $name): string;
+    // public function createLike(string $table,string $new_table): string;
+    // public function copyData(string $table,string $new_table): string;
+    // public function is_json(string $json): bool;
+    
 }

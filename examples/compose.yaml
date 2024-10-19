@@ -1,18 +1,22 @@
-version: '3.0'
 name: selvi_framework
 services:
   backend: 
     container_name: selvi_framework_container
     image: mochrira/dev:latest
     volumes:
-      - ./:/workspace/www
+      - ./src:/workspace/www
       - ../src:/workspace/src
     ports:
       - 8091:80
     networks:
+      - environment
       - database
 
 networks:
-  database: 
+  environment:
+    name: environment
+    external: true
+
+  database:
     name: database
     external: true

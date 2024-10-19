@@ -1,0 +1,52 @@
+get:
+  tags: [Kontak]
+  summary: Mengambil semua data kontak
+  security: 
+    - token: [read]
+  parameters:
+    - in: query
+      name: idGrup
+      schema:
+        type: integer
+    - in: query
+      name: search
+      schema:
+        type: string
+    - in: query
+      name: sort
+      schema:
+        type: string
+    - in: query
+      name: offset
+      schema:
+        type: integer
+    - in: query
+      name: limit
+      schema:
+        type: integer
+  responses:
+    '200':
+      description: Semua data kontak dalam format JSON
+
+post:
+  tags: [Kontak]
+  summary: Menambahkan kontak
+  security: 
+    - token: [read]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            nmKontak:
+              type: string
+            idGrup:
+              type: integer
+          example:
+            nmKontak: John Doe
+            idGrup: 1
+  responses:
+    '201':
+      description: Created

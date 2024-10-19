@@ -1,39 +1,34 @@
-<?php 
+<?php
 
 namespace Selvi;
 use Exception as PHPException;
 
 class Exception extends PHPException {
 
-    private $errorCode;
-    private $additionalData;
+    private $codeString;
+    private $data;
 
-    public function __construct($message, $errorCode, $error = 500, $additionalData = null) {
+    public function __construct($message, $codeString, $error = 500, $data = null) {
         parent::__construct($message, $error);
-        $this->errorCode = $errorCode;
-        $this->additionalData = $additionalData;
+        $this->codeString = $codeString;
+        $this->data = $data;
     }
 
-    public function getErrorCode() {
-        return $this->errorCode ?? null;
+    public function getCodeString() {
+        return $this->codeString ?? null;
     }
 
-    public function getAdditionalData() {
-        return $this->additionalData ?? null;
+    public function getData() {
+        return $this->data ?? null;
     }
 
-    public function send() {
-        $errorMessage = $this->getMessage() ?? null;
-        $errorCode = $this->getErrorCode();
-        $errorData = $this->getAdditionalData();
+    public function with($name, $value) {
+        $this->data[$name] = $value;
+        return $this;
+    }
 
-        $content = [];
-        if($errorMessage != null) $content['msg'] = $errorMessage;
-        if($errorCode != null) $content['code'] = $errorCode;
-        if($errorData != null) $content['data'] = $errorData;
-
-        $output = count($content) > 0 ? json_encode($content) : null;
-        response($output, $this->getCode())->send();
+    public function get($name) {
+        return $this->data[$name] ?? null;
     }
 
 }

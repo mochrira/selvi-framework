@@ -1,0 +1,36 @@
+post:
+  tags: [Auth]
+  summary: Mengambil token dari server
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            username:
+              type: string
+            password:
+              type: string
+          example:
+            username: admin
+            password: admin
+  responses:
+    '200': 
+      description: Berhasil mengambil token dari server
+
+get:
+  tags: [Auth]
+  summary: Mengambil informasi pengguna yang sedang aktif
+  security: 
+    - token: [read]
+  responses:
+    '200':
+      description: Berhasil mengambil informasi pengguna aktif
+
+patch:
+  tags: [Auth]
+  summary: Mengambil token baru dari server
+  responses:
+    '200':
+      description: Berhasil mengambil token baru dari server
+  
