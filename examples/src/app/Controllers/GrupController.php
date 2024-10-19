@@ -6,7 +6,7 @@ use App\Models\GrupModel;
 use Selvi\Input\Request;
 
 class GrupController {
-
+    
     function __construct(
         private GrupModel $GrupModel
     ) { }

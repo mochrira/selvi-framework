@@ -35,6 +35,12 @@ if(!function_exists('currentUrl')) {
     }
 }
 
+if(!function_exists('inject')) {
+    function inject(mixed $className) {
+        return Factory::resolve($className);
+    }
+}
+
 if(!function_exists('baseUrl')) {
     function baseUrl() {
         $uri = Factory::resolve(Uri::class, 'uri');
