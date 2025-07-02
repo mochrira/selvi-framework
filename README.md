@@ -81,7 +81,7 @@ use Selvi\Cli;
 
 Manager::add('main', [
     'driver' => 'mysql',
-    'host' => 'maria.database',
+    'host' => 'mariadb.database',
     'username' => 'root',
     'password' => 'changeme',
     'database' => 'example_app'
