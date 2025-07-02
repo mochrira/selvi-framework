@@ -125,3 +125,143 @@ return function ($schema, $direction) {
 };
 ```
 3. Jalankan migrasi dengan perintah `php index.php migrate main up`
+
+## Swagger UI
+
+1. Buat file `www/specs/index.html` dengan konten sebagai berikut :
+
+```
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="SwaggerUI" />
+    <title>SwaggerUI</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
+    </head>
+
+    <body>
+        <div id="swagger-ui"></div>
+        <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js" crossorigin></script>
+        <script>
+        window.onload = () => {
+            window.ui = SwaggerUIBundle({
+                url: './index.yaml',
+                dom_id: '#swagger-ui',
+                persistAuthorization: true
+            });
+        };
+        </script>
+    </body>
+</html>
+```
+
+2. Buat file `www/specs/index.yaml` dengan konten sebagai berikut :
+
+```
+info:
+  title: Kontak API
+  version: '1.0'
+
+servers:
+  - url: http://localhost:8080
+    description: Development
+
+paths:
+  /kontak:
+    get:
+      summary: Mengambil semua data kontak
+      tags: [Kontak]
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Semua object kontak dalam database
+    
+    post:
+      summary: Menambahkan kontak baru
+      tags: [Kontak]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                nmKontak:
+                  type: string
+                nomor:
+                  type: string
+              example:
+                nmKontak: Moch. Rizal
+                nomor: 82143255597
+      responses:
+        '201':
+          description: Berhasil menambahkan kontak
+
+  /pengguna/{idPengguna}:
+    get:
+      summary: Mengambil kontak berdasarkan ID
+      tags: [Kontak]
+      parameters:
+        - in: path
+          required: true
+          name: idKontak
+          schema: 
+            type: integer
+      responses:
+        '200':
+          description: Object kontak terpilih
+    
+    patch:
+      summary: Mengubah kontak berdasarkan ID
+      tags: [Kontak]
+      parameters:
+        - in: path
+          required: true
+          name: idKontak
+          schema: 
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                nmKontak:
+                  type: string
+                nomor:
+                  type: string
+              example:
+                nmKontak: Moch. Rizal Rachmdani
+                nomor: 82143255597
+      responses:
+        '204':
+          description: Berhasil merubah kontak
+    
+    delete:
+      summary: Menghapus kontak berdasarkan ID
+      tags: [Kontak]
+      parameters:
+        - in: path
+          required: true
+          name: idKontak
+          schema: 
+            type: integer
+      responses:
+        '204' :
+          description: Kontak berhasil dihapus
+```
