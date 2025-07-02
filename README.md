@@ -160,6 +160,7 @@ return function ($schema, $direction) {
 2. Buat file `www/specs/index.yaml` dengan konten sebagai berikut :
 
 ```
+openapi: '3.0.2'
 info:
   title: Kontak API
   version: '1.0'
