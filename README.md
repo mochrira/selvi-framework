@@ -85,6 +85,7 @@ define(BASEPATH, __DIR__); // tambahkan baris ini
 
 use Selvi\Database\Manager;
 use Selvi\Database\Migration;
+use Selvi\Cli;
 
 Manager::add('main', [
     'host' => 'maria.database',
@@ -93,6 +94,7 @@ Manager::add('main', [
     'database' => 'example_app'
 ]);
 Migration::addMigrations('main', [ BASEPATH.'/app/Migrations' ]);
+Cli::register('migrate', Migration::class);
 ```
 
 ## Migration
