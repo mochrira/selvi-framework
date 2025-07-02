@@ -96,6 +96,8 @@ Cli::register('migrate', Migration::class);
 require __DIR__.'/vendor/autoload.php';
 define('BASEPATH', __DIR__); // tambahkan baris ini
 require __DIR__.'/app/Config/database.php'; // tambahkan baris ini
+
+Selvi\Routing\Route::get('/', 'App\\Controllers\\HomeController@index');
 \Selvi\Framework::run();
 ```
 
