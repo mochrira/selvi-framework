@@ -80,6 +80,7 @@ use Selvi\Database\Migration;
 use Selvi\Cli;
 
 Manager::add('main', [
+    'driver' => 'mysql',
     'host' => 'maria.database',
     'username' => 'root',
     'password' => 'changeme',
