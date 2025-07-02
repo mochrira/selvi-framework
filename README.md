@@ -212,7 +212,7 @@ paths:
         '201':
           description: Berhasil menambahkan kontak
 
-  /pengguna/{idPengguna}:
+  /kontak/{idKontak}:
     get:
       summary: Mengambil kontak berdasarkan ID
       tags: [Kontak]
