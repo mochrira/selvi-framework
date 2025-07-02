@@ -119,6 +119,6 @@ return function ($schema, $direction) {
     if($direction == 'down') :
         $schema->drop('kontak');
     endif;
-}
+};
 ```
 3. Jalankan migrasi dengan perintah `php index.php migrate main up`
