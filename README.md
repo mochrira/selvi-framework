@@ -20,10 +20,6 @@ use Selvi\Controller;
 
 class HomeController extends Controller {
 
-    function __construct() {
-        parent::__construct();
-    }
-
     function index() {
         return response('Welcome to Selvi Framework');
     }
@@ -35,12 +31,10 @@ class HomeController extends Controller {
 4. Create index.php
 
 ```
-<?php 
+<?php
+
 require('vendor/autoload.php');
-
-use Selvi\Route;
-Route::get('/', 'HomeController@index');
-
+Selvi\Routing\Route::get('/', 'HomeController@index');
 Selvi\Framework::run();
 ```
 
