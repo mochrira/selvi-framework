@@ -66,3 +66,55 @@ RewriteRule ^ index.php [L]
 
 7. Run `composer update` to update your composer autoload
 8. Done. Open `http://localhost/your-project` on your browser to test it
+
+## Database Configuration
+
+1. Buka http://localhost:1000, buat database baru dengan nama `example_app`
+2. Modifikasi file `index.php` dengan menambahkan baris berikut setelah require vendor
+```
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+define(BASEPATH, __DIR__); // tambahkan baris ini
+....
+```
+3. Buat folder `app/Config/database.php`, dengan konten sebagai berikut:
+
+```
+<?php
+
+use Selvi\Database\Manager;
+use Selvi\Database\Migration;
+
+Manager::add('main', [
+    'host' => 'maria.database',
+    'username' => 'root',
+    'password' => 'changeme',
+    'database' => 'example_app'
+]);
+Migration::addMigrations('main', [ BASEPATH.'/app/Migrations' ]);
+```
+
+## Migration
+
+1. Buat folder `app/Migrations`
+2. Buat file `20250702_01_init.php` (format : YYYYMMDD_{index}_{konteks}.php), dengan konten sebagai berikut :
+
+```
+<?php
+
+return function ($schema, $direction) {
+    if($direction == 'up') :
+        $schema->create('kontak', [
+            'idKontak' => 'INT(11) PRIMARY KEY AUTO_INCREMENT',
+            'nmKontak' => 'VARCHAR(150)',
+            'nomor' => 'VARCHAR(50)'
+        ]);
+    endif;
+
+    if($direction == 'down') :
+        $schema->drop('kontak');
+    endif;
+}
+```
+3. Jalankan migrasi dengan perintah `php index.php migrate main up`
