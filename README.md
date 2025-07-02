@@ -34,7 +34,7 @@ class HomeController extends Controller {
 <?php
 
 require('vendor/autoload.php');
-Selvi\Routing\Route::get('/', 'HomeController@index');
+Selvi\Routing\Route::get('/', 'App\\Controllers\\HomeController@index');
 Selvi\Framework::run();
 ```
 
