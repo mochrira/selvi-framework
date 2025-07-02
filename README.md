@@ -70,15 +70,7 @@ RewriteRule ^ index.php [L]
 ## Database Configuration
 
 1. Buka http://localhost:1000, buat database baru dengan nama `example_app`
-2. Modifikasi file `index.php` dengan menambahkan baris berikut setelah require vendor
-```
-<?php
-
-require __DIR__.'/vendor/autoload.php';
-define(BASEPATH, __DIR__); // tambahkan baris ini
-....
-```
-3. Buat folder `app/Config/database.php`, dengan konten sebagai berikut:
+2. Buat file `app/Config/database.php` dengan konten sebagai berikut:
 
 ```
 <?php
@@ -95,6 +87,16 @@ Manager::add('main', [
 ]);
 Migration::addMigrations('main', [ BASEPATH.'/app/Migrations' ]);
 Cli::register('migrate', Migration::class);
+```
+
+3. Modifikasi file `index.php` dengan menambahkan baris berikut setelah require vendor
+```
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+define('BASEPATH', __DIR__); // tambahkan baris ini
+require __DIR__.'/app/Config/database.php'; // tambahkan baris ini
+\Selvi\Framework::run();
 ```
 
 ## Migration
