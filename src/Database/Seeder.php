@@ -25,10 +25,10 @@ class Seeder extends Command {
         self::addAll($schema, [$path]);
     }
     
-    protected static $defaultName = 'seed';
+    protected static $defaultName = 'seeder';
 
     protected function configure(): void {
-        $this->setName('seed')
+        $this->setName('seeder')
             ->setDescription('Menjalankan database seeder')
             ->addArgument('name', InputArgument::REQUIRED, 'Nama konfigurasi database')
             ->addOption('step', 's', InputOption::VALUE_OPTIONAL, 'Jumlah file seed yang akan dijalankan', null);
