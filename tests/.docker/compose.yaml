@@ -1,0 +1,17 @@
+name: selvi_test
+services:
+  http:
+    image: mochrira/dev:latest
+    container_name: selvi_test_dev
+    volumes:
+      - ../../:/workspace
+      - ./vhost.conf:/etc/apache2/conf.d/vhost.conf
+    networks:
+      - environment
+      - database
+
+networks:
+  environment:
+    external: true
+  database:
+    external: true
