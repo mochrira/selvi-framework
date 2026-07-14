@@ -1,0 +1,115 @@
+# Selvi Framework Documentation
+
+site_name: Selvi Framework
+site_description: Dokumentasi resmi Selvi Framework — Super fast PHP Framework untuk membangun API
+site_author: mochrira
+repo_url: https://github.com/mochrira/selvi-framework
+edit_uri: edit/main/docs/
+
+# Copyright
+copyright: Copyright &copy; 2026 mochrira
+
+theme:
+  name: material
+  language: id
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    - navigation.instant       # Instant navigation (SPA-like)
+    - navigation.tracking      # URL tracking
+    - navigation.tabs          # Top-level tabs
+    - navigation.sections      # Sections in sidebar
+    - navigation.expand        # Expand all sections
+    - navigation.top           # Back to top button
+    - navigation.footer        # Footer navigation
+    - search.suggest           # Search suggestions
+    - search.highlight         # Search highlights
+    - content.code.copy        # Copy code button
+    - content.code.annotate    # Code annotations
+
+  icon:
+    repo: fontawesome/brands/github
+
+# Extensions (Markdown)
+markdown_extensions:
+  - admonition            # Callout boxes (info, warning, danger)
+  - pymdownx.details      # Collapsible sections
+  - pymdownx.superfences  # Nested code blocks
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - toc:
+      permalink: true
+
+# Plugins
+plugins:
+  - search
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mochrira/selvi-framework
+
+# Navigation
+nav:
+  - Beranda: index.md
+
+  - Memulai:
+      - Instalasi: getting-started/installation.md
+      - Struktur Proyek: getting-started/project-structure.md
+      - Mulai Cepat: getting-started/quick-start.md
+
+  - Konsep Inti:
+      - Routing: core-concepts/routing.md
+      - Controller: core-concepts/controllers.md
+      - Model: core-concepts/models.md
+      - View: core-concepts/views.md
+      - Middleware: core-concepts/middleware.md
+      - Dependency Injection: core-concepts/dependency-injection.md
+      - Request Handling: core-concepts/request-handling.md
+      - Response: core-concepts/responses.md
+      - Exception Handling: core-concepts/exception-handling.md
+      - Environment: core-concepts/environment.md
+      - Helpers: core-concepts/helpers.md
+
+  - Database:
+      - Konfigurasi: database/configuration.md
+      - Query Builder: database/query-builder.md
+      - Migrations: database/migrations.md
+      - Seeders: database/seeders.md
+
+  - CLI:
+      - Console Commands: cli/commands.md
+
+  - Best Practices:
+      - Struktur Proyek: best-practices/structure.md
+      - Keamanan: best-practices/security.md
+      - Error Handling: best-practices/error-handling.md
+      - Performa: best-practices/performance.md
+
+  - Contoh:
+      - CRUD API: examples/crud-api.md
+      - JWT Authentication: examples/jwt-auth.md
+      - File Upload: examples/file-upload.md

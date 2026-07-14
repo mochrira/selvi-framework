@@ -1,1 +1,5 @@
 vendor/
+site/
+private/.ENV
+*.pyc
+__pycache__/
