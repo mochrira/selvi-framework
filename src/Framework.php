@@ -1,5 +1,7 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi;
 
 use Selvi\Exception\HttpException;
@@ -8,7 +10,7 @@ use Selvi\Input\Uri;
 
 class Framework {
 
-    static function run() {
+    public static function run(): void {
         if(php_sapi_name() == 'cli') {
             Cli::listen()->send();
             die();

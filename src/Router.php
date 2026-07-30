@@ -1,19 +1,21 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi;
 
 use Selvi\Routing\RouteInterface;
 
 class Router {
 
-    private static $routes = [];
+    private static array $routes = [];
 
-    static function add(RouteInterface $route) {
+    public static function add(RouteInterface $route): RouteInterface {
         self::$routes[] = $route;
         return $route;
     }
 
-    static function resolve(string $method, string $uri) {
+    public static function resolve(string $method, string $uri): RouteInterface|false {
         foreach(self::$routes as $route) {
             /** @var RouteInterface $route*/
             $r = $route->match($method, $uri);

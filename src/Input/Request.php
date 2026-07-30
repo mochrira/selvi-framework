@@ -1,31 +1,33 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi\Input;
 
 use Selvi\Routing\Route;
 
 class Request {
 
-    private $_method = null;
-    private $_post = null;
-    private $_get = null;
-    private $_raw = null;
+    private ?string $_method = null;
+    private ?array $_post = null;
+    private ?array $_get = null;
+    private ?string $_raw = null;
     private ?Route $_route = null;
 
-    function setRoute(Route $route): void {
+    public function setRoute(Route $route): void {
         $this->_route = $route;
     }
 
-    function route(): Route {
+    public function route(): Route {
         return $this->_route;
     }
 
-    function method() {
+    public function method(): string {
         if(!$this->_method) $this->_method = $_SERVER['REQUEST_METHOD'];
         return $this->_method;
     }
 
-    function header($name = null) {
+    public function header(?string $name = null): array|string|null {
         $headers = apache_request_headers();
 		if($name==null){
 			return $headers;
@@ -37,26 +39,26 @@ class Request {
 		}
     }
 
-    function file($name) {
+    public function file(string $name): ?array {
         return (isset($_FILES[$name]) ? $_FILES[$name] : null);
     }
 
-    function post($name) {
+    public function post(string $name): mixed {
         if(!$this->_post) $this->_post = $_POST;
         return $this->_post[$name] ?? null;
     }
 
-    function get($name) {
+    public function get(string $name): mixed {
         if(!$this->_get) $this->_get = $_GET;
         return $this->_get[$name] ?? null;
     }
 
-    function raw() {
+    public function raw(): ?string {
         if(!$this->_raw) $this->_raw = file_get_contents('php://input');
         return $this->_raw ?? null;
     }
 
-    function cookie($name) {
+    public function cookie(string $name): mixed {
         return $_COOKIE[$name];
     }
 

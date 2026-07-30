@@ -1,5 +1,7 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi\Tests\Models;
 
 use Selvi\Database\Manager;
@@ -16,7 +18,7 @@ class KontakModel {
     function count(array $where = [], array $orWhere = []) : int {
         $config = $this->db->getConfig();
         $driver = $config['driver'];
-        return $this->db->select(($driver == 'mysql' ? 'IFNULL' : 'ISNULL').'(COUNT(kontak.idKontak), 0) AS jmlKontak')
+        return (int) $this->db->select(($driver == 'mysql' ? 'IFNULL' : 'ISNULL').'(COUNT(kontak.idKontak), 0) AS jmlKontak')
             ->innerJoin('grup', 'grup.idGrup = kontak.idGrup')
             ->where($where)->orWhere($orWhere)
             ->get('kontak')->row()->jmlKontak;

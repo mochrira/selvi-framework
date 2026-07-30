@@ -1,20 +1,22 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi;
 use Selvi\Factory;
 use Selvi\Exception;
 
 class Cli {
 
-    private static $commands = [];
+    private static array $commands = [];
 
-    public static function register($command, $cliClass) {
+    public static function register(string $command, string $cliClass): void {
         if(!isset(self::$commands[$command])) {
             self::$commands[$command] = Factory::resolve($cliClass);
         }
     }
 
-    public static function listen() {
+    public static function listen(): mixed {
         try {
             global $argv;
             $name = $argv[1];

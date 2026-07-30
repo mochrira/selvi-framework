@@ -1,38 +1,40 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi\Output;
 
 class Response {
 
-    protected $content;
-    protected $code;
+    protected ?string $content = null;
+    protected int $code;
 
-    function __construct($content = '', $code = 200) {
+    function __construct(?string $content = '', int $code = 200) {
         $this->content = $content;
         $this->code = $code;
     }
 
-    function getContent() {
+    public function getContent(): ?string {
         return $this->content;
     }
 
-    function getCode() {
+    public function getCode(): int {
         return $this->code;
     }
 
-    function setContent($content) {
+    public function setContent(?string $content): void {
         $this->content = $content;
     }
 
-    function setCode($code) {
+    public function setCode(int $code): void {
         $this->code = $code;
     }
 
-    function cookie($name, $value = "", $expire = 0, $path = "", $domain = "", $secure = false, $httponly = false) {
+    public function cookie(string $name, string $value = "", int $expire = 0, string $path = "", string $domain = "", bool $secure = false, bool $httponly = false): void {
         setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
     }
 
-    function send() {
+    public function send(): void {
         if(php_sapi_name() != 'cli') http_response_code($this->code);
         echo $this->content;
         if(php_sapi_name() == 'cli') echo "\n";

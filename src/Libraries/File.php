@@ -1,5 +1,7 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi\Libraries;
 
 use Selvi\Exception;
@@ -8,7 +10,7 @@ use Selvi\Input\Request;
 
 class File {
 
-    function upload($name = 'file', $params = []) {
+    public function upload(string $name = 'file', array $params = []): array {
         try {
             $request = Factory::resolve(Request::class);
             $file = $request->file($name);

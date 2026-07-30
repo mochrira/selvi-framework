@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Selvi\Database;
 
 use Selvi\Exception;
@@ -101,7 +103,7 @@ class Migration extends Command {
                 $lastRecord = $this->getlastrecord($db, $basename);
                 if($lastRecord != null) {
                     if($lastRecord->direction == 'up' && $lastRecord->output == 'success') {
-                        if($logger) $logger($basename." berhasil dijalankan pada " . date('Y-m-d H:i:s', $lastRecord->finish), 'skipped', 'warning');
+                        if($logger) $logger($basename." berhasil dijalankan pada " . date('Y-m-d H:i:s', (int) $lastRecord->finish), 'skipped', 'warning');
                         continue;
                     }
                 }
@@ -142,7 +144,7 @@ class Migration extends Command {
                 $lastRecord = $this->getlastrecord($db, $basename);
                 if($lastRecord != null) {
                     if($lastRecord->direction == 'down' && $lastRecord->output == 'success') {
-                        if($logger) $logger($basename." berhasil dijalankan pada " . date('Y-m-d H:i:s', $lastRecord->finish), 'skipped', 'warning');
+                        if($logger) $logger($basename." berhasil dijalankan pada " . date('Y-m-d H:i:s', (int) $lastRecord->finish), 'skipped', 'warning');
                         continue;
                     }
                 }

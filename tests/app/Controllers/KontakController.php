@@ -4,6 +4,7 @@ namespace Selvi\Tests\Controllers;
 
 use Selvi\Tests\Models\KontakModel;
 use Selvi\Input\Request;
+use Selvi\Exception;
 
 class KontakController {
 
@@ -43,6 +44,11 @@ class KontakController {
 
         $data = $this->kontakModel->result($where, $orWhere, $order, $offset, $limit);
         $count = $this->kontakModel->count($where, $orWhere);
+
+        if ($count === 0) {
+            throw new Exception('Data tidak ditemukan', 'data/not-found', 404);
+        }
+
         return \jsonResponse([
             'data' => $data,
             'count' => $count
@@ -51,7 +57,10 @@ class KontakController {
 
     function row(String $id) {
         $data = $this->kontakModel->row([['kontak.idKontak',$id]]);
-        return \jsonResponse($data, 200);
+        if ($data === null) {
+            throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
+        }
+        return \jsonResponse((array)$data, 200);
     }
 
     function insert() {

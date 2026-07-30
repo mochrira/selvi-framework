@@ -1,18 +1,20 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi;
 
 use Selvi\Output\Response;
 
 class View {
 
-    static $paths = [__DIR__.'/views'];
+    public static array $paths = [__DIR__.'/views'];
 
-    static function addPath($path) {
+    public static function addPath(string $path): void {
         self::$paths[] = $path;
     }
 
-    private static function getAbsoluteFilePath($file) {
+    private static function getAbsoluteFilePath(string $file): ?string {
         $i = 0;
         while($i <= count(self::$paths) - 1) {
             $path = self::$paths[$i].'/'.$file;
@@ -22,24 +24,24 @@ class View {
         return null;
     }
 
-    private static $vars = [];
-    private $file;
+    private static array $vars = [];
+    private string $file;
 
-    function __construct($file) {
+    function __construct(string $file) {
         $this->file = self::getAbsoluteFilePath($file);
     }
 
-    function setVar($name, $value) {
+    public function setVar(string $name, mixed $value): static {
         self::$vars[$name] = $value;
         return $this;
     }
 
-    function include() {
+    public function include(): void {
         extract(self::$vars);
         include($this->file);
     }
 
-    function render($code = 200) {
+    public function render(int $code = 200): Response {
         ob_start();
         extract(self::$vars);
         include($this->file);

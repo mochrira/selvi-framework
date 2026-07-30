@@ -1,16 +1,18 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi\Input;
 
 class Uri {
 
-    private $baseUrl;
-    private $currentUrl;
+    private string $baseUrl;
+    private string $currentUrl;
 
-    private $uriString;
-    private $uriSegments;
+    private string $uriString;
+    private array $uriSegments;
 
-    function __construct() {
+    public function __construct() {
         $baseUrl = sprintf("%s://%s",
             isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
             $_SERVER['SERVER_NAME'] . ( $_SERVER['SERVER_PORT'] != '80' ? ':' . $_SERVER['SERVER_PORT'] : '' )
@@ -27,7 +29,7 @@ class Uri {
         $this->uriSegments = $this->parseUri($this->uriString);
     }
 
-    private function parseUri($uri) {
+    private function parseUri(string $uri): array {
         $segments = explode('/', $uri);
         return array_reduce($segments, function ($carry, $item) {
             if(strlen($item) > 0) $carry[] = $item;
@@ -35,32 +37,32 @@ class Uri {
         }, []);
     }
 
-    private function validateUri($uri) {
+    private function validateUri(string $uri): string {
         $segments = $this->parseUri($uri);
         return '/'.implode('/', $segments);
     }
 
-    function baseUrl() {
+    public function baseUrl(): string {
         return $this->baseUrl;
     }
 
-    function currentUrl() {
+    public function currentUrl(): string {
         return $this->currentUrl;
     }
 
-    function siteUrl($uri) {
-        return self::$baseUrl.$this->validateUri($uri);
+    public function siteUrl(string $uri): string {
+        return $this->baseUrl.$this->validateUri($uri);
     }
 
-    function string() {
+    public function string(): string {
         return '/'.implode('/', $this->uriSegments);
     }
 
-    function segments() {
+    public function segments(): array {
         return $this->uriSegments;
     }
 
-    function segment($index) {
+    public function segment(int $index): ?string {
         return $this->uriSegments[$index - 1] ?? null;
     }
 

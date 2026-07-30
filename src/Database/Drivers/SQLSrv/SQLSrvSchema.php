@@ -1,5 +1,7 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi\Database\Drivers\SQLSrv;
 
 use Selvi\Database\Drivers\SQLSrv\SQLSrvResult;
@@ -10,7 +12,7 @@ use Selvi\Exception\DatabaseException;
 class SQLSrvSchema implements Schema {
 
     private Array | null $config;
-    private $instance;
+    private mixed $instance;
     private ?string $_select = null;
     private ?string $_where = null;
     private ?string $_order = null;
@@ -24,17 +26,17 @@ class SQLSrvSchema implements Schema {
     private ?string $_dropPrimary = null;
     private ?string $_addPrimary = null;
 
-    function __construct(Array $config)
+    public function __construct(Array $config)
     {
         $this->config = $config;
         $this->connect();
     }
 
-    function getConfig(): Array | null{
+    public function getConfig(): Array | null{
         return $this->config;
     }
 
-    function connect(): bool
+    public function connect(): bool
     {
         $connString = $this->config['host'] . (isset($this->config['port']) ? ', ' . $this->config['port'] : '');
         $connInfo = [
@@ -54,12 +56,12 @@ class SQLSrvSchema implements Schema {
         return true;
     }
 
-    function disconnect(): bool
+    public function disconnect(): bool
     {
         return sqlsrv_close($this->instance);
     }
 
-    function select_db(string $db): bool
+    public function select_db(string $db): bool
     {
         if($this->disconnect()) {
             $this->config['database'] = $db;
@@ -85,7 +87,7 @@ class SQLSrvSchema implements Schema {
         return sqlsrv_errors();
     }
 
-    function query(string $sql): SQLSrvResult | bool
+    public function query(string $sql): SQLSrvResult | bool
     {
         $res = sqlsrv_query($this->instance, $sql, null, ['Scrollable' => SQLSRV_CURSOR_CLIENT_BUFFERED]);
         if(is_bool($res)) {
@@ -101,14 +103,15 @@ class SQLSrvSchema implements Schema {
     private function prepareValue(mixed $val): string {
         if(is_null($val)) return 'NULL';
         if(is_bool($val)) return ($val == true ? '1' : '0');
+        if(is_int($val) || is_float($val)) return (string) $val;
         if(is_string($val)) {
-            $val = str_replace("\\", "\\\\", $val); // replace backslash View\Update => View\\Update
-            $val = str_replace("'", "''", $val); // replace single quotes Qur'an => Qur''an
-            $val = str_replace("\"", "\\\"", $val); // replace double quotes Qur"an => Qur\"an
-            $val = "'".$val."'"; // add single quotes before and after 'Qur''an', 'Qur\"an', 'View\\Update'
+            $val = str_replace("\\", "\\\\", $val);
+            $val = str_replace("'", "''", $val);
+            $val = str_replace("\"", "\\\"", $val);
+            $val = "'".$val."'";
             return $val;
         }
-        return $val;
+        return (string) $val;
     }
 
     public function select(string|array $cols): Schema
@@ -136,19 +139,19 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
-    function limit(int $limit): Schema
+    public function limit(int $limit): Schema
     {
         $this->_limit = "FETCH NEXT {$limit} ROWS ONLY";
         return $this;
     }
 
-    function offset(int $offset): Schema
+    public function offset(int $offset): Schema
     {
         $this->_offset = "OFFSET {$offset} ROWS";
         return $this;
     }
 
-    function order(string|array $order, ?string $direction = null): Schema
+    public function order(string|array $order, ?string $direction = null): Schema
     {
         $tmp = "";
         if(is_array($order) && count($order) > 0) {
@@ -166,32 +169,32 @@ class SQLSrvSchema implements Schema {
             }
         }
 
-        $this->_order .= (strlen($tmp) > 0) ? (strlen($this->_order) > 0 ? ', '.$tmp : 'ORDER BY '.$tmp) : "";
+        $this->_order .= ($tmp !== '') ? (($this->_order ?? '') !== '' ? ', '.$tmp : 'ORDER BY '.$tmp) : "";
         return $this;
     }
 
-    function join(string $tbl, string $cond, string $direction = null): Schema {
+    public function join(string $tbl, string $cond, ?string $direction = null): Schema {
         $str = "";
-        $str .= (strlen($this->_join) > 0 ? " " : "");
+        $str .= (($this->_join ?? '') !== '' ? " " : "");
         $str .= ($direction != null ? $direction." " : "");
         $str .= "JOIN {$tbl} ON {$cond}";
         $this->_join .= $str;
         return $this;
     }
 
-    function innerJoin(string $tbl, string $cond): Schema {
+    public function innerJoin(string $tbl, string $cond): Schema {
         return $this->join($tbl, $cond, 'INNER');
     }
 
-    function leftJoin(string $tbl, string $cond): Schema {
+    public function leftJoin(string $tbl, string $cond): Schema {
         return $this->join($tbl, $cond, 'LEFT');
     }
 
-    function rightJoin(string $tbl, string $cond): Schema {
+    public function rightJoin(string $tbl, string $cond): Schema {
         return $this->join($tbl, $cond, 'RIGHT');
     }
 
-    private function reset() {
+    private function reset(): void {
         $this->_select = null;
         $this->_where = null;
         $this->_order = null;
@@ -212,29 +215,29 @@ class SQLSrvSchema implements Schema {
             ->get()->row()->lastid;
     }
 
-    function getSql(string $table = null): string {
+    public function getSql(string $table = null): string {
         $select = "SELECT *";
-        if(strlen($this->_select) > 0) $select = "SELECT {$this->_select}";
+        if (($this->_select ?? '') !== '') $select = "SELECT {$this->_select}";
 
         $from = $table != null ? "FROM {$table}" : "";
         $where = $this->_where;
 
         $order = $this->_order;
-        if(strlen($order) > 0) {
-            if(strlen($this->_offset) > 0) $order .= " ".$this->_offset;
-            if(strlen($this->_limit) > 0) $order .= " ".$this->_limit;
+        if (($order ?? '') !== '') {
+            if (($this->_offset ?? '') !== '') $order .= " ".$this->_offset;
+            if (($this->_limit ?? '') !== '') $order .= " ".$this->_limit;
         }
 
         $join = $this->_join;
         $group = $this->_group;
         $query = implode(" ", array_filter([$select, $from, $join, $where, $group, $order], function ($v) {
-            return strlen($v) > 0;
+            return ($v ?? '') !== '';
         }));
         $this->reset();
         return $query;
     }
 
-    function get(string $table = null): Result
+    public function get(string $table = null): Result|bool
     {
         $sql = $this->getSql($table);
         return $this->query($sql);
@@ -269,7 +272,7 @@ class SQLSrvSchema implements Schema {
         $values = [];
         foreach($data as $c => $v){
             $columns[] = $c;
-            $values[] = self::prepareValue($v);
+            $values[] = $this->prepareValue($v);
         }
 
         $col_str = implode(', ', $columns);
@@ -281,7 +284,7 @@ class SQLSrvSchema implements Schema {
         return false;
     }
 
-    function update(string $tbl, array $data): Result | bool {
+    public function update(string $tbl, array $data): Result | bool {
         $columns = [];
         foreach($data as $c => $v){
             $columns[] = "{$c} = " . $this->prepareValue($v);
@@ -289,43 +292,43 @@ class SQLSrvSchema implements Schema {
         $col_str = implode(", ", $columns);
 
         $where = $this->_where;
-        if(strlen($where) > 0) $where = " ".$where;
+        if (($where ?? '') !== '') $where = " ".$where;
 
         $sql = "UPDATE {$tbl} SET {$col_str}{$where}";
         $this->reset();
         return $this->query($sql);
     }
 
-    function delete(string $tbl): Result | bool {
+    public function delete(string $tbl): Result | bool {
         $where = $this->_where;
-        if(strlen($where) > 0) $where = " ".$where;
+        if (($where ?? '') !== '') $where = " ".$where;
 
         $sql = "DELETE FROM {$tbl}{$where}";
         $this->reset();
         return $this->query($sql); 
     }
 
-    function groupBy(mixed $group): Schema {
+    public function groupBy(mixed $group): Schema {
         $str = "GROUP BY ";
         if(is_string($group)) $str .= $group;
         if(is_array($group)) $str .= implode(",", $group);
-        (strlen($this->_group) > 0) ? $this->_group .= $str : $this->_group = $str;
+        ($this->_group ?? '') !== '' ? $this->_group .= $str : $this->_group = $str;
         return $this;
     }
 
-    function startTransaction(): bool {
+    public function startTransaction(): bool {
         return sqlsrv_begin_transaction($this->instance);
     }
 
-    function commit(): bool {
+    public function commit(): bool {
         return sqlsrv_commit($this->instance);
     }
 
-    function rollback(): bool {
+    public function rollback(): bool {
         return sqlsrv_rollback($this->instance);
     }
 
-    function orWhere(string|array $orWhere): Schema {
+    public function orWhere(string|array $orWhere): Schema {
         $tmp = "";
         if(is_string($orWhere)) $tmp = $orWhere;
         if(is_array($orWhere)) {
@@ -342,16 +345,17 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
-    function getNamePrimaryKey(string $table){
+    private function getNamePrimaryKey(string $table): ?object {
         return $this->query("SELECT name FROM sys.key_constraints WHERE type = 'PK' AND OBJECT_NAME(parent_object_id) = N'{$table}';")->row();
     }
 
-    function alter(string $table): Result | bool {
+    public function alter(string $table): Result | bool {
         $alter = "ALTER TABLE {$table}";
         $modifyColumn = $this->_modifyColumn;
         $addColumn = $this->_addColumn;
         $dropColumn = $this->_dropColumn;
-        if(strlen($this->_dropPrimary > 0)) {
+        $dropPrimary = '';
+        if (($this->_dropPrimary ?? '') !== '') {
             $primaryName = $this->getNamePrimaryKey($table)->name;
             $dropPrimary = implode(" ", [$this->_dropPrimary, $primaryName]);
         }
@@ -362,53 +366,53 @@ class SQLSrvSchema implements Schema {
         return $this->query($sql);
     }
 
-    function modifyColumn(string $column, string $type): Schema {
+    public function modifyColumn(string $column, string $type): Schema {
         $this->_modifyColumn = "ALTER COLUMN {$column} {$type}";
         return $this;
     }
 
 
-    function addColumn(string $column, string $type): Schema {
+    public function addColumn(string $column, string $type): Schema {
         $this->_addColumn = "ADD {$column} {$type}";
         return $this;
     }
 
-    function addColumnAfter(string $afterCol, string $column, string $type): Schema {
+    public function addColumnAfter(string $afterCol, string $column, string $type): Schema {
         return $this;
     }
 
-    function dropColumn(string $column): Schema {
+    public function dropColumn(string $column): Schema {
         $this->_dropColumn = "DROP COLUMN {$column}";
         return $this;
     }
 
-    function dropPrimary(): Schema {
+    public function dropPrimary(): Schema {
         $this->_dropPrimary = "DROP CONSTRAINT";
         return $this;
     }
 
-    function addPrimary(string $column, string $primary_name): Schema {
+    public function addPrimary(string $column, string $primary_name): Schema {
         $this->_addPrimary = "ADD CONSTRAINT {$primary_name} PRIMARY KEY CLUSTERED ({$column})";
         return $this;
     }
 
-    function createIndex(string $table, string $index_name, array $cols): Result|bool {
+    public function createIndex(string $table, string $index_name, array $cols): Result|bool {
         $column = implode(",", $cols);
         $sql = "CREATE CLUSTERED INDEX {$index_name} ON {$table} ({$column});";
         return $this->query($sql);
     }
 
-    function dropIndex(string $table, string $index_name): Result|bool {
+    public function dropIndex(string $table, string $index_name): Result|bool {
         $sql = "DROP INDEX {$index_name} ON {$table};";
         return $this->query($sql);
     }
 
-    function truncate(string $table): Result|bool {
+    public function truncate(string $table): Result|bool {
         $sql = "TRUNCATE TABLE {$table}";
         return $this->query($sql);
     }
 
-    function rename(string $table, string $new_table): Result | bool {
+    public function rename(string $table, string $new_table): Result | bool {
         return $this->query('sp_rename '.$table.', '.$new_table);
     }
 

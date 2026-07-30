@@ -1,17 +1,19 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi;
 
 class Injector {
 
-    public static function getMethodRef(mixed $callback) {
+    public static function getMethodRef(mixed $callback): \ReflectionMethod|\ReflectionFunction {
         if($callback instanceof \ReflectionMethod) return $callback;
         if($callback instanceof \ReflectionFunction) return $callback;
         if(is_array($callback)) return new \ReflectionMethod($callback[0], $callback[1]);
         return new \ReflectionFunction($callback);
     }
 
-    public static function getDependencies(\ReflectionMethod | \ReflectionFunction $ref, $knownParams = []) {
+    public static function getDependencies(\ReflectionMethod|\ReflectionFunction $ref, array $knownParams = []): array {
         return array_map(function (\ReflectionParameter $param) use ($knownParams) {
             if(isset($knownParams[$param->getName()])) {
                 return $knownParams[$param->getName()];
@@ -33,7 +35,7 @@ class Injector {
         }, $ref->getParameters());
     }
 
-    public static function resolve(mixed $callback, array $knownParams = []) {
+    public static function resolve(mixed $callback, array $knownParams = []): array {
         if(is_string($callback) && strpos($callback, '@') !== false) {
             $defs = explode('@', $callback);
             $callback = [Factory::resolve($defs[0]), $defs[1]];

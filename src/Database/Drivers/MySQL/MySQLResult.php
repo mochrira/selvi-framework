@@ -1,5 +1,7 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi\Database\Drivers\MySQL;
 
 use \mysqli_result;
@@ -8,18 +10,18 @@ use stdClass;
 
 class MySQLResult implements Result {
 
-    private mysqli_result $result;
+    private mixed $result;
 
-    function __construct(mixed $result) {
+    public function __construct(mixed $result) {
         $this->result = $result;
     }
 
-    function num_rows(): int | bool {
+    public function num_rows(): int | bool {
         if(is_bool($this->result)) return $this->result;
         return $this->result->num_rows;
     }
 
-    function result(): array | bool | null {
+    public function result(): array | bool | null {
         if(is_bool($this->result)) return $this->result;
         if($this->result instanceof mysqli_result) {
             $this->result->data_seek(0);
@@ -32,7 +34,7 @@ class MySQLResult implements Result {
         return null;
     }
 
-    function row(): stdClass | bool | null {
+    public function row(): stdClass | bool | null {
         if(is_bool($this->result)) return $this->result;
         if($this->result instanceof mysqli_result) {
             $this->result->data_seek(0);

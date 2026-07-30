@@ -1,12 +1,14 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi;
 
 class Factory {
 
-    public static $instances = [];
+    public static array $instances = [];
 
-    static function resolve($className, $knownParams = []) {
+    public static function resolve(string $className, array $knownParams = []): ?object {
         if(!isset(self::$instances[$className])) {
             $reflector = new \ReflectionClass($className);
             if(!$reflector->isInstantiable()) throw new \Exception('Could not resolve class '.$className);

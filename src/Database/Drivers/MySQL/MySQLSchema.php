@@ -1,5 +1,7 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi\Database\Drivers\MySQL;
 
 use mysqli;
@@ -80,9 +82,9 @@ class MySQLSchema implements Schema {
         }
     }
 
-    function getSql(string $table = null): string {
+    public function getSql(string $table = null): string {
         $select = "SELECT *";
-        if(strlen($this->_select) > 0) $select = "SELECT {$this->_select}";
+        if (($this->_select ?? '') !== '') $select = "SELECT {$this->_select}";
 
         $from = $table != null ? "FROM {$table}" : "";
         $join = $this->_join;
@@ -91,12 +93,12 @@ class MySQLSchema implements Schema {
         $order = $this->_order;
 
         $limit = "";
-        if($this->_limit > -1) {
+        if($this->_limit !== null && $this->_limit > -1) {
             $limit = ($this->_limit > -1 ? "LIMIT ".$this->_limit : "").($this->_offset > 0 ? " OFFSET ".$this->_offset : "");
         }
         
         $sql = implode(" ", array_filter([$select, $from, $join, $where, $group, $order, $limit], function ($v) {
-            return strlen($v) > 0;
+            return ($v ?? '') !== '';
         }));
         $this->reset();
         return $sql;
@@ -116,37 +118,38 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    private function prepareValue($val): string {
+    private function prepareValue(mixed $val): string {
         if(is_null($val)) return 'NULL';
         if(is_bool($val)) return ($val == true ? '1' : '0');
+        if(is_int($val) || is_float($val)) return (string) $val;
         if(is_string($val)) {
-            $val = str_replace("\\", "\\\\", $val); // replace backslash View\Update => View\\Update
-            $val = str_replace("'", "\\'", $val); // replace single quotes Qur'an => Qur\'an
-            $val = str_replace("\"", "\\\"", $val); // replace double quotes Qur"an => Qur\"an
-            $val = "\"".$val."\""; // add double quotes before and after "Qur\'an", "Qur\"an", "View\\Update"
+            $val = str_replace("\\", "\\\\", $val);
+            $val = str_replace("'", "\\'", $val);
+            $val = str_replace("\"", "\\\"", $val);
+            $val = "\"".$val."\"";
             return $val;
         }
-        return $val;
+        return (string) $val;
     }
 
-    function join(string $tbl, string $cond, string $direction = null): Schema {
+    public function join(string $tbl, string $cond, ?string $direction = null): Schema {
         $str = "";
-        $str .= (strlen($this->_join) > 0 ? " " : "");
+        $str .= (($this->_join ?? '') !== '' ? " " : "");
         $str .= ($direction != null ? $direction." " : "");
         $str .= "JOIN {$tbl} ON {$cond}";
         $this->_join .= $str;
         return $this;
     }
 
-    function innerJoin(string $tbl, string $cond): Schema {
+    public function innerJoin(string $tbl, string $cond): Schema {
         return $this->join($tbl, $cond, 'INNER');
     }
 
-    function leftJoin(string $tbl, string $cond): Schema {
+    public function leftJoin(string $tbl, string $cond): Schema {
         return $this->join($tbl, $cond, 'LEFT');
     }
 
-    function rightJoin(string $tbl, string $cond): Schema {
+    public function rightJoin(string $tbl, string $cond): Schema {
         return $this->join($tbl, $cond, 'RIGHT');
     }
 
@@ -168,7 +171,7 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    function orWhere(string|array $orWhere): Schema {
+    public function orWhere(string|array $orWhere): Schema {
         $tmp = "";
         if(is_string($orWhere)) $tmp = $orWhere;
         if(is_array($orWhere)) {
@@ -185,15 +188,15 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    function groupBy(mixed $group): Schema {
+    public function groupBy(mixed $group): Schema {
         $str = "GROUP BY ";
         if(is_string($group)) $str .= $group;
         if(is_array($group)) $str .= implode(",", $group);
-        (strlen($this->_group) > 0) ? $this->_group .= $str : $this->_group = $str;
+        ($this->_group ?? '') !== '' ? $this->_group .= $str : $this->_group = $str;
         return $this;
     }
 
-    function order(string|array $order, ?string $direction = null): Schema
+    public function order(string|array $order, ?string $direction = null): Schema
     {
         $tmp = '';
         if(is_array($order) && count($order) > 0) {
@@ -211,16 +214,16 @@ class MySQLSchema implements Schema {
             }
         }
 
-        $this->_order .= (strlen($tmp) > 0) ? (strlen($this->_order) > 0 ? ', '.$tmp : 'ORDER BY '.$tmp) : "";
+        $this->_order .= ($tmp !== '') ? (($this->_order ?? '') !== '' ? ', '.$tmp : 'ORDER BY '.$tmp) : "";
         return $this;
     }
 
-    function limit(int $limit = null): Schema {
+    public function limit(int $limit = null): Schema {
         $this->_limit = $limit;
         return $this;
     }
 
-    function offset(int $offset = null) : Schema {
+    public function offset(int $offset = null): Schema {
         $this->_offset = $offset;
         return $this;
     }
@@ -266,7 +269,7 @@ class MySQLSchema implements Schema {
         $values = [];
         foreach($data as $c => $v){
             $columns[] = $c;
-            $values[] = self::prepareValue($v);
+            $values[] = $this->prepareValue($v);
         }
 
         $col_str = implode(', ', $columns);
@@ -276,7 +279,7 @@ class MySQLSchema implements Schema {
         return $this->query($sql);
     }
 
-    function update(string $tbl, array $data): Result | bool {
+    public function update(string $tbl, array $data): Result | bool {
         $columns = [];
         foreach($data as $c => $v){
             $columns[] = "{$c} = " . $this->prepareValue($v);
@@ -284,28 +287,28 @@ class MySQLSchema implements Schema {
         $col_str = implode(", ", $columns);
 
         $where = $this->_where;
-        if(strlen($where) > 0) $where = " ".$where;
+        if (($where ?? '') !== '') $where = " ".$where;
 
         $sql = "UPDATE {$tbl} SET {$col_str}{$where}";
         $this->reset();
         return $this->query($sql);
     }
 
-    function delete(string $tbl): Result | bool {
+    public function delete(string $tbl): Result | bool {
         $where = $this->_where;
-        if(strlen($where) > 0) $where = " ".$where;
+        if (($where ?? '') !== '') $where = " ".$where;
 
         $sql = "DELETE FROM {$tbl}{$where}";
         $this->reset();
         return $this->query($sql); 
     }
 
-    private function reset() {
+    private function reset(): void {
         $this->_select = null;
         $this->_where = null;
         $this->_order = null;
-        $this->_offset = null;
-        $this->_limit = null;
+        $this->_offset = 0;
+        $this->_limit = -1;
         $this->_join = null;
         $this->_group = null;
 
@@ -317,23 +320,23 @@ class MySQLSchema implements Schema {
     }
 
     public function lastId(): int {
-        return $this->select('LAST_INSERT_ID() AS lastid')
+        return (int) $this->select('LAST_INSERT_ID() AS lastid')
             ->get()->row()->lastid;
     }
 
-    function startTransaction(): bool {
+    public function startTransaction(): bool {
         return $this->query("START TRANSACTION");
     }
 
-    function commit(): bool {
+    public function commit(): bool {
         return $this->query("COMMIT");
     }
 
-    function rollback(): bool {
+    public function rollback(): bool {
         return $this->query("ROLLBACK");
     }
 
-    function alter(string $table): Result | bool {
+    public function alter(string $table): Result | bool {
         $alter = "ALTER TABLE {$table}";
         $modifyColumn = $this->_modifyColumn;
         $addColumn = $this->_addColumn;
@@ -342,78 +345,78 @@ class MySQLSchema implements Schema {
 
         $addPrimary = $this->_addPrimary;
         $sql = implode(" ", array_filter([$alter, $modifyColumn, $addColumn, $dropPirmaryKey, $dropColumn, $addPrimary], function ($v) {
-            return strlen($v) > 0;
+            return ($v ?? '') !== '';
         }));
         $this->reset();
         return $this->query($sql);
     }
 
-    function addColumnFirst(string $column, string $type) {
+    public function addColumnFirst(string $column, string $type): Schema {
         $this->addColumn($column, $type);
         $this->_addColumn .= " FIRST";
         return $this;
     }
 
-    function addColumnAfter(string $afterCol, string $column, string $type): Schema {
+    public function addColumnAfter(string $afterCol, string $column, string $type): Schema {
         $this->addColumn($column, $type);
         $this->_addColumn .= " AFTER {$afterCol}";
         return $this;
     }
 
-    function modifyColumn(string $column, string $type): Schema {
+    public function modifyColumn(string $column, string $type): Schema {
         $this->_modifyColumn = "MODIFY COLUMN {$column} {$type}";
         return $this;
     }
 
-    function addColumn(string $column, string $type): Schema {
+    public function addColumn(string $column, string $type): Schema {
         $this->_addColumn = "ADD {$column} {$type}";
         return $this;
     }
 
-    function dropColumn(string $column): Schema {
+    public function dropColumn(string $column): Schema {
         $this->_dropColumn = "DROP COLUMN {$column}";
         return $this;
     }
 
-    function dropPrimary(): Schema {
+    public function dropPrimary(): Schema {
         $this->_dropPrimary = "DROP PRIMARY KEY";
         return $this;
     }
 
-    function addPrimary(string $column, string $primary_name): Schema {
+    public function addPrimary(string $column, string $primary_name): Schema {
         $this->_addPrimary = "ADD CONSTRAINT {$primary_name} PRIMARY KEY ({$column})";
         return $this;
     }
 
-    function createIndex(string $table, string $index_name, array $cols): Result | bool {
+    public function createIndex(string $table, string $index_name, array $cols): Result | bool {
         $column = implode(",", $cols);
         $sql = "CREATE INDEX {$index_name} ON {$table} ({$column});";
         return $this->query($sql);
     }
 
-    function dropIndex(string $table, string $index_name): Result | bool {
+    public function dropIndex(string $table, string $index_name): Result | bool {
         $sql = "DROP INDEX {$index_name} ON {$table};";
         return $this->query($sql);
     }
 
-    function truncate(string $table): Result | bool {
+    public function truncate(string $table): Result | bool {
         $sql = "TRUNCATE {$table}";
         return $this->query($sql);
     }
 
-    function rename(string $table, string $new_table): Result | bool {
+    public function rename(string $table, string $new_table): Result | bool {
         return $this->query('RENAME TABLE '.$table.' TO '.$new_table);
     }
 
-    function changeColumn(string $table, string $oldCol, string $newCol, string $type): Result | bool {
+    public function changeColumn(string $table, string $oldCol, string $newCol, string $type): Result | bool {
         return $this->query('ALTER TABLE '.$table.' CHANGE COLUMN '.$oldCol.' '.$newCol.' '.$type);
     }
 
-    function createDatabase(string $name) {
+    public function createDatabase(string $name): Result|bool {
         return $this->query('CREATE DATABASE '.$name.';');
     }
 
-    function dropDatabase(string $name) {
+    public function dropDatabase(string $name): Result|bool {
         return $this->query('DROP DATABASE '.$name.';');
     }
 

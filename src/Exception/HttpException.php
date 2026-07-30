@@ -1,5 +1,7 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi\Exception;
 
 use Selvi\Exception;
@@ -15,11 +17,11 @@ class HttpException extends Exception {
         $this->uri = $uri;
     }
 
-    function getUri() {
+    public function getUri(): ?string {
         return $this->uri;
     }
 
-    function getMethod() {
+    public function getMethod(): ?string {
         return $this->method;
     }
 

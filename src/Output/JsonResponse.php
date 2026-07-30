@@ -1,36 +1,39 @@
 <?php 
 
+declare(strict_types=1);
+
 namespace Selvi\Output;
 
 class JsonResponse extends Response {
 
-    private $jsonData;
-    private $jsonOptions;
+    private ?array $jsonData;
+    private int $jsonOptions;
 
-    function __construct(array $data = null, int $code = 200, $options = JSON_PRETTY_PRINT) {
+    function __construct(?array $data = null, int $code = 200, int $options = JSON_PRETTY_PRINT) {
         $this->jsonData = $data;
         $this->jsonOptions = $options;
         $this->setCode($code);
     }
 
-    function getData() {
+    public function getData(): ?array {
         return $this->jsonData;
     }
 
-    function getOptions() {
+    public function getOptions(): int {
         return $this->jsonOptions;
     }
 
-    function setData(array $data) {
+    public function setData(array $data): void {
         $this->jsonData = $data;
     }
 
-    function setOptions($options) {
+    public function setOptions(int $options): void {
         $this->jsonOptions = $options;
     }
 
-    function send() {
-        $this->setContent($this->jsonData != null ? json_encode($this->jsonData, $this->jsonOptions) : null);
+    #[\Override]
+    public function send(): void {
+        $this->setContent($this->jsonData !== null ? json_encode($this->jsonData, $this->jsonOptions) : null);
         parent::send();
     }
 
