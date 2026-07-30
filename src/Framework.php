@@ -14,11 +14,11 @@ class Framework {
             die();
         }
 
-        /** @var \Selvi\Request $request */
+        /** @var \Selvi\Input\Request $request */
         $request = Factory::resolve(Request::class);
         $method = $request->method();
 
-        /** @var \Selvi\Uri $uri */
+        /** @var \Selvi\Input\Uri $uri */
         $uri = Factory::resolve(Uri::class);
         $current_uri = $uri->string();
 
