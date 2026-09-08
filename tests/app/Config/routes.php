@@ -11,6 +11,12 @@ Route::get('/grup/{id}', 'Selvi\\Tests\\Controllers\\GrupController@row');
 Route::post('/grup', 'Selvi\\Tests\\Controllers\\GrupController@insert');
 Route::patch('/grup/{id}', 'Selvi\\Tests\\Controllers\\GrupController@update');
 Route::delete('/grup/{id}', 'Selvi\\Tests\\Controllers\\GrupController@delete');
+
+Route::get('/kontak', 'Selvi\\Tests\\Controllers\\KontakController@result');
+Route::get('/kontak/{id}', 'Selvi\\Tests\\Controllers\\KontakController@row');
+Route::post('/kontak', 'Selvi\\Tests\\Controllers\\KontakController@insert');
+Route::patch('/kontak/{id}', 'Selvi\\Tests\\Controllers\\KontakController@update');
+Route::delete('/kontak/{id}', 'Selvi\\Tests\\Controllers\\KontakController@delete'); 
  
 Route::withMiddleware(['Selvi\\Tests\\Middlewares\\AuthMiddleware@validateToken'], function () {
     Route::get('/kontak', 'Selvi\\Tests\\Controllers\\KontakController@result');
