@@ -14,27 +14,53 @@ class KontakController {
      }
 
     function result() {
-        
+        $data = array_map(fn($item) => $item->toArray(), Kontak::all());
+        return \jsonResponse($data, 200);
     }
 
     function row(String $id) {
-        
+        $row = Kontak::find((int) $id);
+
+        if (!$row) {
+            return \jsonResponse(['message' => 'Kontak not found'], 404);
+        }
+        return \jsonResponse($row->toArray(), 200);
     }
 
     function insert() {
-        $data = json_decode($this->request->raw(), true);
+        $data = json_decode($this->request->raw(), true) ?? [];
         $kontak = new Kontak();
-        $kontak->nmKontak = "Halo";
-        $kontak->idGrup = 1;
+        $kontak->nmKontak = $data['nmKontak'] ?? "Halo";
+        $kontak->idGrup = $data['idGrup'] ?? null;
         $kontak->create();
+        return \jsonResponse(['idKontak' => $kontak->idKontak], 201);
     }
 
     function update(String $id) {
-       
+        $data = json_decode($this->request->raw(), true) ?? [];
+        $kontak = Kontak::find((int) $id);
+
+        if (!$kontak) {
+            return \jsonResponse(['message' => 'Kontak not found'], 404);
+        }
+        if (isset($data['nmKontak'])) {
+            $kontak->nmKontak = $data['nmKontak'];
+        }
+        if (isset($data['idGrup'])) {
+            $kontak->idGrup = $data['idGrup'];
+        }
+        
+        $kontak->update();
+        return \jsonResponse(null, 204);
     }
 
     function delete(String $id) {
-        
+        $kontak = Kontak::find((int) $id);
+        if (!$kontak) {
+            return \jsonResponse(['message' => 'Kontak not found'], 404);
+        }
+        $kontak->delete();
+        return \jsonResponse(null, 204);
     }
 
 }

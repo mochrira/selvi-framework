@@ -14,7 +14,7 @@ class Kontak extends Model {
 
     #[Primary]
     #[Column("idKontak")]
-    public ?int $id = null;
+    public ?int $idKontak = null;
 
     #[Column("nmKontak")]
     public ?string $nmKontak = null;

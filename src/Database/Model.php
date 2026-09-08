@@ -68,7 +68,48 @@ abstract class Model {
         }
     }
 
-    
+    public static function all(): array {
+        $instance = new static();
+        $db = Manager::get($instance->schemaName);
+        $result = $db->get($instance->table);
+        $rows = $result ? $result->result() : null;
+
+        if ($rows === null || $rows === false) {
+            return [];
+        }
+
+        $records = [];
+        foreach ($rows as $row) {
+            $item = new static();
+            foreach ($row as $colName => $value) {
+                $propName = $item->propertyMap[$colName] ?? null;
+                if ($propName !== null) {
+                    $item->$propName = $value;
+                }
+            }
+            $item->exists = true;
+            $records[] = $item;
+        }
+
+        return $records;
+    }
+
+    public static function find(mixed $id): ?static {
+        $instance = new static();
+        $db = Manager::get($instance->schemaName);
+        $result = $db->where([[$instance->primaryKey, $id]])->get($instance->table);
+        $row = $result ? $result->row() : null;
+
+        if (!$row) return null;
+
+        foreach ($row as $colName => $value) {
+            $propName = $instance->propertyMap[$colName] ?? null;
+            if ($propName !== null) $instance->$propName = $value;
+        }
+
+        $instance->exists = true;
+        return $instance;
+    }
 
     function create(): bool {
         // Generate data otomatis dari kombinasi columnMap (property => column)
@@ -87,8 +128,65 @@ abstract class Model {
                     $this->$propName = $id;
                 }
             }
+            $this->exists = true;
             return true;
         }
         return false;
+    }
+
+    public function update(?array $data = null): bool {
+        $primaryProperty = $this->propertyMap[$this->primaryKey] ?? null;
+
+        if ($primaryProperty === null || !isset($this->$primaryProperty)) return false;
+
+        $primaryValue = $this->$primaryProperty;
+
+        if ($data !== null) {
+            foreach ($data as $key => $value) {
+                if (isset($this->columnMap[$key])) {
+                    $this->$key = $value;
+                } elseif (isset($this->propertyMap[$key])) {
+                    $prop = $this->propertyMap[$key];
+                    $this->$prop = $value;
+                }
+            }
+        }
+
+        $updateData = [];
+
+        foreach ($this->columnMap as $propName => $colName) {
+            if ($colName === $this->primaryKey) {
+                continue;
+            }
+            $updateData[$colName] = $this->$propName ?? null;
+        }
+
+        $db = Manager::get($this->schemaName);
+
+        $result = $db->where([[$this->primaryKey, $primaryValue]])->update($this->table, $updateData);
+        return (bool) $result;
+    }
+
+    public function delete(): bool {
+        $primaryProperty = $this->propertyMap[$this->primaryKey] ?? null;
+        if ($primaryProperty === null || !isset($this->$primaryProperty)) {
+            return false;
+        }
+        $primaryValue = $this->$primaryProperty;
+
+        $db = Manager::get($this->schemaName);
+        $result = $db->where([[$this->primaryKey, $primaryValue]])->delete($this->table);
+        if ($result) {
+            $this->exists = false;
+        }
+        return (bool) $result;
+    }
+
+    public function toArray(): array {
+        $data = [];
+        foreach ($this->columnMap as $propName => $colName) {
+            $data[$colName] = $this->$propName ?? null;
+        }
+        return $data;
     }
 }
