@@ -1,4 +1,5 @@
 # Selvi Framework
+
 ⚡ Super fast PHP Framework for building API
 
 ## Update plan for 3.x
@@ -72,9 +73,15 @@ use Selvi\Controller;
 
 class KontakController extends Controller {
 
-  function result() {
-    
-    $data = Kontak::all();
+  function result(Request $request) {
+    $search = $request->get('search') ?? null;
+    $data = Kontak::all(function ($query) use ($search) {
+      $query->order(['kontak.nmKontak' => 'ASC']);
+      if($search != null) {
+        $query->where([['kontak.nmKontak', 'LIKE', '%'.$search.'%']]);
+      }
+      return $query;
+    });
   }
 
   function row(int $idKontak) {

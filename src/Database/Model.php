@@ -9,7 +9,6 @@ use Selvi\Database\Attributes\Table;
 
 abstract class Model {
 
-    protected Schema $db;
     protected string $schemaName;
     protected string $table;
     protected string $primaryKey;
@@ -17,8 +16,6 @@ abstract class Model {
     protected array $columnMap = [];
     /** @var array<string, string> Map: columnName => propertyName */
     protected array $propertyMap = [];
-    /** @var array<string, mixed> Snapshot dari database */
-    protected array $original = [];
     /** @var bool Apakah record ini sudah ada di database */
     protected bool $exists = false;
 
@@ -68,26 +65,26 @@ abstract class Model {
         }
     }
 
+    /**
+     * Ambil query builder dari koneksi berdasarkan schemaName.
+     * Model tidak perlu tahu driver database apa yang digunakan.
+     */
+    protected function queryBuilder(): QueryBuilder {
+        return new QueryBuilder(DatabaseManager::get($this->schemaName));
+    }
+
+    // ──────────────────────────────────────────────
+    // Query
+    // ──────────────────────────────────────────────
+
     public static function all(): array {
         $instance = new static();
-        $db = Manager::get($instance->schemaName);
-        $result = $db->get($instance->table);
-        $rows = $result ? $result->result() : null;
-
-        if ($rows === null || $rows === false) {
-            return [];
-        }
+        $rows = $instance->queryBuilder()->table($instance->table)->get();
 
         $records = [];
         foreach ($rows as $row) {
             $item = new static();
-            foreach ($row as $colName => $value) {
-                $propName = $item->propertyMap[$colName] ?? null;
-                if ($propName !== null) {
-                    $item->$propName = $value;
-                }
-            }
-            $item->exists = true;
+            $item->hydrate($row);
             $records[] = $item;
         }
 
@@ -96,17 +93,15 @@ abstract class Model {
 
     public static function find(mixed $id): ?static {
         $instance = new static();
-        $db = Manager::get($instance->schemaName);
-        $result = $db->where([[$instance->primaryKey, $id]])->get($instance->table);
-        $row = $result ? $result->row() : null;
+        $rows = $instance->queryBuilder()
+            ->table($instance->table)
+            ->where($instance->primaryKey, $id)
+            ->get();
 
-        if (!$row) return null;
+        $row = $rows[0] ?? null;
+        if ($row === null) return null;
 
-        foreach ($row as $colName => $value) {
-            $propName = $instance->propertyMap[$colName] ?? null;
-            if ($propName !== null) $instance->$propName = $value;
-        }
-
+        $instance->hydrate($row);
         $instance->exists = true;
         return $instance;
     }
@@ -115,18 +110,17 @@ abstract class Model {
         // Generate data otomatis dari kombinasi columnMap (property => column)
         $data = [];
         foreach ($this->columnMap as $propName => $colName) {
+            if ($colName === $this->primaryKey) continue;
             $data[$colName] = $this->$propName ?? null;
         }
 
-        $db = Manager::get($this->schemaName);
-        if($db->insert($this->table, $data)) {
-            $id = $db->lastId();
-            if ($id > 0) {
-                // Konversi nama kolom primary key ke nama property
-                $propName = $this->propertyMap[$this->primaryKey] ?? null;
-                if ($propName !== null) {
-                    $this->$propName = $id;
-                }
+        $id = $this->queryBuilder()->table($this->table)->insert($data);
+
+        if ((int) $id > 0) {
+            // Konversi nama kolom primary key ke nama property
+            $propName = $this->propertyMap[$this->primaryKey] ?? null;
+            if ($propName !== null) {
+                $this->$propName = (int) $id;
             }
             $this->exists = true;
             return true;
@@ -155,16 +149,14 @@ abstract class Model {
         $updateData = [];
 
         foreach ($this->columnMap as $propName => $colName) {
-            if ($colName === $this->primaryKey) {
-                continue;
-            }
+            if ($colName === $this->primaryKey) continue;
             $updateData[$colName] = $this->$propName ?? null;
         }
 
-        $db = Manager::get($this->schemaName);
-
-        $result = $db->where([[$this->primaryKey, $primaryValue]])->update($this->table, $updateData);
-        return (bool) $result;
+        return (bool) $this->queryBuilder()
+            ->table($this->table)
+            ->where($this->primaryKey, $primaryValue)
+            ->update($updateData);
     }
 
     public function delete(): bool {
@@ -174,12 +166,27 @@ abstract class Model {
         }
         $primaryValue = $this->$primaryProperty;
 
-        $db = Manager::get($this->schemaName);
-        $result = $db->where([[$this->primaryKey, $primaryValue]])->delete($this->table);
+        $result = (bool) $this->queryBuilder()
+            ->table($this->table)
+            ->where($this->primaryKey, $primaryValue)
+            ->delete();
+
         if ($result) {
             $this->exists = false;
         }
-        return (bool) $result;
+        return $result;
+    }
+
+    /**
+     * Isi properti model dari satu baris hasil query (kolom => nilai).
+     */
+    protected function hydrate(array $row): void {
+        foreach ($row as $colName => $value) {
+            $propName = $this->propertyMap[$colName] ?? null;
+            if ($propName !== null) {
+                $this->$propName = $value;
+            }
+        }
     }
 
     public function toArray(): array {

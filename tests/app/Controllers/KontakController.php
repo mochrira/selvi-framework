@@ -20,10 +20,7 @@ class KontakController {
 
     function row(String $id) {
         $row = Kontak::find((int) $id);
-
-        if (!$row) {
-            return \jsonResponse(['message' => 'Kontak not found'], 404);
-        }
+        if (!$row) return \jsonResponse(['message' => 'Kontak not found'], 404);
         return \jsonResponse($row->toArray(), 200);
     }
 
@@ -39,16 +36,10 @@ class KontakController {
     function update(String $id) {
         $data = json_decode($this->request->raw(), true) ?? [];
         $kontak = Kontak::find((int) $id);
+        if (!$kontak) return \jsonResponse(['message' => 'Kontak not found'], 404);
 
-        if (!$kontak) {
-            return \jsonResponse(['message' => 'Kontak not found'], 404);
-        }
-        if (isset($data['nmKontak'])) {
-            $kontak->nmKontak = $data['nmKontak'];
-        }
-        if (isset($data['idGrup'])) {
-            $kontak->idGrup = $data['idGrup'];
-        }
+        if (isset($data['nmKontak'])) $kontak->nmKontak = $data['nmKontak'];
+        if (isset($data['idGrup'])) $kontak->idGrup = $data['idGrup'];
         
         $kontak->update();
         return \jsonResponse(null, 204);
@@ -56,9 +47,8 @@ class KontakController {
 
     function delete(String $id) {
         $kontak = Kontak::find((int) $id);
-        if (!$kontak) {
-            return \jsonResponse(['message' => 'Kontak not found'], 404);
-        }
+        if (!$kontak) return \jsonResponse(['message' => 'Kontak not found'], 404);
+
         $kontak->delete();
         return \jsonResponse(null, 204);
     }
