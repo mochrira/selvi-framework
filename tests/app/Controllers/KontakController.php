@@ -14,7 +14,16 @@ class KontakController {
      }
 
     function result() {
-        $data = array_map(fn($item) => $item->toArray(), Kontak::all());
+        $limit = $this->request->get('limit') !== null ? (int) $this->request->get('limit') : null;
+        $offset = $this->request->get('offset') !== null ? (int) $this->request->get('offset') : null;
+
+        $kontaks = Kontak::all(function ($query) use ($limit, $offset) {
+            if ($limit !== null) $query->limit($limit);
+            if ($offset !== null) $query->offset($offset);
+            return $query;
+        });
+
+        $data = array_map(fn($item) => $item->toArray(), $kontaks);
         return \jsonResponse($data, 200);
     }
 

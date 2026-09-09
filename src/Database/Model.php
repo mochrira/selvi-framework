@@ -77,14 +77,21 @@ abstract class Model {
     // Query
     // ──────────────────────────────────────────────
 
-    public static function all(): array {
+    public static function all(?callable $callback = null): array {
         $instance = new static();
-        $rows = $instance->queryBuilder()->table($instance->table)->get();
+        $query = $instance->queryBuilder()->table($instance->table);
+
+        if ($callback !== null) {
+            $query = $callback($query) ?? $query;
+        }
+
+        $rows = $query->get();
 
         $records = [];
         foreach ($rows as $row) {
             $item = new static();
             $item->hydrate($row);
+            $item->exists = true;
             $records[] = $item;
         }
 

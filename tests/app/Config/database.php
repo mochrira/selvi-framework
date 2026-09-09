@@ -7,12 +7,12 @@ use Selvi\Database\Seeder;
 use Selvi\Env;
 
 DatabaseManager::add('main', [
-    'driver' => 'mysql',
-    'host' => 'mariadb.database',
-    'port' => '3306',
-    'database' => 'test',
-    'username' => 'root',
-    'password' => 'RDF?jq8eec'
+    'driver'   => Env::get('DB_DRIVER', 'mysql'),
+    'host'     => Env::get('DB_HOST', 'localhost'),
+    'port'     => Env::get('DB_PORT', '3306'),
+    'database' => Env::get('DB_NAME'),
+    'username' => Env::get('DB_USER'),
+    'password' => Env::get('DB_PASS')
 ]);
 
 // Manager::add('main', [

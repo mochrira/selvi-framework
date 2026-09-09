@@ -41,7 +41,7 @@ paths:
 
   /grup:
     $ref: './paths/Grup/Grup.yaml'
-  /grup/{idGrup} :
+  /grup/{idGrup}:
     $ref: './paths/Grup/Grup-{idGrup}.yaml'
 
   /produk:

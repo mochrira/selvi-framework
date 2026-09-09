@@ -12,6 +12,8 @@ get:
   responses:
     '200':
       description: Object Grup terpilih
+    '404':
+      description: Grup not found
 
 patch:
   summary: Mengubah Grup berdasarkan ID
@@ -39,6 +41,8 @@ patch:
   responses:
     '204':
       description: Updated
+    '404':
+      description: Grup not found
 
 delete:
   summary: Menghapus Grup berdasarkan ID
@@ -52,5 +56,7 @@ delete:
       schema: 
         type: integer
   responses:
-    '204' :
+    '204':
       description: Grup berhasil dihapus
+    '404':
+      description: Grup not found

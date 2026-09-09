@@ -15,6 +15,8 @@ class QueryBuilder {
     private string|array $columns = '*';
     /** @var array<int, array{0: string, 1: string, 2: mixed}> */
     private array $wheres = [];
+    private ?int $limit = null;
+    private ?int $offset = null;
 
     public function __construct(ConnectionInterface $connection)
     {
@@ -52,6 +54,22 @@ class QueryBuilder {
         }
 
         $this->wheres[] = [$column, $operator, $value];
+        return $this;
+    }
+
+    public function limit(?int $limit): static
+    {
+        // Nilai negatif (misal -1) atau null dianggap tanpa limit
+        $this->limit = ($limit !== null && $limit < 0) ? null : $limit;
+        return $this;
+    }
+
+    public function offset(?int $offset): static
+    {
+        if ($offset !== null && $offset < 0) {
+            throw new InvalidArgumentException("Nilai offset tidak boleh negatif: {$offset}");
+        }
+        $this->offset = $offset;
         return $this;
     }
 
@@ -115,6 +133,16 @@ class QueryBuilder {
     public function getWheres(): array
     {
         return $this->wheres;
+    }
+
+    public function getLimit(): ?int
+    {
+        return $this->limit;
+    }
+
+    public function getOffset(): ?int
+    {
+        return $this->offset;
     }
 
     private function grammar(): GrammarInterface

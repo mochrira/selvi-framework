@@ -21,8 +21,9 @@ class MySQLGrammar implements GrammarInterface {
         $columnsSql = is_array($columns) ? implode(', ', $columns) : $columns;
 
         [$whereSql, $whereParams] = $this->compileWheres($queryBuilder, false);
+        $limitOffsetSql = $this->compileLimitOffset($queryBuilder);
 
-        return ["SELECT {$columnsSql} FROM {$table}{$whereSql}", $whereParams];
+        return ["SELECT {$columnsSql} FROM {$table}{$whereSql}{$limitOffsetSql}", $whereParams];
     }
 
     /**
@@ -109,6 +110,30 @@ class MySQLGrammar implements GrammarInterface {
         }
 
         return [' WHERE '.implode(' AND ', $parts), $params];
+    }
+
+    /**
+     * Susun klausa LIMIT dan OFFSET untuk MySQL.
+     * Di MySQL, klausa OFFSET wajib disertai dengan LIMIT.
+     */
+    private function compileLimitOffset(QueryBuilder $queryBuilder): string
+    {
+        $limit = $queryBuilder->getLimit();
+        $offset = $queryBuilder->getOffset();
+
+        if ($offset !== null && $limit === null) {
+            throw new RuntimeException('Operasi OFFSET pada MySQL wajib disertai dengan LIMIT. Panggil limit() terlebih dahulu.');
+        }
+
+        $sql = '';
+        if ($limit !== null) {
+            $sql .= " LIMIT {$limit}";
+            if ($offset !== null) {
+                $sql .= " OFFSET {$offset}";
+            }
+        }
+
+        return $sql;
     }
 
 }
