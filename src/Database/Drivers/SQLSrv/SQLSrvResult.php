@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Selvi\Database\Drivers\SQLSrv;
 
-use Selvi\Database\Result;
+use Selvi\Database\Contracts\ResultInterface;
 use stdClass;
 
-class SQLSrvResult implements Result {
+class SQLSrvResult implements ResultInterface {
 
     private mixed $result;
 

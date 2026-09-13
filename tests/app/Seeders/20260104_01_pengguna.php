@@ -1,8 +1,8 @@
 <?php
 
-use Selvi\Database\Schema;
+use Selvi\Database\Contracts\SchemaInterface;
 
-return function (Schema $schema) {
+return function (SchemaInterface $schema) {
 
     $schema->insert('pengguna', [
         'nmPengguna' => 'Administrator',

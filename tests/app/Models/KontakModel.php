@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Selvi\Tests\Models;
 
 use Selvi\Database\Manager;
-use Selvi\Database\Schema;
+use Selvi\Database\Contracts\SchemaInterface;
 
 class KontakModel {
 
-    private Schema $db;
+    private SchemaInterface $db;
 
     function __construct() {
         $this->db = Manager::get('main');

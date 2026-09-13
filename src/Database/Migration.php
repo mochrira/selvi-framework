@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Selvi\Database;
 
+use Selvi\Database\Contracts\SchemaInterface;
 use Selvi\Exception;
 use Selvi\Exception\DatabaseException;
 use Symfony\Component\Console\Command\Command;
@@ -81,7 +82,7 @@ class Migration extends Command {
         ]);
     }
 
-    private function getlastrecord(Schema $db, string $file, ?string $direction = null) {
+    private function getlastrecord(SchemaInterface $db, string $file, ?string $direction = null) {
         if ($direction != null) $db->where([['direction', $direction]]);
         return $db->where([['filename', $file]])->offset(0)->limit(1)
             ->order(['start' => 'DESC'])->get('_migration')->row();

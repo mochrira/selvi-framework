@@ -18,9 +18,9 @@ Create `app/Migrations/20240505_01_init_produk.php`:
 
 ```php
 <?php
-use Selvi\Database\Schema;
+use Selvi\Database\Contracts\SchemaInterface;
 
-return function (Schema $schema, string $direction) {
+return function (SchemaInterface $schema, string $direction) {
     if ($direction === 'up') {
         $schema->create('grup', [
             'idGrup' => 'INT(11) PRIMARY KEY AUTO_INCREMENT',
@@ -58,11 +58,11 @@ Create `app/Models/ProdukModel.php`:
 namespace App\Models;
 
 use Selvi\Database\Manager;
-use Selvi\Database\Schema;
+use Selvi\Database\Contracts\SchemaInterface;
 
 class ProdukModel {
 
-    private Schema $db;
+    private SchemaInterface $db;
 
     function __construct() {
         $this->db = Manager::get('main');

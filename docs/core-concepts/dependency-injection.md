@@ -102,7 +102,7 @@ Use `inject()` to manually resolve a class from anywhere:
 
 ```php
 $request = inject(Request::class);
-$db = inject(Selvi\Database\Schema::class);
+$db = inject(Selvi\Database\Contracts\SchemaInterface::class);
 ```
 
 This calls `Factory::resolve()` internally.

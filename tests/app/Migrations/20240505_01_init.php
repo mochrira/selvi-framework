@@ -1,8 +1,8 @@
 <?php
 
-use Selvi\Database\Schema;
+use Selvi\Database\Contracts\SchemaInterface;
 
-return function(Schema $schema, $direction) {
+return function(SchemaInterface $schema, $direction) {
 
     if($direction == 'up') :
         $schema->create('kontak', [

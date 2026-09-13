@@ -6,11 +6,13 @@ namespace Selvi\Database\Drivers\MySQL;
 
 use mysqli;
 use mysqli_sql_exception;
-use Selvi\Database\Schema;
-use Selvi\Database\Result;
+use Selvi\Database\Contracts\GrammarInterface;
+use Selvi\Database\Contracts\ResultInterface;
+use Selvi\Database\Contracts\SanitizerInterface;
+use Selvi\Database\Contracts\SchemaInterface;
 use Selvi\Exception\DatabaseException;
 
-class MySQLSchema implements Schema {
+class MySQLSchema implements SchemaInterface {
 
     private Array | null $config;
     private mysqli $instance;
@@ -26,6 +28,14 @@ class MySQLSchema implements Schema {
     private ?string $_dropColumn = null;
     private ?string $_dropPrimary = null;
     private ?string $_addPrimary = null;
+
+    public function sanitizer(): SanitizerInterface {
+        return new MySQLSanitizer();
+    }
+
+    public function grammar(): GrammarInterface {
+        return new MySQLGrammar($this->sanitizer());
+    }
 
     public function __construct(Array $config)
     {
@@ -72,7 +82,7 @@ class MySQLSchema implements Schema {
         return $this->instance->error;
     }
 
-    public function query(string $sql): Result | bool {
+    public function query(string $sql): ResultInterface | bool {
         try {
             $res = $this->instance->query($sql);
             if(is_bool($res)) return $res;
@@ -105,13 +115,13 @@ class MySQLSchema implements Schema {
     }
 
 
-    public function get(string $tbl = null): Result | bool
+    public function get(string $tbl = null): ResultInterface | bool
     {
         $sql = $this->getSql($tbl);
         return $this->query($sql);
     }
 
-    public function select(string|array $cols): Schema
+    public function select(string|array $cols): SchemaInterface
     {
         if(is_string($cols)) $this->_select = $cols;
         if(is_array($cols)) $this->_select = implode(",", $cols);
@@ -132,7 +142,7 @@ class MySQLSchema implements Schema {
         return (string) $val;
     }
 
-    public function join(string $tbl, string $cond, ?string $direction = null): Schema {
+    public function join(string $tbl, string $cond, ?string $direction = null): SchemaInterface {
         $str = "";
         $str .= (($this->_join ?? '') !== '' ? " " : "");
         $str .= ($direction != null ? $direction." " : "");
@@ -141,19 +151,19 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    public function innerJoin(string $tbl, string $cond): Schema {
+    public function innerJoin(string $tbl, string $cond): SchemaInterface {
         return $this->join($tbl, $cond, 'INNER');
     }
 
-    public function leftJoin(string $tbl, string $cond): Schema {
+    public function leftJoin(string $tbl, string $cond): SchemaInterface {
         return $this->join($tbl, $cond, 'LEFT');
     }
 
-    public function rightJoin(string $tbl, string $cond): Schema {
+    public function rightJoin(string $tbl, string $cond): SchemaInterface {
         return $this->join($tbl, $cond, 'RIGHT');
     }
 
-    public function where(string|array $where): Schema
+    public function where(string|array $where): SchemaInterface
     {
         $tmp = "";
         if(is_string($where)) $tmp = $where;
@@ -171,7 +181,7 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    public function orWhere(string|array $orWhere): Schema {
+    public function orWhere(string|array $orWhere): SchemaInterface {
         $tmp = "";
         if(is_string($orWhere)) $tmp = $orWhere;
         if(is_array($orWhere)) {
@@ -188,7 +198,7 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    public function groupBy(mixed $group): Schema {
+    public function groupBy(mixed $group): SchemaInterface {
         $str = "GROUP BY ";
         if(is_string($group)) $str .= $group;
         if(is_array($group)) $str .= implode(",", $group);
@@ -196,7 +206,7 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    public function order(string|array $order, ?string $direction = null): Schema
+    public function order(string|array $order, ?string $direction = null): SchemaInterface
     {
         $tmp = '';
         if(is_array($order) && count($order) > 0) {
@@ -218,17 +228,17 @@ class MySQLSchema implements Schema {
         return $this;
     }
 
-    public function limit(int $limit = null): Schema {
+    public function limit(int $limit = null): SchemaInterface {
         $this->_limit = $limit;
         return $this;
     }
 
-    public function offset(int $offset = null): Schema {
+    public function offset(int $offset = null): SchemaInterface {
         $this->_offset = $offset;
         return $this;
     }
 
-    public function prepareMigrationTables(): Result | bool {
+    public function prepareMigrationTables(): ResultInterface | bool {
         return $this->create('_migration', [
             'id' => 'INT PRIMARY KEY AUTO_INCREMENT',
             'filename' => 'VARCHAR(150) NOT NULL',
@@ -243,7 +253,7 @@ class MySQLSchema implements Schema {
         ]);
     }
 
-    public function create(string $table, array $columns): Result | bool {
+    public function create(string $table, array $columns): ResultInterface | bool {
         $sql = "CREATE TABLE IF NOT EXISTS {$table} (";
         $names = array_keys($columns);
 
@@ -258,13 +268,13 @@ class MySQLSchema implements Schema {
         return $this->query($sql);
     }
     
-    public function drop(string $table): Result|bool {
+    public function drop(string $table): ResultInterface|bool {
         $sql = "DROP TABLE IF EXISTS {$table};";
         $this->reset();
         return $this->query($sql);
     }
 
-    public function insert(string $table, array $data): Result | bool {
+    public function insert(string $table, array $data): ResultInterface | bool {
         $columns = [];
         $values = [];
         foreach($data as $c => $v){
@@ -279,7 +289,7 @@ class MySQLSchema implements Schema {
         return $this->query($sql);
     }
 
-    public function update(string $tbl, array $data): Result | bool {
+    public function update(string $tbl, array $data): ResultInterface | bool {
         $columns = [];
         foreach($data as $c => $v){
             $columns[] = "{$c} = " . $this->prepareValue($v);
@@ -294,7 +304,7 @@ class MySQLSchema implements Schema {
         return $this->query($sql);
     }
 
-    public function delete(string $tbl): Result | bool {
+    public function delete(string $tbl): ResultInterface | bool {
         $where = $this->_where;
         if (($where ?? '') !== '') $where = " ".$where;
 
@@ -336,7 +346,7 @@ class MySQLSchema implements Schema {
         return $this->query("ROLLBACK");
     }
 
-    public function alter(string $table): Result | bool {
+    public function alter(string $table): ResultInterface | bool {
         $alter = "ALTER TABLE {$table}";
         $modifyColumn = $this->_modifyColumn;
         $addColumn = $this->_addColumn;
@@ -351,72 +361,72 @@ class MySQLSchema implements Schema {
         return $this->query($sql);
     }
 
-    public function addColumnFirst(string $column, string $type): Schema {
+    public function addColumnFirst(string $column, string $type): SchemaInterface {
         $this->addColumn($column, $type);
         $this->_addColumn .= " FIRST";
         return $this;
     }
 
-    public function addColumnAfter(string $afterCol, string $column, string $type): Schema {
+    public function addColumnAfter(string $afterCol, string $column, string $type): SchemaInterface {
         $this->addColumn($column, $type);
         $this->_addColumn .= " AFTER {$afterCol}";
         return $this;
     }
 
-    public function modifyColumn(string $column, string $type): Schema {
+    public function modifyColumn(string $column, string $type): SchemaInterface {
         $this->_modifyColumn = "MODIFY COLUMN {$column} {$type}";
         return $this;
     }
 
-    public function addColumn(string $column, string $type): Schema {
+    public function addColumn(string $column, string $type): SchemaInterface {
         $this->_addColumn = "ADD {$column} {$type}";
         return $this;
     }
 
-    public function dropColumn(string $column): Schema {
+    public function dropColumn(string $column): SchemaInterface {
         $this->_dropColumn = "DROP COLUMN {$column}";
         return $this;
     }
 
-    public function dropPrimary(): Schema {
+    public function dropPrimary(): SchemaInterface {
         $this->_dropPrimary = "DROP PRIMARY KEY";
         return $this;
     }
 
-    public function addPrimary(string $column, string $primary_name): Schema {
+    public function addPrimary(string $column, string $primary_name): SchemaInterface {
         $this->_addPrimary = "ADD CONSTRAINT {$primary_name} PRIMARY KEY ({$column})";
         return $this;
     }
 
-    public function createIndex(string $table, string $index_name, array $cols): Result | bool {
+    public function createIndex(string $table, string $index_name, array $cols): ResultInterface | bool {
         $column = implode(",", $cols);
         $sql = "CREATE INDEX {$index_name} ON {$table} ({$column});";
         return $this->query($sql);
     }
 
-    public function dropIndex(string $table, string $index_name): Result | bool {
+    public function dropIndex(string $table, string $index_name): ResultInterface | bool {
         $sql = "DROP INDEX {$index_name} ON {$table};";
         return $this->query($sql);
     }
 
-    public function truncate(string $table): Result | bool {
+    public function truncate(string $table): ResultInterface | bool {
         $sql = "TRUNCATE {$table}";
         return $this->query($sql);
     }
 
-    public function rename(string $table, string $new_table): Result | bool {
+    public function rename(string $table, string $new_table): ResultInterface | bool {
         return $this->query('RENAME TABLE '.$table.' TO '.$new_table);
     }
 
-    public function changeColumn(string $table, string $oldCol, string $newCol, string $type): Result | bool {
+    public function changeColumn(string $table, string $oldCol, string $newCol, string $type): ResultInterface | bool {
         return $this->query('ALTER TABLE '.$table.' CHANGE COLUMN '.$oldCol.' '.$newCol.' '.$type);
     }
 
-    public function createDatabase(string $name): Result|bool {
+    public function createDatabase(string $name): ResultInterface|bool {
         return $this->query('CREATE DATABASE '.$name.';');
     }
 
-    public function dropDatabase(string $name): Result|bool {
+    public function dropDatabase(string $name): ResultInterface|bool {
         return $this->query('DROP DATABASE '.$name.';');
     }
 

@@ -1,0 +1,26 @@
+<?php 
+
+namespace Selvi\Database\Contracts;
+
+/**
+ * Menerjemahkan isi QueryBuilder menjadi SQL sesuai dialek driver.
+ *
+ * Kontrak penting:
+ * - Grammar hanya MEMBACA builder (lihat QueryBuilderInterface). Compile tidak
+ *   boleh mengubah state builder, supaya bisa dipanggil berulang dengan hasil sama.
+ * - Grammar menerima struktur WHERE yang sudah kanonik lewat $builder->wheres(),
+ *   sehingga setiap driver mengonsumsi pola yang sama dan hanya berbeda saat render.
+ * - Output saat ini berupa string SQL tanpa parameter binding, jadi setiap value
+ *   harus dikonversi menjadi literal oleh SanitizerInterface milik driver.
+ *
+ * @see \Selvi\Database\Contracts\QueryBuilderInterface
+ * @see \Selvi\Database\Builder\WhereClause
+ */
+interface GrammarInterface {
+
+    /**
+     * Menghasilkan satu statement SELECT lengkap untuk driver ini.
+     */
+    function compileSelect(QueryBuilderInterface $builder): string;
+
+}

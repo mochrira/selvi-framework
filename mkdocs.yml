@@ -97,6 +97,7 @@ nav:
   - Database:
       - Konfigurasi: database/configuration.md
       - Query Builder: database/query-builder.md
+      - Grammar & Struktur WHERE: database/grammar.md
       - Migrations: database/migrations.md
       - Seeders: database/seeders.md
 

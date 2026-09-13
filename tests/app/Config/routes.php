@@ -6,8 +6,9 @@ Route::post('/auth', 'Selvi\\Tests\\Controllers\\AuthController@getToken');
 Route::get('/auth', 'Selvi\\Tests\\Controllers\\AuthController@info')->setMiddleware('Selvi\\Tests\\Middlewares\\AuthMiddleware@validateToken');
 Route::patch('/auth', 'Selvi\\Tests\\Controllers\\AuthController@refreshToken')->setMiddleware('Selvi\\Tests\\Middlewares\\AuthMiddleware@validateRefreshToken');
  
+Route::get('/kontak', 'Selvi\\Tests\\Controllers\\KontakController@result');
+
 Route::withMiddleware(['Selvi\\Tests\\Middlewares\\AuthMiddleware@validateToken'], function () {
-    Route::get('/kontak', 'Selvi\\Tests\\Controllers\\KontakController@result');
     Route::get('/kontak/{id}', 'Selvi\\Tests\\Controllers\\KontakController@row');
     Route::post('/kontak', 'Selvi\\Tests\\Controllers\\KontakController@insert');
     Route::patch('/kontak/{id}', 'Selvi\\Tests\\Controllers\\KontakController@update');

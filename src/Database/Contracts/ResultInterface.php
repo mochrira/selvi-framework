@@ -1,12 +1,10 @@
 <?php 
 
-declare(strict_types=1);
-
-namespace Selvi\Database;
+namespace Selvi\Database\Contracts;
 
 use stdClass;
 
-interface Result {
+interface ResultInterface {
 
     function __construct(mixed $result);
     function num_rows(): int | bool;

@@ -1,8 +1,8 @@
 <?php
 
-use Selvi\Database\Schema;
+use Selvi\Database\Contracts\SchemaInterface;
 
-return function (Schema $schema, string $direction) {
+return function (SchemaInterface $schema, string $direction) {
 
     if($direction == 'up') :
         $schema->rename('item', 'produk');

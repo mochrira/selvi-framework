@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Selvi\Database;
 
+use Selvi\Database\Contracts\SchemaInterface;
 use Selvi\Exception;
 use Selvi\Exception\DatabaseException;
 use Symfony\Component\Console\Command\Command;
@@ -79,7 +80,7 @@ class Seeder extends Command {
         ]);
     }
 
-    private function getlastrecord(Schema $db, string $file) {
+    private function getlastrecord(SchemaInterface $db, string $file) {
         return $db->where([['filename', $file], ['direction', 'seed']])
             ->offset(0)->limit(1)->order(['start' => 'DESC'])
             ->get('_migration')->row();

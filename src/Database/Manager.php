@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Selvi\Database;
 
+use Selvi\Database\Contracts\SchemaInterface;
 use Selvi\Database\Drivers\MySQL\MySQLSchema;
 use Selvi\Database\Drivers\SQLSrv\SQLSrvSchema;
 
@@ -20,8 +21,15 @@ class Manager {
         if(!isset(self::$schemas[$name])) self::$schemas[$name] = new self::$drivers[$config['driver']]($config);
     }
 
-    public static function get(string $name): Schema {
+    public static function get(string $name): SchemaInterface {
         return self::$schemas[$name] ?? null;
+    }
+
+    public static function default(): SchemaInterface | null {
+        $keys = array_keys(self::$schemas);
+        if(empty($keys)) return null;
+        $name = $keys[0];
+        return self::get($name);
     }
 
 }
