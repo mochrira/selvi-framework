@@ -68,4 +68,31 @@ interface GrammarInterface {
      */
     function compileDropTable(string $table, bool $ifExists): string;
 
+    /**
+     * Menghasilkan satu statement RENAME TABLE lengkap untuk driver ini.
+     *
+     * SQL Server tidak punya DDL rename dan memakai sp_rename, jadi bentuk
+     * statement-nya memang berbeda antar dialek meski hasilnya sama.
+     */
+    function compileRenameTable(string $from, string $to): string;
+
+    /**
+     * Menghasilkan satu statement TRUNCATE TABLE lengkap untuk driver ini.
+     */
+    function compileTruncateTable(string $table): string;
+
+    /**
+     * Menghasilkan statement ALTER TABLE untuk driver ini.
+     *
+     * Tipe kembaliannya string|array karena tidak semua driver bisa mewujudkan
+     * banyak perubahan sekaligus dalam satu statement — SQL Server, misalnya,
+     * butuh satu ALTER TABLE per kolom dan memakai sp_rename untuk mengganti nama
+     * kolom. SchemaBuilder yang mengeksekusi hasilnya satu per satu, berurutan.
+     *
+     * Operasi yang tidak didukung driver bersangkutan cukup diabaikan.
+     *
+     * @return string|string[]
+     */
+    function compileAlterTable(AlterBlueprintInterface $blueprint): string|array;
+
 }

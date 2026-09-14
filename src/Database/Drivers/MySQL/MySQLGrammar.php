@@ -3,7 +3,10 @@
 namespace Selvi\Database\Drivers\MySQL;
 
 use InvalidArgumentException;
+use Selvi\Database\Builder\DDL\AlterBlueprint;
+use Selvi\Database\Builder\DDL\Clauses\ColumnClause;
 use Selvi\Database\Builder\DML\Clauses\WhereClause;
+use Selvi\Database\Contracts\AlterBlueprintInterface;
 use Selvi\Database\Contracts\BlueprintInterface;
 use Selvi\Database\Contracts\GrammarInterface;
 use Selvi\Database\Contracts\QueryBuilderInterface;
@@ -305,6 +308,124 @@ class MySQLGrammar implements GrammarInterface {
         $ifExists = $ifExists ? 'IF EXISTS ' : '';
 
         return "DROP TABLE {$ifExists}{$table}";
+    }
+
+    /**
+     * Merender RENAME TABLE.
+     *
+     * Memakai bentuk ANSI "ALTER TABLE ... RENAME TO ..." yang didukung MySQL,
+     * supaya padanannya di driver lain terbaca lebih dekat (PostgreSQL sama,
+     * SQL Server memakai sp_rename).
+     */
+    public function compileRenameTable(string $from, string $to) : string
+    {
+        return "ALTER TABLE {$from} RENAME TO {$to}";
+    }
+
+    /**
+     * Merender TRUNCATE TABLE.
+     */
+    public function compileTruncateTable(string $table) : string
+    {
+        return "TRUNCATE TABLE {$table}";
+    }
+
+    /**
+     * Merender ALTER TABLE.
+     *
+     * MySQL bisa menggabungkan semua perubahan ke dalam SATU statement, jadi
+     * hasilnya selalu string — perbedaan dengan driver yang butuh beberapa
+     * statement berada di implementasi masing-masing, bukan di sini.
+     */
+    public function compileAlterTable(AlterBlueprintInterface $blueprint) : string|array
+    {
+        $clauses = [];
+
+        foreach($blueprint->getOperations() as $operation) {
+            $clauses[] = $this->compileAlterOperation($operation);
+        }
+
+        return "ALTER TABLE {$blueprint->getTable()} " . implode(', ', $clauses);
+    }
+
+    /**
+     * Merender satu operasi alter.
+     *
+     * MODIFY memakai compileColumn() yang sama dengan CREATE TABLE, karena MySQL
+     * memang menuntut definisi kolom lengkap: atribut yang tidak disebut akan
+     * hilang dari kolom tersebut.
+     *
+     * @param array<string, mixed> $operation Node kanonik dari AlterBlueprintInterface.
+     */
+    protected function compileAlterOperation(array $operation) : string
+    {
+        return match($operation['operation']) {
+            ColumnClause::OPERATION_ADD      => 'ADD COLUMN ' . $this->compileColumn($operation['column']) . $this->compileAlterPosition($operation['position']),
+            ColumnClause::OPERATION_MODIFY   => 'MODIFY COLUMN ' . $this->compileColumn($operation['column']) . $this->compileAlterPosition($operation['position']),
+            AlterBlueprint::OPERATION_DROP   => 'DROP COLUMN ' . $operation['name'],
+            AlterBlueprint::OPERATION_RENAME => "RENAME COLUMN {$operation['from']} TO {$operation['to']}",
+            AlterBlueprint::OPERATION_INDEX  => 'ADD ' . ($operation['unique'] ? 'UNIQUE ' : '') . "INDEX {$operation['name']} (" . implode(', ', $operation['columns']) . ')',
+            AlterBlueprint::OPERATION_DROP_INDEX => 'DROP INDEX ' . $operation['name'],
+            AlterBlueprint::OPERATION_PRIMARY => $this->compileAlterPrimary($operation),
+            AlterBlueprint::OPERATION_DROP_PRIMARY => 'DROP PRIMARY KEY',
+            AlterBlueprint::OPERATION_FOREIGN => $this->compileAlterForeignKey($operation),
+            AlterBlueprint::OPERATION_DROP_FOREIGN => 'DROP FOREIGN KEY ' . $operation['name'],
+            default => throw new InvalidArgumentException(
+                'Operasi alter tidak dikenal: ' . $operation['operation']
+            ),
+        };
+    }
+
+    /**
+     * Merender penambahan primary key.
+     *
+     * Nama constraint opsional: MySQL menerima ADD PRIMARY KEY tanpa nama karena
+     * primary key-nya memang selalu bernama PRIMARY.
+     *
+     * @param array<string, mixed> $operation Node kanonik dari AlterBlueprintInterface.
+     */
+    protected function compileAlterPrimary(array $operation) : string
+    {
+        $constraint = $operation['name'] !== null ? "CONSTRAINT {$operation['name']} " : '';
+
+        return 'ADD ' . $constraint . 'PRIMARY KEY (' . implode(', ', $operation['columns']) . ')';
+    }
+
+    /**
+     * Merender penambahan foreign key.
+     *
+     * Beda antar driver bukan pada bentuk ADD-nya (hampir seragam), melainkan pada
+     * cara menghapusnya: MySQL memakai DROP FOREIGN KEY, SQL Server DROP CONSTRAINT.
+     *
+     * @param array<string, mixed> $operation Node kanonik dari AlterBlueprintInterface.
+     */
+    protected function compileAlterForeignKey(array $operation) : string
+    {
+        $sql = "ADD CONSTRAINT {$operation['name']} FOREIGN KEY (" . implode(', ', $operation['columns']) . ')';
+        $sql .= " REFERENCES {$operation['table']} (" . implode(', ', $operation['references']) . ')';
+
+        if($operation['on_delete'] !== null) $sql .= " ON DELETE {$operation['on_delete']}";
+        if($operation['on_update'] !== null) $sql .= " ON UPDATE {$operation['on_update']}";
+
+        return $sql;
+    }
+
+    /**
+     * Merender hint posisi kolom.
+     *
+     * Diterapkan pada ADD COLUMN dan MODIFY COLUMN — MySQL memakai AFTER/FIRST
+     * untuk menempatkan kolom, termasuk memindahkan kolom yang sudah ada lewat
+     * MODIFY. Tanpa posisi, klausanya kosong.
+     *
+     * @param array<string, mixed>|null $position Node dari AlterBlueprintInterface.
+     */
+    protected function compileAlterPosition(?array $position) : string
+    {
+        if($position === null) return '';
+
+        if($position['first'] ?? false) return ' FIRST';
+
+        return " AFTER {$position['after']}";
     }
 
 }

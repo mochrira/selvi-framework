@@ -34,6 +34,9 @@ use Selvi\Database\Contracts\ConnectionInterface;
  *
  * Objek ini juga bisa dipakai di luar migrasi: `(new Schema('main'))->create(...)`.
  *
+ * DDL yang tersedia: create(), drop(), rename(), truncate(), alter(). Operasi lain
+ * (index, primary key, foreign key) belum ada — sementara pakai connection().
+ *
  * @see \Selvi\Database\Builder\DDL\SchemaBuilder
  */
 class Schema {
@@ -61,7 +64,7 @@ class Schema {
      * Primitif koneksi: query mentah, transaksi, getConfig, dll.
      *
      * Ini juga jalur darurat untuk operasi DDL yang belum punya API di sini
-     * (rename/alter/index/truncate), dengan konsekuensi SQL-nya spesifik driver.
+     * (alter kolom, index, foreign key), dengan konsekuensi SQL-nya spesifik driver. 
      */
     public function connection(): ConnectionInterface {
         return $this->builder->connection();
@@ -78,9 +81,38 @@ class Schema {
 
     /**
      * Menghapus tabel. Pasangan create(), biasanya dipakai pada arah 'down'.
+     * $ifExists default true supaya aman dijalankan berulang.
      */
     public function drop(string $table, bool $ifExists = true): bool {
         return $this->builder->drop($table, $ifExists);
+    }
+
+    /**
+     * Mengganti nama tabel.
+     */
+    public function rename(string $table, string $newTable): bool {
+        return $this->builder->rename($table, $newTable);
+    }
+
+    /**
+     * Mengosongkan tabel — seluruh baris dihapus, struktur tetap.
+     */
+    public function truncate(string $table): bool {
+        return $this->builder->truncate($table);
+    }
+
+    /**
+     * Mengubah struktur tabel yang sudah ada.
+     *
+     *     $schema->alter('kontak', function (AlterBlueprint $table) {
+     *         $table->integer('umur')->nullable();
+     *         $table->string('nmKontak', 200)->nullable()->change();
+     *         $table->renameColumn('nmKontak', 'nama');
+     *         $table->dropColumn('idGrup');
+     *     });
+     */
+    public function alter(string $table, Closure $definition): bool {
+        return $this->builder->alter($table, $definition);
     }
 
     /**

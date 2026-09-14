@@ -7,7 +7,7 @@ namespace Selvi\Database\Builder\DDL\Clauses;
 use InvalidArgumentException;
 
 /**
- * Value object untuk SATU kolom pada CREATE TABLE.
+ * Value object untuk SATU kolom pada CREATE TABLE dan ALTER TABLE.
  *
  * Berbeda dari WhereClause yang readonly, kelas ini memang MUTABLE: modifier
  * seperti key()/autoIncrement()/nullable() dipasang setelah objeknya dibuat,
@@ -32,8 +32,21 @@ use InvalidArgumentException;
  *
  * 'type' adalah kosakata semantik (integer, string, text, ...), bukan tipe SQL.
  * Penerjemahan ke dialek driver adalah tugas Grammar masing-masing.
+ *
+ * Di dalam ALTER TABLE objek ini juga membawa OPERASI-nya (add atau modify) lewat
+ * change(), dan POSISI-nya lewat after()/first(). Keduanya sengaja TIDAK ikut ke
+ * toArray(): toArray() tetap murni definisi kolom, sehingga kontrak CREATE TABLE
+ * tidak berubah sama sekali. Yang membacanya adalah AlterBlueprint, yang
+ * menyusunnya menjadi node operasi.
  */
 final class ColumnClause {
+
+    /**
+     * Operasi kolom di dalam ALTER TABLE: add untuk kolom baru, modify untuk
+     * mendefinisikan ulang kolom yang sudah ada.
+     */
+    public const OPERATION_ADD = 'add';
+    public const OPERATION_MODIFY = 'modify';
 
     private function __construct(
         private readonly string $name,
@@ -109,7 +122,86 @@ final class ColumnClause {
     }
 
     /**
+     * Mengubah peran kolom dari ADD menjadi MODIFY.
+     *
+     * Dipakai di dalam closure alter():
+     *
+     *     $table->string('nmKontak', 200)->nullable()->change();
+     *
+     * ATRIBUTNYA HARUS DISEBUT LENGKAP. MySQL mengganti definisi kolomnya, bukan
+     * menambal satu atribut — atribut yang tidak disebut akan hilang. Ini berlaku
+     * di semua driver, supaya maksudnya tidak berbeda-beda antar driver.
+     */
+    public function change(bool $flag = true): static
+    {
+        $this->options['operation'] = $flag ? self::OPERATION_MODIFY : self::OPERATION_ADD;
+        return $this;
+    }
+
+    /**
+     * Operasi kolom ini: add (default) atau modify.
+     */
+    public function operation(): string
+    {
+        return $this->options['operation'] ?? self::OPERATION_ADD;
+    }
+
+    /**
+     * Menempatkan kolom SETELAH kolom lain.
+     *
+     *     $table->integer('umur')->after('nmKontak');
+     *
+     * Hanya berpengaruh di dalam alter(), baik untuk kolom baru maupun kolom yang
+     * di-change(). create() mengabaikannya karena urutan kolom di CREATE TABLE
+     * sudah ditentukan urutan pemanggilan. Driver yang tidak mengenal konsep
+     * "kolom ke-n" (SQL Server, PostgreSQL) juga mengabaikannya.
+     */
+    public function after(string $column): static
+    {
+        $column = trim($column);
+
+        if($column === '') {
+            throw new InvalidArgumentException('Nama kolom acuan untuk after() tidak boleh kosong.');
+        }
+
+        $this->options['after'] = $column;
+        unset($this->options['first']);
+
+        return $this;
+    }
+
+    /**
+     * Menempatkan kolom di posisi paling depan. Pasangan dari after().
+     */
+    public function first(): static
+    {
+        $this->options['first'] = true;
+        unset($this->options['after']);
+
+        return $this;
+    }
+
+    /**
+     * Posisi kolom yang diminta, atau null bila tidak ditentukan.
+     *
+     *     ['first' => true]
+     *     ['after' => 'nmKontak']
+     *
+     * Seperti operation(), nilai ini juga tidak ikut ke toArray().
+     */
+    public function position(): ?array
+    {
+        if($this->options['first'] ?? false) return ['first' => true];
+        if(isset($this->options['after'])) return ['after' => $this->options['after']];
+
+        return null;
+    }
+
+    /**
      * Struktur kanonik node kolom ini.
+     *
+     * Operation dan position sengaja tidak disertakan — lihat catatan di docblock
+     * kelas.
      */
     public function toArray(): array
     {

@@ -16,6 +16,9 @@ class Kontak extends Model {
     #[Column('nmKontak')]
     public ?string $nmKontak;
 
+    #[Column('alamat')]
+    public ?string $alamat;
+
     #[Column(name: 'idGrup')]
     public ?int $idGrup;
 
