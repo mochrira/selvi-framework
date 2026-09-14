@@ -113,7 +113,14 @@ class KontakController {
     function insert() {
         $data = json_decode($this->request->raw() ?? '', true) ?? [];
 
-        // bisa juga dengan ini
+        // Mentah
+
+        // DB::table('kontak')->insert([
+        //     'nmKontak' => $data['nmKontak'],
+        //     'idGrup' => $data['idGrup']
+        // ]);
+
+        // tanpa objek
 
         // $idKontak = Kontak::query()->insert([
         //     'nmKontak' => $data['nmKontak'],
