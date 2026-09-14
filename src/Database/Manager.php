@@ -14,7 +14,7 @@ use Selvi\Database\Drivers\MySQL\MySQLConnection;
  * API-nya: add / get / default / has. Yang disimpan dan dikembalikan adalah
  * ConnectionInterface.
  */
-class DatabaseManager {
+class Manager {
 
     /**
      * Driver yang sudah punya implementasi ConnectionInterface.

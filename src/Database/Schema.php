@@ -44,7 +44,7 @@ class Schema {
     private SchemaBuilder $builder;
 
     /**
-     * @param string|ConnectionInterface $connection Nama koneksi di DatabaseManager,
+     * @param string|ConnectionInterface $connection Nama koneksi di Manager,
      *                                               atau objek koneksi langsung.
      *                                               Kosong berarti koneksi default.
      */

@@ -22,7 +22,7 @@ use Throwable;
 /**
  * Perintah seeder di atas stack database terbaru.
  *
- * Sejajar dengan DatabaseMigration, dengan dua perbedaan mendasar: seed tidak
+ * Sejajar dengan Migration, dengan dua perbedaan mendasar: seed tidak
  * punya arah up/down (selalu satu arah), dan file seed hanya menerima Schema —
  * tanpa parameter direction.
  *
@@ -37,7 +37,7 @@ use Throwable;
  * perilaku Seeder versi lama.
  *
  * Nama perintah default 'db:seed' (dari atribut); beri nama lain lewat konstruktor
- * bila perlu: $app->addCommand(new DatabaseSeeder('seeder')).
+ * bila perlu: $app->addCommand(new Seeder('seeder')).
  *
  * @see \Selvi\Database\Schema
  * @see \Selvi\Database\MigrationLog
@@ -46,7 +46,7 @@ use Throwable;
     name: 'db:seed',
     description: 'Menjalankan database seeder'
 )]
-class DatabaseSeeder extends Command {
+class Seeder extends Command {
 
     /**
      * Penanda arah pada tabel riwayat. Seeder selalu memakai nilai ini.
@@ -162,7 +162,7 @@ class DatabaseSeeder extends Command {
      */
     private function files(string $connection, int $step = -1): array {
         if(!isset(self::$paths[$connection])) {
-            throw new RuntimeException("Belum ada path seeder yang didaftarkan untuk koneksi '{$connection}'. Panggil DatabaseSeeder::add().");
+            throw new RuntimeException("Belum ada path seeder yang didaftarkan untuk koneksi '{$connection}'. Panggil Seeder::add().");
         }
 
         $files = [];

@@ -15,11 +15,11 @@ use stdClass;
  * riwayat migrasi yang sudah ada di aplikasi berjalan tetap terbaca, termasuk
  * kolom-kolom error yang hanya terisi saat sebuah file gagal.
  *
- * Dipakai bersama oleh DatabaseMigration dan DatabaseSeeder — seeder menulis ke
+ * Dipakai bersama oleh Migration dan Seeder — seeder menulis ke
  * tabel yang sama dengan direction 'seed'.
  *
- * @see \Selvi\Database\DatabaseMigration
- * @see \Selvi\Database\DatabaseSeeder
+ * @see \Selvi\Database\Migration
+ * @see \Selvi\Database\Seeder
  */
 final class MigrationLog {
 

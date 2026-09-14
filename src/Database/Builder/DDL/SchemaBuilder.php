@@ -7,7 +7,7 @@ use InvalidArgumentException;
 use RuntimeException;
 use Selvi\Database\Contracts\ConnectionInterface;
 use Selvi\Database\Contracts\SchemaBuilderInterface;
-use Selvi\Database\DatabaseManager;
+use Selvi\Database\Manager;
 
 /**
  * Entry point DDL.
@@ -33,7 +33,7 @@ class SchemaBuilder implements SchemaBuilderInterface {
     private ?ConnectionInterface $injected = null;
 
     /**
-     * Menentukan koneksi: nama yang terdaftar di DatabaseManager, atau objek
+     * Menentukan koneksi: nama yang terdaftar di Manager, atau objek
      * ConnectionInterface langsung bila ingin disuntikkan.
      */
     public function useConnection(string|ConnectionInterface $connection): static {
@@ -49,7 +49,7 @@ class SchemaBuilder implements SchemaBuilderInterface {
     public function connection(): ConnectionInterface {
         if($this->injected !== null) return $this->injected;
 
-        $db = $this->connectionName !== '' ? DatabaseManager::get($this->connectionName) : DatabaseManager::default();
+        $db = $this->connectionName !== '' ? Manager::get($this->connectionName) : Manager::default();
 
         if($db === null) {
             throw new RuntimeException('Koneksi database belum diatur.');

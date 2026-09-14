@@ -171,10 +171,44 @@ class Model extends Base implements Arrayable {
     }
 
     /**
+     * Mengambil seluruh baris sebagai Collection model.
+     *
+     * Callback $query dijalankan setelah tabel, kolom, dan JOIN relasi terpasang,
+     * sehingga alias relasi (mis. "grup.nmGrup") bisa dipakai di dalamnya:
+     *
+     *     Kontak::with('grup')->all(function (QueryBuilder $query) {
+     *         $query->where([['kontak.idGrup', '=', 1]])->orderBy('kontak.nmKontak');
+     *     });
+     *
+     * @param ?Closure(QueryBuilder): void $query
      * @return Collection<static>
      */
-    static function all() : Collection {
-        return static::query()->all();
+    static function all(?Closure $query = null) : Collection {
+        return static::query()->all($query);
+    }
+
+    /**
+     * Mengambil baris pertama, atau null bila tidak ada.
+     *
+     * LIMIT 1 dipasang setelah callback, jadi hasilnya tidak pernah lebih dari satu
+     * baris berapa pun limit yang diatur di dalam callback.
+     *
+     * @param ?Closure(QueryBuilder): void $query
+     */
+    static function first(?Closure $query = null) : ?static {
+        return static::query()->first($query);
+    }
+
+    /**
+     * Menghitung jumlah baris, berguna untuk pagination.
+     *
+     * Yang dihitung adalah kolom key model, bukan COUNT(*), supaya hasilnya tetap
+     * jumlah baris model meski ada JOIN.
+     *
+     * @param ?Closure(QueryBuilder): void $query
+     */
+    static function count(?Closure $query = null) : int {
+        return static::query()->count($query);
     }
 
     /**

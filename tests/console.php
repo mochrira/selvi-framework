@@ -1,7 +1,6 @@
 <?php
 
-use Selvi\Database\DatabaseMigration;
-use Selvi\Database\DatabaseSeeder;
+use Selvi\Database\Migration;
 use Selvi\Env;
 use Symfony\Component\Console\Application;
 
@@ -12,6 +11,5 @@ Env::load(BASEPATH . '/private/.ENV');
 require './app/Config/database.php';
 
 $app = new Application('Selvi Commander', '1.0.0');
-$app->addCommand(new DatabaseMigration());
-$app->addCommand(new DatabaseSeeder());
+$app->addCommand(new Migration());
 $app->run();

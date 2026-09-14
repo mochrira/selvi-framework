@@ -1,7 +1,5 @@
 get:
   summary: Mengambil Kontak berdasarkan ID
-  security: 
-    - token: [read]
   tags: [Kontak]
   parameters:
     - in: path
@@ -15,8 +13,6 @@ get:
 
 patch:
   summary: Mengubah Kontak berdasarkan ID
-  security: 
-    - token: [read]
   tags: [Kontak]
   parameters:
     - in: path
@@ -45,8 +41,6 @@ patch:
 
 delete:
   summary: Menghapus Kontak berdasarkan ID
-  security: 
-    - token: [read]
   tags: [Kontak]
   parameters:
     - in: path

@@ -25,18 +25,18 @@ use Throwable;
  * Alur dan perilakunya: argumen name+direction, opsi --step/--all, konfirmasi
  * interaktif, format logger [status:direction], aturan skip berdasarkan record
  * terakhir, dan tabel riwayat _migration. Seluruh akses database memakai handle
- * Schema (yang membungkus DatabaseManager + ConnectionInterface + QueryBuilder +
+ * Schema (yang membungkus Manager + ConnectionInterface + QueryBuilder +
  * SchemaBuilder), dan penamaan perintah memakai atribut #[AsCommand].
  *
  * Nama perintah default 'db:migrate' (dari atribut). Beri nama lain lewat
  * konstruktor bila perlu:
  *
- *     $app->addCommand(new DatabaseMigration());          // db:migrate
- *     $app->addCommand(new DatabaseMigration('migrate')); // migrate
+ *     $app->addCommand(new Migration());          // db:migrate
+ *     $app->addCommand(new Migration('migrate')); // migrate
  *
  * Path migrasi didaftarkan lewat registry statis:
  *
- *     DatabaseMigration::add('main', BASEPATH.'/app/Migrations');
+ *     Migration::add('main', BASEPATH.'/app/Migrations');
  *
  * Kontrak file migrasi — Schema sudah terikat ke koneksi yang diminta, mis. 'main'
  * pada perintah `db:migrate main up`:
@@ -50,7 +50,7 @@ use Throwable;
     name: 'db:migrate',
     description: 'Menjalankan migrasi database'
 )]
-class DatabaseMigration extends Command {
+class Migration extends Command {
 
     /**
      * Path migrasi per nama koneksi.
@@ -204,7 +204,7 @@ class DatabaseMigration extends Command {
      */
     private function files(string $connection, string $sort = 'ASC', int $step = -1): array {
         if(!isset(self::$paths[$connection])) {
-            throw new RuntimeException("Belum ada path migrasi yang didaftarkan untuk koneksi '{$connection}'. Panggil DatabaseMigration::add().");
+            throw new RuntimeException("Belum ada path migrasi yang didaftarkan untuk koneksi '{$connection}'. Panggil Migration::add().");
         }
 
         $files = [];
