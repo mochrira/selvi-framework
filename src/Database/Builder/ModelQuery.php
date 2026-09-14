@@ -15,11 +15,13 @@ use Selvi\Model;
  *
  * Alias tabel dan prefix kolom diturunkan dari path relasi, mis. `grup` dan
  * `grup__wilayah`, sehingga antar tabel tidak ada nama kolom yang bertabrakan.
+ *
+ * @template T of \Selvi\Model
  */
 class ModelQuery {
 
     /**
-     * @var class-string<Model>
+     * @var class-string<T>
      */
     private string $model;
 
@@ -28,7 +30,7 @@ class ModelQuery {
     private WhereBuilder $where;
 
     /**
-     * @param class-string<Model> $model
+     * @param class-string<T> $model
      */
     public function __construct(string $model) {
         $this->model = $model;
@@ -58,6 +60,7 @@ class ModelQuery {
      * sehingga alias relasi (mis. "grup.nmGrup") bisa dipakai di dalamnya.
      *
      * @param ?Closure(QueryBuilder): void $query
+     * @return Collection<T>
      */
     public function all(?Closure $query = null): Collection {
         $model = $this->model;
@@ -73,6 +76,7 @@ class ModelQuery {
      * satu baris, berapa pun limit yang diatur di dalam callback.
      *
      * @param ?Closure(QueryBuilder): void $query
+     * @return T|null
      */
     public function first(?Closure $query = null): ?Model {
         $model = $this->model;
@@ -90,7 +94,10 @@ class ModelQuery {
      * - satu id  -> model tunggal (atau null)
      * - array id -> Collection
      *
-     * @return Model|Collection|null
+     * @param mixed $id
+     * @return T|Collection<T>|null
+     * @phpstan-return ($id is array ? Collection<T> : T|null)
+     * @psalm-return ($id is array ? Collection<T> : T|null)
      */
     public function find(mixed $id) : Model | Collection | null {
         $model = $this->model;

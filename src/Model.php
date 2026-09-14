@@ -137,10 +137,16 @@ class Model extends Base implements Arrayable {
         return $property['relation'];
     }
 
+    /**
+     * @return ModelQuery<static>
+     */
     static function query() : ModelQuery {
         return new ModelQuery(static::class);
     }
 
+    /**
+     * @return ModelQuery<static>
+     */
     static function with(string $relation, ?Closure $nest = null) : ModelQuery {
         return static::query()->with($relation, $nest);
     }
@@ -154,11 +160,19 @@ class Model extends Base implements Arrayable {
      * Untuk sekaligus memuat relasi, gunakan rantai with():
      *
      *     Kontak::with('grup')->find($id);
+     *
+     * @param mixed $id
+     * @return static|Collection<static>|null
+     * @phpstan-return ($id is array ? Collection<static> : static|null)
+     * @psalm-return ($id is array ? Collection<static> : static|null)
      */
-    static function find(mixed $id) : Model | Collection | null {
+    static function find(mixed $id) : static | Collection | null {
         return static::query()->find($id);
     }
 
+    /**
+     * @return Collection<static>
+     */
     static function all() : Collection {
         return static::query()->all();
     }
