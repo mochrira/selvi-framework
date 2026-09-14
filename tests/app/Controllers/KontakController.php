@@ -2,6 +2,7 @@
 
 namespace Selvi\Tests\Controllers;
 
+use Selvi\Database\Builder\ModelQuery;
 use Selvi\Database\Builder\QueryBuilder;
 use Selvi\Database\Builder\WhereBuilder;
 use Selvi\Database\Manager;
@@ -132,7 +133,14 @@ class KontakController {
             'idGrup' => $data['idGrup']
         ]);
 
-        return \jsonResponse(['idKontak' => $kontak->idKontak], 201);
+        // Uji fresh(): baca ulang dari DB, sekaligus memuat relasi lewat with()
+        $kontak = $kontak->fresh(fn(ModelQuery $query) => $query->with('grup'));
+
+        if($kontak === null) {
+            throw new Exception('Kontak tidak lagi ditemukan', 'data/not-found', 404);
+        }
+
+        return \jsonResponse($kontak->toArray(), 201);
     }
 
     function update(string $idKontak) {
