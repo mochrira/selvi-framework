@@ -1,8 +1,6 @@
 get:
   tags: [Kontak]
   summary: Mengambil semua data kontak
-  security: 
-    - token: [read]
   parameters:
     - in: query
       name: idGrup
@@ -13,9 +11,18 @@ get:
       schema:
         type: string
     - in: query
-      name: sort
+      name: orderBy
+      description: Kolom pengurutan
       schema:
         type: string
+    - in: query
+      name: sortBy
+      description: Arah pengurutan
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
     - in: query
       name: offset
       schema:
@@ -31,8 +38,6 @@ get:
 post:
   tags: [Kontak]
   summary: Menambahkan kontak
-  security: 
-    - token: [read]
   requestBody:
     required: true
     content:

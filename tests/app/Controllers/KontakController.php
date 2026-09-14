@@ -52,7 +52,36 @@ class KontakController {
             });
         }
 
-        // 5. Limit & Offset
+        // 5. Order / Sorting
+        // QueryBuilder mendukung berbagai format:
+        // - Method orderBy: $query->orderBy('kontak.idKontak', 'DESC');
+        // - Method order (string): $query->order('grup.nmGrup ASC, kontak.nmKontak ASC');
+        // - Method order (assoc array): $query->order(['kontak.nmKontak' => 'ASC', 'kontak.idKontak' => 'DESC']);
+        // - Method order (indexed array): $query->order(['kontak.nmKontak ASC', 'kontak.idKontak DESC']);
+        $orderBy = $this->request->get('orderBy');
+        $sortBy = $this->request->get('sortBy') ?? 'ASC';
+
+        if (!empty($orderBy) && is_string($orderBy)) {
+            // Dipakai oleh OpenAPI / Swagger UI (select box orderBy & sortBy)
+            $query->orderBy($orderBy, $sortBy);
+        } else {
+            // Mendukung parameter order atau sort baik format string maupun array
+            $sort = $this->request->get('order') ?? $this->request->get('sort');
+            if (!empty($sort)) {
+                if (is_array($sort)) {
+                    // Contoh input via URL: ?order[kontak.nmKontak]=ASC
+                    $query->order($sort);
+                } elseif (is_string($sort)) {
+                    // Contoh input via URL: ?sort=kontak.nmKontak:ASC atau ?order=kontak.nmKontak ASC, kontak.idKontak DESC
+                    $query->order(str_replace(':', ' ', $sort));
+                }
+            } else {
+                // Default sorting
+                $query->orderBy('kontak.idKontak', 'DESC');
+            }
+        }
+
+        // 6. Limit & Offset
         $limit = $this->request->get('limit');
         if ($limit !== null && is_numeric($limit)) {
             $query->limit((int)$limit);

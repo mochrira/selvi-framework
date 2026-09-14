@@ -21,6 +21,8 @@ class QueryBuilder implements QueryBuilderInterface {
 
     private GroupBuilder $group;
 
+    private OrderBuilder $order;
+
     private ?int $limit = null;
 
     private ?int $offset = null;
@@ -29,6 +31,7 @@ class QueryBuilder implements QueryBuilderInterface {
         $this->where = new WhereBuilder();
         $this->join = new JoinBuilder();
         $this->group = new GroupBuilder();
+        $this->order = new OrderBuilder();
     }
 
     public function connection(string $name): QueryBuilder {
@@ -64,6 +67,10 @@ class QueryBuilder implements QueryBuilderInterface {
 
     public function groups(): array {
         return $this->group->toArray();
+    }
+
+    public function orders(): array {
+        return $this->order->toArray();
     }
 
     public function getLimit(): ?int {
@@ -127,6 +134,16 @@ class QueryBuilder implements QueryBuilderInterface {
 
     public function offset(?int $offset): static {
         $this->offset = $offset;
+        return $this;
+    }
+
+    public function orderBy(string $column, string $direction = 'ASC'): static {
+        $this->order->orderBy($column, $direction);
+        return $this;
+    }
+
+    public function order(mixed ...$args): static {
+        $this->order->order(...$args);
         return $this;
     }
 

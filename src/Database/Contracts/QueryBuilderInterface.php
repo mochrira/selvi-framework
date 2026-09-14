@@ -69,4 +69,12 @@ interface QueryBuilderInterface {
      */
     public function getOffset(): ?int;
 
+    /**
+     * Struktur kanonik (AST) daftar ORDER BY. Array kosong berarti tanpa sorting.
+     *
+     * @return array<int, array{column: string, direction: string}>
+     * @see \Selvi\Database\Builder\OrderClause
+     */
+    public function orders(): array;
+
 }

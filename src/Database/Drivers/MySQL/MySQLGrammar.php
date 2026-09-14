@@ -31,9 +31,12 @@ class MySQLGrammar implements GrammarInterface {
         $groups = $builder->groups();
         $group = empty($groups) ? "" : $this->compileGroups($groups);
 
+        $orders = $builder->orders();
+        $order = empty($orders) ? "" : $this->compileOrders($orders);
+
         $limit = $this->compileLimit($builder->getLimit(), $builder->getOffset());
         
-        return join(" ", array_filter([$select, $from, $join, $where, $group, $limit], function ($part) {
+        return join(" ", array_filter([$select, $from, $join, $where, $group, $order, $limit], function ($part) {
             return $part !== '';
         }));
     }
@@ -111,6 +114,25 @@ class MySQLGrammar implements GrammarInterface {
             return '';
         }
         return "GROUP BY " . join(', ', $groups);
+    }
+
+    /**
+     * Merender klausa ORDER BY menjadi SQL MySQL.
+     *
+     * @param array<int, array{column: string, direction: string}> $orders
+     */
+    protected function compileOrders(array $orders): string
+    {
+        if (empty($orders)) {
+            return '';
+        }
+
+        $parts = [];
+        foreach ($orders as $o) {
+            $parts[] = "{$o['column']} {$o['direction']}";
+        }
+
+        return "ORDER BY " . implode(', ', $parts);
     }
 
     /**
