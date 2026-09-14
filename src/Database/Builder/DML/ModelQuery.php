@@ -6,8 +6,8 @@ use Closure;
 use RuntimeException;
 use Selvi\Collection;
 use Selvi\Database\Contracts\ConnectionInterface;
-use Selvi\Database\DatabaseManager;
-use Selvi\DB;
+use Selvi\Database\Manager;
+use Selvi\Database\DB;
 use Selvi\Model;
 
 /**
@@ -144,9 +144,8 @@ class ModelQuery {
     /**
      * Insert satu record dan mengembalikan kolom key-nya.
      *
-     * SQL disusun QueryBuilder + Grammar, bukan SchemaInterface::insert() yang
-     * direncanakan deprecated. Key yang dikirim eksplisit di $data dipakai apa
-     * adanya (mis. UUID).
+     * SQL disusun QueryBuilder + Grammar. Key yang dikirim eksplisit di $data
+     * dipakai apa adanya (mis. UUID).
      *
      * Kegagalan insert dilempar sebagai DatabaseException oleh lapisan driver.
      *
@@ -195,7 +194,8 @@ class ModelQuery {
     }
 
     /**
-     * Koneksi (Table::schema) model, divalidasi terdaftar di DatabaseManager.
+     * Koneksi (Table::schema) model, divalidasi terdaftar di Manager.
+     *
      *
      * @param class-string<Model> $model
      * @throws RuntimeException bila koneksinya tidak terdaftar.
@@ -203,11 +203,11 @@ class ModelQuery {
     private function connection(string $model) : ConnectionInterface {
         $schema = $model::get_schema();
 
-        if(!DatabaseManager::has($schema)) {
+        if(!Manager::has($schema)) {
             throw new RuntimeException("Koneksi '{$schema}' tidak terdaftar untuk " . $model . '.');
         }
 
-        return DatabaseManager::get($schema);
+        return Manager::get($schema);
     }
 
     /**

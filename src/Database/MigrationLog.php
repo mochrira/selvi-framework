@@ -6,21 +6,27 @@ namespace Selvi\Database;
 
 use Selvi\Database\Builder\DDL\Blueprint;
 use Selvi\Exception\DatabaseException;
-use Selvi\Schema;
 use stdClass;
 
 /**
  * Satu-satunya kelas yang menyentuh tabel riwayat migrasi.
  *
- * Nama tabel dan seluruh kolomnya SENGAJA identik dengan versi legacy
- * (SchemaInterface::prepareMigrationTables()), supaya riwayat migrasi yang sudah
- * ada di aplikasi berjalan tetap terbaca. Yang berbeda hanya cara mengaksesnya:
- * semuanya lewat handle Schema yang sudah terikat koneksi.
+ * Nama tabel dan seluruh kolomnya dipertahankan seperti bentuk aslinya supaya
+ * riwayat migrasi yang sudah ada di aplikasi berjalan tetap terbaca, termasuk
+ * kolom-kolom error yang hanya terisi saat sebuah file gagal.
  *
- * @see \Selvi\Database\Migration versi legacy (tetap dipertahankan apa adanya).
+ * Dipakai bersama oleh Migration dan Seeder — seeder menulis ke
+ * tabel yang sama dengan direction 'seed'.
+ *
+ * @see \Selvi\Database\Migration
+ * @see \Selvi\Database\Seeder
  */
 final class MigrationLog {
 
+    /**
+     * @param Schema $schema Handle koneksi yang dipakai menulis riwayat.
+     * @param string $table Nama tabel riwayat.
+     */
     public function __construct(
         private readonly Schema $schema,
         private readonly string $table = '_migration'

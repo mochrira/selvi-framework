@@ -10,8 +10,8 @@ namespace Selvi\Database\Contracts;
  * mengelola koneksi dan transaksi.
  *
  * Kemampuan query-building (select/where/join/...) dan sanitizer() sengaja TIDAK
- * ada di sini — itu urusan SchemaInterface. Dengan begitu QueryBuilder dan
- * Grammar cukup bergantung pada permukaan yang sempit ini.
+ * ada di sini. Dengan begitu QueryBuilder dan Grammar cukup bergantung pada
+ * permukaan yang sempit ini.
  */
 interface ConnectionInterface {
 

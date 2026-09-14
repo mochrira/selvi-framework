@@ -4,175 +4,226 @@ declare(strict_types=1);
 
 namespace Selvi\Database;
 
-use Selvi\Database\Contracts\SchemaInterface;
-use Selvi\Exception;
+use Closure;
+use ReflectionFunction;
+use ReflectionNamedType;
+use RuntimeException;
 use Selvi\Exception\DatabaseException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Helper\QuestionHelper;
+use Throwable;
 
+/**
+ * Perintah seeder di atas stack database terbaru.
+ *
+ * Sejajar dengan Migration, dengan dua perbedaan mendasar: seed tidak
+ * punya arah up/down (selalu satu arah), dan file seed hanya menerima Schema —
+ * tanpa parameter direction.
+ *
+ * Kontrak file seed:
+ *
+ *     return function (Schema $schema) {
+ *         $schema->table('pengguna')->insert([...]);
+ *     };
+ *
+ * Jejak eksekusinya dicatat di tabel _migration yang sama dengan migrasi, memakai
+ * direction 'seed' — jadi riwayatnya menyatu dengan migrasi, persis seperti
+ * perilaku Seeder versi lama.
+ *
+ * Nama perintah default 'db:seed' (dari atribut); beri nama lain lewat konstruktor
+ * bila perlu: $app->addCommand(new Seeder('seeder')).
+ *
+ * @see \Selvi\Database\Schema
+ * @see \Selvi\Database\MigrationLog
+ */
+#[AsCommand(
+    name: 'db:seed',
+    description: 'Menjalankan database seeder'
+)]
 class Seeder extends Command {
 
-    private static $paths = [];
+    /**
+     * Penanda arah pada tabel riwayat. Seeder selalu memakai nilai ini.
+     */
+    private const DIRECTION = 'seed';
 
-    static function addAll($schema, $paths) {
-        if(!isset(self::$paths[$schema])) self::$paths[$schema] = [];
-        if(is_array($paths)) self::$paths[$schema] = array_merge(self::$paths[$schema], $paths);
+    /**
+     * Path seeder per nama koneksi.
+     *
+     * @var array<string, string[]>
+     */
+    private static array $paths = [];
+
+    /**
+     * Mendaftarkan beberapa path sekaligus.
+     *
+     * @param string[] $paths
+     */
+    public static function addAll(string $connection, array $paths): void {
+        if(!isset(self::$paths[$connection])) self::$paths[$connection] = [];
+        self::$paths[$connection] = array_merge(self::$paths[$connection], $paths);
     }
 
-    static function add($schema, $path) {
-        self::addAll($schema, [$path]);
+    public static function add(string $connection, string $path): void {
+        self::addAll($connection, [$path]);
     }
-    
-    protected static $defaultName = 'seeder';
 
     protected function configure(): void {
-        $this->setName('seeder')
-            ->setDescription('Menjalankan database seeder')
-            ->addArgument('name', InputArgument::REQUIRED, 'Nama konfigurasi database')
+        $this->addArgument('name', InputArgument::REQUIRED, 'Nama konfigurasi database')
             ->addOption('step', 's', InputOption::VALUE_OPTIONAL, 'Jumlah file seed yang akan dijalankan', null);
     }
 
-    private function getFiles($paths, $sort = 'ASC', $step = -1) {
-        $files = [];
-        
-        foreach($paths as $path) {
-            if (!is_dir($path)) {
-                continue;
-            }
-            
-            $phpFiles = glob(rtrim($path, '/') . '/*.php');
-            if ($phpFiles !== false) {
-                $files = array_merge($files, $phpFiles);
-            }
-        }
-        
-        usort($files, function ($a, $b) use ($sort) {
-            $comparison = basename($a) <=> basename($b);
-            return $sort === 'ASC' ? $comparison : -$comparison;
-        });
-        
-        if($step == -1) return $files;
-        return array_slice($files, 0, $step);
-    }
-    
-    private function report($db, $filename, $start, $output, ?array $log = null) {
-
-        $error_msg = $log['msg'] ?? null;
-        $error_state = $log['state'] ?? null;
-        $error_query = $log['query'] ?? null;
-
-        $config = $db->getConfig();
-        return $db->insert('_migration', [
-            'filename' => $filename, 
-            'direction' => 'seed',
-            'start' => $start,
-            'finish' => time(),
-            'output' => $output,
-            'dbuser' => $config['username'],
-            'error_msg' => $error_msg,
-            'error_state' => $error_state,
-            'error_query' => $error_query
-        ]);
-    }
-
-    private function getlastrecord(SchemaInterface $db, string $file) {
-        return $db->where([['filename', $file], ['direction', 'seed']])
-            ->offset(0)->limit(1)->order(['start' => 'DESC'])
-            ->get('_migration')->row();
-    }
-
-    function up(string $dbName, int $step = -1, ?callable $logger = null) {
+    /**
+     * Menjalankan file seed.
+     *
+     * @param int $step -1 berarti tanpa batas.
+     * @param ?callable(string $msg, string $status, string $type): void $logger
+     */
+    public function up(string $connection, int $step = -1, ?callable $logger = null): void {
         try {
-            $files = $this->getFiles(
-                paths: self::$paths[$dbName], 
-                sort: 'ASC',
-                step: $step
-            );
+            $files = $this->files($connection, $step);
 
-            $db = Manager::get($dbName);
-            $db->prepareMigrationTables();
+            $schema = new Schema($connection);
+
+            $log = new MigrationLog($schema);
+            $log->prepare();
 
             foreach($files as $file) {
                 $basename = basename($file);
-                $lastRecord = $this->getlastrecord($db, $basename);
-                if($lastRecord != null) {
-                    if($lastRecord->output == 'success') {
-                        if($logger) $logger($basename." berhasil dijalankan pada " . date('Y-m-d H:i:s', (int) $lastRecord->finish), 'skipped', 'warning');
-                        continue;
-                    }
+
+                $last = $log->last($basename, self::DIRECTION);
+                if($last !== null && $last->output === 'success') {
+                    if($logger) $logger($basename . ' berhasil dijalankan pada ' . date('Y-m-d H:i:s', (int) $last->finish), 'skipped', 'warning');
+                    continue;
                 }
 
+                $start = time();
+
                 try {
-                    $start = time();
-                    \call_user_func(include_once $file, $db);
-                    $this->report($db, $basename, $start, 'success');
-                    if($logger) $logger($basename . " berhasil dijalankan", 'success', 'success');
+                    $this->resolve($file, $schema)();
+                    $log->write($basename, self::DIRECTION, $start, 'success');
+                    if($logger) $logger($basename . ' berhasil dijalankan', 'success', 'success');
                 } catch(DatabaseException $e) {
-                    $log = [
-                        'msg' => $e->getMessage(),
-                        'state' => $e->getState(),
-                        'query' => $e->getSql()
-                    ];
-                    $this->report($db, $basename, $start, 'failed', log: $log);
-                    if($logger) $logger($basename . " gagal dijalankan. {$log['state']}: {$log['msg']}", 'failed', 'error');
+                    // Kegagalan SQL dicatat lengkap, lalu lanjut ke file berikutnya
+                    // supaya satu file bermasalah tidak menghentikan seluruh batch.
+                    $log->write($basename, self::DIRECTION, $start, 'failed', $e);
+                    if($logger) $logger($basename . ' gagal dijalankan. ' . $e->getState() . ': ' . $e->getMessage(), 'failed', 'error');
                 }
             }
-        } catch(Exception $e) {
-            if($logger) $logger($e->getMessage());
+        } catch(Throwable $e) {
+            if($logger) $logger($e->getMessage(), 'failed', 'error');
         }
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) : int {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         try {
             $name = $input->getArgument('name');
             $step = $input->getOption('step');
 
-            if($step == null) {
-                $step = -1;
-            } else {
-                $step = (int) $step;
+            $step = $step === null ? -1 : (int) $step;
+
+            if(empty($this->files($name, $step))) {
+                $output->writeln('<info>Tidak ada file seed yang perlu dijalankan</info>');
             }
 
-            $files = $this->getFiles(
-                paths: self::$paths[$name], 
-                sort: 'ASC',
-                step: $step
-            );
-            if(empty($files)) $output('<info>Tidak ada file seed yang perlu dijalankan</info>');
-            
             if($input->isInteractive()) {
                 /** @var QuestionHelper $helper */
                 $helper = $this->getHelper('question');
                 $question = new ConfirmationQuestion(
-                    question: '<question>Apakah Anda yakin ingin melanjutkan? (y/N)</question> ',
-                    default: false
+                    '<question>Apakah Anda yakin ingin melanjutkan? (y/N)</question> ',
+                    false
                 );
-                
-                if (!$helper->ask($input, $output, $question)) {
+
+                if(!$helper->ask($input, $output, $question)) {
                     $output->writeln('<comment>Seed dibatalkan.</comment>');
                     return Command::SUCCESS;
                 }
             }
-            
-            $logger = function (string $msg, string $status, string $type) use ($output) {
-                if($type == 'error') $status = "<error>[{$status}:seed]</error>";
-                if($type == 'warning') $status = "<fg=yellow>[{$status}:seed]</>";
-                if($type == 'success') $status = "<fg=green>[{$status}:seed]</>";
-                $output->writeln("{$status} {$msg}");
-            };
 
-            $this->up($name, $step, $logger);
+            $this->up($name, $step, $this->logger($output));
 
             return Command::SUCCESS;
-        } catch(Exception $e) {
+        } catch(Throwable $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
             return Command::FAILURE;
         }
+    }
+
+    /**
+     * Daftar file seed untuk sebuah koneksi, terurut berdasarkan nama file.
+     *
+     * @return string[]
+     */
+    private function files(string $connection, int $step = -1): array {
+        if(!isset(self::$paths[$connection])) {
+            throw new RuntimeException("Belum ada path seeder yang didaftarkan untuk koneksi '{$connection}'. Panggil Seeder::add().");
+        }
+
+        $files = [];
+
+        foreach(self::$paths[$connection] as $path) {
+            if(!is_dir($path)) continue;
+
+            $phpFiles = glob(rtrim($path, '/') . '/*.php');
+            if($phpFiles !== false) $files = array_merge($files, $phpFiles);
+        }
+
+        usort($files, fn($a, $b) => basename($a) <=> basename($b));
+
+        if($step === -1) return $files;
+        return array_slice($files, 0, $step);
+    }
+
+    /**
+     * Mengubah file seed menjadi callable tanpa argumen.
+     *
+     * Dipakai include (bukan include_once) supaya closure selalu didapat segar,
+     * dan hasilnya divalidasi agar kesalahan file terbaca jelas.
+     */
+    private function resolve(string $file, Schema $schema): callable {
+        $basename = basename($file);
+
+        $closure = (static function () use ($file) {
+            return include $file;
+        })();
+
+        if(!$closure instanceof Closure) {
+            throw new RuntimeException("File seed {$basename} harus mengembalikan closure.");
+        }
+
+        if(!$this->accepts($closure, Schema::class)) {
+            throw new RuntimeException("File seed {$basename} harus menerima " . Schema::class . ' pada parameter pertamanya.');
+        }
+
+        return static fn() => $closure($schema);
+    }
+
+    /**
+     * Memeriksa tipe parameter pertama sebuah closure.
+     */
+    private function accepts(Closure $closure, string $class): bool {
+        $parameter = (new ReflectionFunction($closure))->getParameters()[0] ?? null;
+        $type = $parameter?->getType();
+
+        return $type instanceof ReflectionNamedType && is_a($type->getName(), $class, true);
+    }
+
+    /**
+     * Logger bawaan dengan format [status:seed] berwarna.
+     */
+    private function logger(OutputInterface $output): callable {
+        return function (string $msg, string $status, string $type) use ($output) {
+            if($type === 'error') $status = "<error>[{$status}:" . self::DIRECTION . ']</error>';
+            if($type === 'warning') $status = "<fg=yellow>[{$status}:" . self::DIRECTION . ']</>';
+            if($type === 'success') $status = "<fg=green>[{$status}:" . self::DIRECTION . ']</>';
+            $output->writeln("{$status} {$msg}");
+        };
     }
 
 }
