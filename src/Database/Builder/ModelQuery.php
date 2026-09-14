@@ -3,7 +3,9 @@
 namespace Selvi\Database\Builder;
 
 use Closure;
+use RuntimeException;
 use Selvi\Collection;
+use Selvi\Database\Manager;
 use Selvi\DB;
 use Selvi\Model;
 
@@ -92,6 +94,45 @@ class ModelQuery {
     }
 
     /**
+     * Insert satu record dan mengembalikan kolom key-nya.
+     *
+     * SQL disusun QueryBuilder + Grammar, bukan SchemaInterface::insert() yang
+     * direncanakan deprecated. Key yang dikirim eksplisit di $data dipakai apa
+     * adanya (mis. UUID).
+     *
+     * Kegagalan insert dilempar sebagai DatabaseException oleh lapisan driver.
+     *
+     * @param array<string, mixed> $data Data berkunci nama kolom.
+     */
+    public function insert(array $data) : int | string {
+        $model = $this->model;
+
+        $id = DB::connection($this->schema($model))
+            ->table($model::get_table())
+            ->insert($data);
+
+        $key = $model::key_column();
+
+        return $data[$key] ?? $id;
+    }
+
+    /**
+     * Nama koneksi (Table::schema) model, divalidasi terdaftar di Manager.
+     *
+     * @param class-string<Model> $model
+     * @throws RuntimeException bila koneksinya tidak terdaftar.
+     */
+    private function schema(string $model) : string {
+        $schema = $model::get_schema();
+
+        if(!Manager::has($schema)) {
+            throw new RuntimeException("Koneksi '{$schema}' tidak terdaftar untuk " . $model . '.');
+        }
+
+        return $schema;
+    }
+
+    /**
      * Menjalankan query dan mengembalikan baris mentah hasil query.
      *
      * Urutan: table → select (ber-alias) → JOIN relasi → callback → limit → eksekusi.
@@ -142,7 +183,7 @@ class ModelQuery {
         $joins = [];
         $this->collect($model, $with, '', $base, $joins, $select, $with_columns);
 
-        $builder = DB::table($base)->select($select);
+        $builder = DB::connection($this->schema($model))->table($base)->select($select);
 
         foreach($joins as [$table, $on]) {
             $builder->leftJoin($table, $on);
@@ -171,6 +212,14 @@ class ModelQuery {
         foreach($with as $node) {
             $relation = $parent_model::relation($node['relation']);
             $related = $relation->model;
+
+            if($related::get_schema() !== $parent_model::get_schema()) {
+                throw new RuntimeException(
+                    "Relasi '{$node['relation']}' berada di koneksi '" . $related::get_schema()
+                    . "', berbeda dari '" . $parent_model::get_schema()
+                    . "'. JOIN lintas koneksi tidak didukung."
+                );
+            }
 
             $path = $parent_path === '' ? $node['relation'] : $parent_path . '__' . $node['relation'];
             $table = $related::get_table();

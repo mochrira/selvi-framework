@@ -85,6 +85,17 @@ class Model extends Base implements Arrayable {
         return $table->name;
     }
 
+    /**
+     * Nama koneksi Manager tempat model ini berada (dari Table::schema).
+     */
+    static function get_schema() : string {
+        $table = static::get_attr(Table::class);
+        if($table === null) {
+            throw new InvalidArgumentException(static::class . ' tidak punya attribute Table.');
+        }
+        return $table->schema;
+    }
+
     static function get_key() : ?string {
         foreach(static::get_properties() as $property) {
             if($property['column']?->key) return $property['column']->name;
@@ -153,6 +164,51 @@ class Model extends Base implements Arrayable {
     }
 
     /**
+     * Insert satu record, lalu mengembalikan instance model dari data yang diinput
+     * (kolom key diisi dari lastInsertId). Tanpa relasi.
+     *
+     * Hanya data yang dikirim yang diisikan, jadi nilai default database (kolom
+     * yang tidak ikut dikirim) belum tercermin di instance. Untuk keadaan sebenarnya
+     * dari database, jalurnya dibahas terpisah lewat fresh().
+     *
+     * Kegagalan insert dilempar sebagai DatabaseException oleh lapisan driver.
+     *
+     * @param array<string, mixed> $data Data berkunci nama kolom.
+     */
+    static function create(array $data) : static {
+        $id = static::query()->insert($data);
+
+        $model = new static();
+        $key_column = static::key_column();
+
+        foreach(static::get_properties() as $name => $property) {
+            if($property['column'] === null) continue;
+
+            $column = $property['column']->name;
+
+            if(array_key_exists($column, $data)) {
+                $model->{$name} = static::cast_value($property['type'], $data[$column]);
+            } elseif($column === $key_column) {
+                $model->{$name} = static::cast_value($property['type'], $id);
+            }
+        }
+
+        return $model;
+    }
+
+    /**
+     * Menyamakan tipe value dengan tipe property model (int / bool / float).
+     */
+    private static function cast_value(?string $type, mixed $value) : mixed {
+        return match($type) {
+            'int'   => (int) $value,
+            'bool'  => (bool) $value,
+            'float' => (float) $value,
+            default => $value,
+        };
+    }
+
+    /**
      * @param array<int, array{relation: string, with: array}> $with AST relasi dari WithBuilder.
      */
     static function of(mixed $item, string $prefix = '', array $with = []) {
@@ -164,15 +220,7 @@ class Model extends Base implements Arrayable {
 
             $key = $prefix . $property['column']->name;
 
-            switch ($property['type']) {
-                case "int": $obj->{$name} = (int)$item->{$key};
-                    break;
-                case "bool": $obj->{$name} = (bool)$item->{$key};
-                    break;
-                case "float": $obj->{$name} = (float)$item->{$key};
-                    break;
-                default: $obj->{$name} = $item->{$key};
-            }
+            $obj->{$name} = static::cast_value($property['type'], $item->{$key});
         }
 
         foreach($with as $node) {

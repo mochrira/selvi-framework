@@ -112,8 +112,20 @@ class KontakController {
 
     function insert() {
         $data = json_decode($this->request->raw() ?? '', true) ?? [];
-        $idKontak = DB::table('kontak')->insert($data);
-        return \jsonResponse(['idKontak' => $idKontak], 201);
+
+        // bisa juga dengan ini
+
+        // $idKontak = Kontak::query()->insert([
+        //     'nmKontak' => $data['nmKontak'],
+        //     'idGrup' => $data['idGrup']
+        // ]);
+
+        $kontak = Kontak::create([
+            'nmKontak' => $data['nmKontak'],
+            'idGrup' => $data['idGrup']
+        ]);
+
+        return \jsonResponse(['idKontak' => $kontak->idKontak], 201);
     }
 
     function update(string $idKontak) {

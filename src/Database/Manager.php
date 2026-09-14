@@ -21,6 +21,10 @@ class Manager {
         if(!isset(self::$schemas[$name])) self::$schemas[$name] = new self::$drivers[$config['driver']]($config);
     }
 
+    public static function has(string $name): bool {
+        return isset(self::$schemas[$name]);
+    }
+
     public static function get(string $name): SchemaInterface {
         return self::$schemas[$name] ?? null;
     }
