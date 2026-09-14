@@ -7,6 +7,7 @@ use Selvi\Database\Manager;
 use Selvi\DB;
 use Selvi\Exception;
 use Selvi\Input\Request;
+use Selvi\Tests\Models\Kontak;
 
 class KontakController {
 
@@ -15,6 +16,11 @@ class KontakController {
     ) { }
 
     function result() {
+        $result = Kontak::with('grup')->all();
+        var_dump($result);
+        die();
+
+
         $query = DB::table('kontak')
             ->innerJoin('grup', 'grup.idGrup = kontak.idGrup')
             ->select([

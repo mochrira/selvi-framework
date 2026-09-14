@@ -2,7 +2,7 @@
 
 namespace Selvi\Tests\Models;
 
-use App\Models\Grup;
+use Selvi\Database\Attributes\BelongsTo;
 use Selvi\Database\Attributes\Column;
 use Selvi\Database\Attributes\Table;
 use Selvi\Model;
@@ -19,6 +19,6 @@ class Kontak extends Model {
     #[Column(name: 'idGrup')]
     public ?int $idGrup;
 
-    public ?Grup $grup;
-
+    #[BelongsTo(Grup::class, foreignKey: 'idGrup')]
+    public ?Grup $grup = null;
 }
