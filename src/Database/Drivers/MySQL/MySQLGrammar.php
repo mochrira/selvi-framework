@@ -4,6 +4,7 @@ namespace Selvi\Database\Drivers\MySQL;
 
 use InvalidArgumentException;
 use Selvi\Database\Builder\DML\Clauses\WhereClause;
+use Selvi\Database\Contracts\BlueprintInterface;
 use Selvi\Database\Contracts\GrammarInterface;
 use Selvi\Database\Contracts\QueryBuilderInterface;
 use Selvi\Database\Contracts\SanitizerInterface;
@@ -225,6 +226,85 @@ class MySQLGrammar implements GrammarInterface {
         }
 
         return $sql;
+    }
+
+    /**
+     * Merender CREATE TABLE dari struktur kanonik Blueprint.
+     *
+     * Di sinilah perbedaan dialek ditangani: tipe semantik menjadi tipe MySQL,
+     * flag auto_increment menjadi AUTO_INCREMENT, dan seterusnya. Blueprint
+     * sendiri tetap netral driver.
+     */
+    public function compileCreateTable(BlueprintInterface $blueprint) : string
+    {
+        $columns = [];
+
+        foreach($blueprint->getColumns() as $column) {
+            $columns[] = $this->compileColumn($column);
+        }
+
+        $ifNotExists = $blueprint->hasIfNotExists() ? 'IF NOT EXISTS ' : '';
+
+        return "CREATE TABLE {$ifNotExists}{$blueprint->getTable()} (" . implode(', ', $columns) . ')';
+    }
+
+    /**
+     * Merender satu kolom CREATE TABLE.
+     *
+     * @param array<string, mixed> $column Node kolom kanonik dari Blueprint.
+     */
+    protected function compileColumn(array $column) : string
+    {
+        $sql = "{$column['name']} " . $this->compileColumnType($column);
+
+        if(!$column['nullable']) $sql .= ' NOT NULL';
+        if($column['default'] !== null) $sql .= ' DEFAULT ' . $this->sanitizer->sanitize($column['default']);
+        if($column['auto_increment']) $sql .= ' AUTO_INCREMENT';
+        if($column['key']) $sql .= ' PRIMARY KEY';
+        if($column['unique']) $sql .= ' UNIQUE';
+
+        return $sql;
+    }
+
+    /**
+     * Menerjemahkan tipe kolom semantik menjadi tipe MySQL.
+     *
+     * Tipe yang tidak dikenal dilempar sebagai exception, sama seperti
+     * compileWhereClause — supaya driver yang belum mendukung tipe baru gagal
+     * dengan jelas alih-alih menghasilkan SQL yang salah.
+     *
+     * @param array<string, mixed> $column Node kolom kanonik dari Blueprint.
+     */
+    protected function compileColumnType(array $column) : string
+    {
+        return match($column['type']) {
+            'integer'    => 'INT',
+            'bigInteger' => 'BIGINT',
+            'string'     => 'VARCHAR(' . ($column['length'] ?? 255) . ')',
+            'text'       => 'TEXT',
+            'boolean'    => 'TINYINT(1)',
+            'decimal'    => 'DECIMAL(' . ($column['precision'] ?? 10) . ', ' . ($column['scale'] ?? 0) . ')',
+            'float'      => 'DOUBLE',
+            'date'       => 'DATE',
+            'datetime'   => 'DATETIME',
+            default      => throw new InvalidArgumentException(
+                'Tipe kolom tidak dikenal: ' . $column['type']
+            ),
+        };
+    }
+
+    /**
+     * Merender DROP TABLE.
+     *
+     * MySQL mendukung "IF EXISTS" langsung, jadi tidak ada trik khusus di sini;
+     * yang berbeda antar driver (mis. SQL Server) akan ditangani implementasinya
+     * masing-masing, bukan di Blueprint.
+     */
+    public function compileDropTable(string $table, bool $ifExists) : string
+    {
+        $ifExists = $ifExists ? 'IF EXISTS ' : '';
+
+        return "DROP TABLE {$ifExists}{$table}";
     }
 
 }

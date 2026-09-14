@@ -1,6 +1,7 @@
 <?php
 
 use Selvi\Database\DatabaseManager;
+use Selvi\Database\DatabaseMigration;
 use Selvi\Database\Migration;
 use Selvi\Database\Seeder;
 use Selvi\Env;
@@ -14,4 +15,5 @@ DatabaseManager::add('main', [
 ]);
 
 Migration::add('main', BASEPATH.'/app/Migrations');
+DatabaseMigration::add('main', BASEPATH.'/app/Migrations');
 Seeder::add('main', BASEPATH.'/app/Seeders');

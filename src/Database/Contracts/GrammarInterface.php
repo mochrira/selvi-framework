@@ -49,4 +49,23 @@ interface GrammarInterface {
      */
     function compileDelete(string $table, array $wheres): string;
 
+    /**
+     * Menghasilkan satu statement CREATE TABLE lengkap untuk driver ini.
+     *
+     * Struktur kolom sudah kanonik lewat BlueprintInterface: tipe semantik seperti
+     * "integer"/"string" plus flag nullable/key/auto_increment. Menerjemahkannya ke
+     * dialek driver — termasuk hal yang tidak seragam antar driver seperti
+     * AUTO_INCREMENT vs IDENTITY, atau IF NOT EXISTS yang tidak ada di SQL Server —
+     * adalah tugas Grammar.
+     */
+    function compileCreateTable(BlueprintInterface $blueprint): string;
+
+    /**
+     * Menghasilkan satu statement DROP TABLE lengkap untuk driver ini.
+     *
+     * Driver yang tidak mengenal "IF EXISTS" menanganinya di sini — misalnya
+     * SQL Server perlu membungkusnya dengan IF OBJECT_ID(..., 'U') IS NOT NULL.
+     */
+    function compileDropTable(string $table, bool $ifExists): string;
+
 }

@@ -1,5 +1,6 @@
 <?php
 
+use Selvi\Database\DatabaseMigration;
 use Selvi\Database\Migration;
 use Selvi\Database\Seeder;
 use Selvi\Env;
@@ -13,5 +14,6 @@ require './app/Config/database.php';
 
 $app = new Application('Selvi Commander', '1.0.0');
 $app->addCommand(new Migration());
+$app->addCommand(new DatabaseMigration());
 $app->addCommand(new Seeder());
 $app->run();
