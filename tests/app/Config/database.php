@@ -1,11 +1,11 @@
 <?php
 
-use Selvi\Database\Manager;
+use Selvi\Database\DatabaseManager;
 use Selvi\Database\Migration;
 use Selvi\Database\Seeder;
 use Selvi\Env;
 
-Manager::add('main', [
+DatabaseManager::add('main', [
     'driver' => Env::get('DB_DRIVER'),
     'host' => Env::get('DB_HOST'),
     'username' => Env::get('DB_USER'),

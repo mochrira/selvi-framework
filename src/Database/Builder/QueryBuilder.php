@@ -2,14 +2,17 @@
 
 namespace Selvi\Database\Builder;
 
+use RuntimeException;
+use Selvi\Database\Contracts\ConnectionInterface;
 use Selvi\Database\Contracts\QueryBuilderInterface;
 use Selvi\Database\Contracts\ResultInterface;
-use Selvi\Database\Contracts\SchemaInterface;
-use Selvi\Database\Manager;
+use Selvi\Database\DatabaseManager;
 
 class QueryBuilder implements QueryBuilderInterface {
 
-    private $connection = '';
+    private string $connectionName = '';
+
+    private ?ConnectionInterface $injected = null;
 
     private string $table = '';
 
@@ -34,8 +37,17 @@ class QueryBuilder implements QueryBuilderInterface {
         $this->order = new OrderBuilder();
     }
 
-    public function connection(string $name): QueryBuilder {
-        $this->connection = $name;
+    /**
+     * Menentukan koneksi: nama yang terdaftar di DatabaseManager, atau objek
+     * ConnectionInterface langsung bila ingin disuntikkan.
+     */
+    public function useConnection(string|ConnectionInterface $connection): static {
+        if($connection instanceof ConnectionInterface) {
+            $this->injected = $connection;
+        } else {
+            $this->connectionName = $connection;
+        }
+
         return $this;
     }
 
@@ -82,9 +94,16 @@ class QueryBuilder implements QueryBuilderInterface {
     }
 
 
-    public function db(): SchemaInterface {
-        if(!empty($this->connection)) return Manager::get($this->connection);
-        return Manager::default();
+    public function connection(): ConnectionInterface {
+        if($this->injected !== null) return $this->injected;
+
+        $db = $this->connectionName !== '' ? DatabaseManager::get($this->connectionName) : DatabaseManager::default();
+
+        if($db === null) {
+            throw new RuntimeException('Koneksi database belum diatur.');
+        }
+
+        return $db;
     }
 
     public function where($input): static {
@@ -148,7 +167,7 @@ class QueryBuilder implements QueryBuilderInterface {
     }
 
     public function get(): ResultInterface {
-        $db = $this->db();
+        $db = $this->connection();
         $grammar = $db->grammar();
         $sql = $grammar->compileSelect($this);
         return $db->query($sql);
@@ -156,7 +175,7 @@ class QueryBuilder implements QueryBuilderInterface {
 
     public function insert(array $values): int|string {
         $insertBuilder = new InsertBuilder($this->table, $values);
-        $db = $this->db();
+        $db = $this->connection();
         $sql = $db->grammar()->compileInsert(
             $insertBuilder->getTable(),
             $insertBuilder->getColumns(),
@@ -172,7 +191,7 @@ class QueryBuilder implements QueryBuilderInterface {
         }
 
         $updateBuilder = new UpdateBuilder($values);
-        $db = $this->db();
+        $db = $this->connection();
         $sql = $db->grammar()->compileUpdate(
             $this->table,
             $updateBuilder->getValues(),
@@ -186,7 +205,7 @@ class QueryBuilder implements QueryBuilderInterface {
             throw new \LogicException('Operasi DELETE memerlukan setidaknya satu kondisi WHERE untuk mencegah penghapusan data massal secara tidak sengaja.');
         }
 
-        $db = $this->db();
+        $db = $this->connection();
         $sql = $db->grammar()->compileDelete($this->table, $this->wheres());
         return $db->query($sql) !== false;
     }

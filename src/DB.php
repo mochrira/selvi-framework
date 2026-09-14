@@ -7,7 +7,7 @@ use Selvi\Database\Builder\QueryBuilder;
 class DB {
     public static function connection(string $name = '') {
         $builder = new QueryBuilder();
-        $builder->connection($name);
+        $builder->useConnection($name);
         return $builder;
     }
 

@@ -5,7 +5,8 @@ namespace Selvi\Database\Builder;
 use Closure;
 use RuntimeException;
 use Selvi\Collection;
-use Selvi\Database\Manager;
+use Selvi\Database\Contracts\ConnectionInterface;
+use Selvi\Database\DatabaseManager;
 use Selvi\DB;
 use Selvi\Model;
 
@@ -154,8 +155,8 @@ class ModelQuery {
     public function insert(array $data) : int | string {
         $model = $this->model;
 
-        $id = DB::connection($this->schema($model))
-            ->table($model::get_table())
+        $id = DB::table($model::get_table())
+            ->useConnection($this->connection($model))
             ->insert($data);
 
         $key = $model::key_column();
@@ -170,7 +171,7 @@ class ModelQuery {
      */
     public function update(array $data): bool {
         $model = $this->model;
-        $builder = DB::connection($this->schema($model))->table($model::get_table());
+        $builder = DB::table($model::get_table())->useConnection($this->connection($model));
 
         if ($this->where->hasWheres()) {
             $builder->where($this->where);
@@ -184,7 +185,7 @@ class ModelQuery {
      */
     public function delete(): bool {
         $model = $this->model;
-        $builder = DB::connection($this->schema($model))->table($model::get_table());
+        $builder = DB::table($model::get_table())->useConnection($this->connection($model));
 
         if ($this->where->hasWheres()) {
             $builder->where($this->where);
@@ -194,19 +195,19 @@ class ModelQuery {
     }
 
     /**
-     * Nama koneksi (Table::schema) model, divalidasi terdaftar di Manager.
+     * Koneksi (Table::schema) model, divalidasi terdaftar di DatabaseManager.
      *
      * @param class-string<Model> $model
      * @throws RuntimeException bila koneksinya tidak terdaftar.
      */
-    private function schema(string $model) : string {
+    private function connection(string $model) : ConnectionInterface {
         $schema = $model::get_schema();
 
-        if(!Manager::has($schema)) {
+        if(!DatabaseManager::has($schema)) {
             throw new RuntimeException("Koneksi '{$schema}' tidak terdaftar untuk " . $model . '.');
         }
 
-        return $schema;
+        return DatabaseManager::get($schema);
     }
 
     /**
@@ -260,7 +261,7 @@ class ModelQuery {
         $joins = [];
         $this->collect($model, $with, '', $base, $joins, $select, $with_columns);
 
-        $builder = DB::connection($this->schema($model))->table($base)->select($select);
+        $builder = DB::table($base)->useConnection($this->connection($model))->select($select);
 
         foreach($joins as [$table, $on]) {
             $builder->leftJoin($table, $on);
