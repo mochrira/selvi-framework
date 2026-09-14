@@ -41,6 +41,38 @@ class MySQLGrammar implements GrammarInterface {
         }));
     }
 
+    public function compileInsert(string $table, array $columns, array $rows): string
+    {
+        $table = trim($table, '` ');
+        if ($table === '') {
+            throw new InvalidArgumentException('Nama tabel untuk insert tidak boleh kosong.');
+        }
+
+        if (empty($columns)) {
+            throw new InvalidArgumentException('Daftar kolom untuk insert tidak boleh kosong.');
+        }
+
+        if (empty($rows)) {
+            throw new InvalidArgumentException('Baris data untuk insert tidak boleh kosong.');
+        }
+
+        $columnList = implode(', ', array_map(fn($col) => "`" . trim($col, '` ') . "`", $columns));
+
+        $valuesList = [];
+        foreach ($rows as $row) {
+            $rowValues = [];
+            foreach ($columns as $column) {
+                $val = $row[$column] ?? null;
+                $rowValues[] = $this->sanitizer->sanitize($val);
+            }
+            $valuesList[] = '(' . implode(', ', $rowValues) . ')';
+        }
+
+        $valuesStr = implode(', ', $valuesList);
+
+        return "INSERT INTO `{$table}` ({$columnList}) VALUES {$valuesStr}";
+    }
+
 
     /**
      * Merender daftar JOIN menjadi SQL MySQL.

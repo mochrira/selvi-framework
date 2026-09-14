@@ -105,9 +105,7 @@ class KontakController {
 
     function insert() {
         $data = json_decode($this->request->raw() ?? '', true) ?? [];
-        $db = Manager::get('main');
-        $db->insert('kontak', $data);
-        $idKontak = $db->lastId();
+        $idKontak = DB::table('kontak')->insert($data);
         return \jsonResponse(['idKontak' => $idKontak], 201);
     }
 

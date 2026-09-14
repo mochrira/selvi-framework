@@ -148,11 +148,22 @@ class QueryBuilder implements QueryBuilderInterface {
     }
 
     public function get(): ResultInterface {
-
         $db = $this->db();
         $grammar = $db->grammar();
         $sql = $grammar->compileSelect($this);
         return $db->query($sql);
+    }
+
+    public function insert(array $values): int|string {
+        $insertBuilder = new InsertBuilder($this->table, $values);
+        $db = $this->db();
+        $sql = $db->grammar()->compileInsert(
+            $insertBuilder->getTable(),
+            $insertBuilder->getColumns(),
+            $insertBuilder->getRows()
+        );
+        $db->query($sql);
+        return $db->lastId();
     }
 
 }

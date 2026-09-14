@@ -23,4 +23,13 @@ interface GrammarInterface {
      */
     function compileSelect(QueryBuilderInterface $builder): string;
 
+    /**
+     * Menghasilkan satu statement INSERT lengkap (mendukung baris tunggal maupun batch/bulk).
+     *
+     * @param string $table Nama tabel target
+     * @param array<int, string> $columns Daftar nama kolom
+     * @param array<int, array<string, mixed>> $rows Baris-baris data yang sudah dinormalkan
+     */
+    function compileInsert(string $table, array $columns, array $rows): string;
+
 }
