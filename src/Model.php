@@ -14,7 +14,6 @@ use Selvi\Database\Attributes\BelongsTo;
 use Selvi\Database\Attributes\Column;
 use Selvi\Database\Attributes\Table;
 use Selvi\Database\Builder\ModelQuery;
-use Selvi\Database\Builder\WhereBuilder;
 use Selvi\Database\Builder\QueryBuilder;
 
 class Model extends Base implements Arrayable {
@@ -151,23 +150,13 @@ class Model extends Base implements Arrayable {
      *
      * - satu id  -> model tunggal (atau null)
      * - array id -> Collection
+     *
+     * Untuk sekaligus memuat relasi, gunakan rantai with():
+     *
+     *     Kontak::with('grup')->find($id);
      */
     static function find(mixed $id) : Model | Collection | null {
-        $key = static::key_column();
-
-        if(is_array($id)) {
-            if(empty($id)) return new Collection();
-
-            return static::query()->all(function(QueryBuilder $query) use ($key, $id) {
-                $query->where(function(WhereBuilder $builder) use ($key, $id) {
-                    foreach($id as $value) {
-                        $builder->orWhere([[$key, '=', $value]]);
-                    }
-                });
-            });
-        }
-
-        return static::query()->first(fn(QueryBuilder $query) => $query->where([[$key, '=', $id]]));
+        return static::query()->find($id);
     }
 
     static function all() : Collection {

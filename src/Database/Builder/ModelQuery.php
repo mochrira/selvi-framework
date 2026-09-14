@@ -72,6 +72,33 @@ class ModelQuery {
     }
 
     /**
+     * Mencari berdasarkan kolom key, memakai relasi yang sudah dikonfigurasi.
+     *
+     * - satu id  -> model tunggal (atau null)
+     * - array id -> Collection
+     *
+     * @return Model|Collection|null
+     */
+    public function find(mixed $id) : Model | Collection | null {
+        $model = $this->model;
+        $key = $model::key_column();
+
+        if(is_array($id)) {
+            if(empty($id)) return new Collection();
+
+            return $this->all(function(QueryBuilder $query) use ($key, $id) {
+                $query->where(function(WhereBuilder $builder) use ($key, $id) {
+                    foreach($id as $value) {
+                        $builder->orWhere([[$key, '=', $value]]);
+                    }
+                });
+            });
+        }
+
+        return $this->first(fn(QueryBuilder $query) => $query->where([[$key, '=', $id]]));
+    }
+
+    /**
      * Menghitung jumlah record, berguna untuk pagination.
      *
      * Yang dihitung adalah kolom key model (Lihat Model::key_column()), bukan
