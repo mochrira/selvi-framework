@@ -74,7 +74,7 @@ Resolve a class from the container:
 
 ```php
 $request = inject(Request::class);
-$db = inject(Selvi\Database\Schema::class);
+$db = inject(Selvi\Database\Contracts\SchemaInterface::class);
 ```
 
 This is equivalent to `Factory::resolve($className)`.

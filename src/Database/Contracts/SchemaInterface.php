@@ -1,32 +1,32 @@
 <?php 
 
-declare(strict_types=1);
+namespace Selvi\Database\Contracts;
 
-namespace Selvi\Database;
-
-interface Schema {
+interface SchemaInterface {
 
     public function __construct(Array $config);
+    public function grammar(): GrammarInterface;
+    public function sanitizer(): SanitizerInterface;
     public function getConfig(): Array | null;
     public function connect(): bool;
     public function disconnect(): bool;
     public function select_db(string $db): bool;
-    public function query(string $sql): Result | bool;
+    public function query(string $sql): ResultInterface | bool;
     public function getSql(string $tbl = null): string;
-    public function get(string $tbl = null): Result | bool;
+    public function get(string $tbl = null): ResultInterface | bool;
     public function select(string|array $cols): self;
     public function where(string|array $where): self;
     public function order(string|array $order, ?string $direction = null): self;
     public function limit (int $limit): self;
     public function offset(int $offset): self;
-    public function insert(string $tbl, array $data): Result | bool;
+    public function insert(string $tbl, array $data): ResultInterface | bool;
     public function lastId(): int;
-    public function create(string $table, array $columns): Result | bool;
-    public function drop(string $table): Result | bool;
-    public function prepareMigrationTables(): Result | bool;
+    public function create(string $table, array $columns): ResultInterface | bool;
+    public function drop(string $table): ResultInterface | bool;
+    public function prepareMigrationTables(): ResultInterface | bool;
     // public function error(): mixed;
-    public function update(string $tbl, array $data): Result | bool;
-    public function delete(string $tbl): Result | bool;
+    public function update(string $tbl, array $data): ResultInterface | bool;
+    public function delete(string $tbl): ResultInterface | bool;
     
     public function groupBy(mixed $group): self;
     public function join(string $tbl, string $cond): self;
@@ -41,14 +41,14 @@ interface Schema {
     public function addColumn(string $column, string $type): self;
     public function addColumnAfter(string $afterCol, string $column, string $type): self;
     public function dropColumn(string $column): self;
-    public function alter(string $table): Result | bool;
+    public function alter(string $table): ResultInterface | bool;
     // public function changeColumn(string $table,  string $column, string $new_column, string $type): void;
     // public function addColumnFirst(string $column, string $type): void;
-    public function rename(string $table,string $new_table): Result | bool;
+    public function rename(string $table,string $new_table): ResultInterface | bool;
 
-    public function createIndex(string $table, string $index_name, array $cols): Result | bool;
-    public function truncate(string $table): Result | bool;
-    public function dropIndex(string $table, string $index_name): Result|bool;
+    public function createIndex(string $table, string $index_name, array $cols): ResultInterface | bool;
+    public function truncate(string $table): ResultInterface | bool;
+    public function dropIndex(string $table, string $index_name): ResultInterface|bool;
     public function addPrimary(string $column, string $primary_name): self;
     public function dropPrimary(): self;
     // public function createSchema(string $name): string;

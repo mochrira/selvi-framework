@@ -2,81 +2,148 @@
 
 namespace Selvi\Tests\Controllers;
 
-use Selvi\Tests\Models\KontakModel;
-use Selvi\Input\Request;
+use Selvi\Database\Builder\DML\ModelQuery;
+use Selvi\Database\Builder\DML\QueryBuilder;
+use Selvi\Database\Builder\DML\WhereBuilder;
 use Selvi\Exception;
+use Selvi\Input\Request;
+use Selvi\Tests\Models\Kontak;
 
 class KontakController {
 
-    private Request $request;
-    private KontakModel $kontakModel;
-
-    function __construct() {
-        $this->request = inject(Request::class);
-        $this->kontakModel = inject(KontakModel::class);
-     }
+    function __construct(
+        private Request $request
+    ) { }
 
     function result() {
-        $where = [];
-        $orWhere = [];
-        $order = [];
-
-        $idGrup = $this->request->get('idGrup');
-        if($idGrup != null) {
-            $where[] = ['grup.idGrup', $idGrup];
-        }
-
-        $search = $this->request->get('search');
-        if($search != null) {
-            $orWhere[] = ['kontak.nmKontak', 'LIKE', '%'.$search.'%']; 
-        }
-
-        $sort = $this->request->get('order');
-        if($sort != null) {
-            foreach(explode(',', $sort) as $val) {
-                list($field, $direction) = explode(':', $val);
-                $order[$field] = $direction;
+        $filter = function (QueryBuilder $query) {
+            // 3. Condition array [column, operator, value] jika ada idGrup
+            $idGrup = $this->request->get('idGrup');
+            if ($idGrup !== null && $idGrup !== '') {
+                $query->where([
+                    ['kontak.idGrup', '=', (int)$idGrup]
+                ]);
             }
-        }
 
-        $offset = $this->request->get('offset') ?? 0;
-        $limit = $this->request->get('limit') ?? -1;
+            // 4. Nested condition dengan WhereBuilder dan orWhere
+            $search = $this->request->get('search');
+            if ($search !== null && $search !== '') {
+                $query->where(function (WhereBuilder $builder) use ($search) {
+                    $builder->orWhere([
+                        ['kontak.nmKontak', 'LIKE', '%'.$search.'%'],
+                        ['grup.nmGrup', 'LIKE', '%'.$search.'%']
+                    ]);
+                });
+            }
+        };
 
-        $data = $this->kontakModel->result($where, $orWhere, $order, $offset, $limit);
-        $count = $this->kontakModel->count($where, $orWhere);
+        $count = Kontak::with('grup')->count($filter);
+        $data = Kontak::with('grup')->all(function (QueryBuilder $query) use ($filter) {
+            $filter($query);
 
-        if ($count === 0) {
-            throw new Exception('Data tidak ditemukan', 'data/not-found', 404);
-        }
+            // 5. Order / Sorting
+            $orderBy = $this->request->get('orderBy') ?? 'kontak.idKontak';
+            $sortBy = $this->request->get('sortBy') ?? 'DESC';
+            $query->orderBy($orderBy, $sortBy);
 
-        return \jsonResponse([
-            'data' => $data,
-            'count' => $count
-        ], 200);
+            // 6. Limit & Offset
+            $limit = $this->request->get('limit');
+            if ($limit !== null && is_numeric($limit)) {
+                $query->limit((int)$limit);
+            }
+
+            $offset = $this->request->get('offset');
+            if ($offset !== null && is_numeric($offset)) {
+                $query->offset((int)$offset);
+            }
+        });
+
+        return jsonResponse([
+            'count' => $count,
+            'data' => $data->toArray()
+        ]);
     }
 
-    function row(String $id) {
-        $data = $this->kontakModel->row([['kontak.idKontak',$id]]);
-        if ($data === null) {
-            throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
-        }
-        return \jsonResponse((array)$data, 200);
+    function row(string $idKontak) {
+        $data = Kontak::with('grup')->find((int)$idKontak);
+        if($data == null) throw new Exception("Kontak tidak ditemukan", "kontak/not-found", 404);
+        return \jsonResponse($data->toArray(), 200);
     }
 
     function insert() {
-        $data = json_decode($this->request->raw(), true);
-        $idKontak = $this->kontakModel->insert($data);
-        return \jsonResponse(['idKontak' => $idKontak], 201);
+        $data = json_decode($this->request->raw() ?? '', true) ?? [];
+
+        // Mentah
+
+        // DB::table('kontak')->insert([
+        //     'nmKontak' => $data['nmKontak'],
+        //     'idGrup' => $data['idGrup']
+        // ]);
+
+        // tanpa objek
+
+        // $idKontak = Kontak::query()->insert([
+        //     'nmKontak' => $data['nmKontak'],
+        //     'idGrup' => $data['idGrup']
+        // ]);
+
+        $kontak = Kontak::create([
+            'nmKontak' => $data['nmKontak'],
+            'idGrup' => $data['idGrup']
+        ]);
+
+        // Uji fresh(): baca ulang dari DB, sekaligus memuat relasi lewat with()
+        $kontak = $kontak->fresh(fn(ModelQuery $query) => $query->with('grup'));
+
+        if($kontak === null) {
+            throw new Exception('Kontak tidak lagi ditemukan', 'data/not-found', 404);
+        }
+
+        return \jsonResponse($kontak->toArray(), 201);
     }
 
-    function update(String $id) {
-        $data = json_decode($this->request->raw(), true);
-        $this->kontakModel->update([['kontak.idKontak', $id]], $data);
+    function update(string $idKontak) {
+        $data = json_decode($this->request->raw() ?? '', true) ?? [];
+
+        // Versi 1 (Mentah / DBAL):
+        // DB::table('kontak')->where([['kontak.idKontak', '=', (int)$idKontak]])->update([
+        //     'nmKontak' => $data['nmKontak'],
+        //     'idGrup' => $data['idGrup']
+        // ]);
+
+        // Versi 2 (Tanpa Objek / ModelQuery):
+        // Kontak::query()->where([['kontak.idKontak', '=', (int)$idKontak]])->update([
+        //     'nmKontak' => $data['nmKontak'],
+        //     'idGrup' => $data['idGrup']
+        // ]);
+
+        // Versi 3 (Objek Model / Active Record Instance):
+        $kontak = Kontak::find((int)$idKontak);
+        if ($kontak === null) {
+            throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
+        }
+
+        $kontak->nmKontak = $data['nmKontak'];
+        $kontak->idGrup = (int)$data['idGrup'];
+        $kontak->update();
+
         return \jsonResponse(null, 204);
     }
 
-    function delete(String $id) {
-        $this->kontakModel->delete([['kontak.idKontak', $id]]);
+    function delete(string $idKontak) {
+        // Versi 1 (Mentah / DBAL):
+        // DB::table('kontak')->where([['kontak.idKontak', '=', (int)$idKontak]])->delete();
+
+        // Versi 2 (Tanpa Objek / ModelQuery):
+        // Kontak::query()->where([['kontak.idKontak', '=', (int)$idKontak]])->delete();
+
+        // Versi 3 (Objek Model / Active Record Instance):
+        $kontak = Kontak::find((int)$idKontak);
+        if ($kontak === null) {
+            throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
+        }
+        $kontak->delete();
+
         return \jsonResponse(null, 204);
     }
 

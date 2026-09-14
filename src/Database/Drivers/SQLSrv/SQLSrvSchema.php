@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Selvi\Database\Drivers\SQLSrv;
 
-use Selvi\Database\Drivers\SQLSrv\SQLSrvResult;
-use Selvi\Database\Result;
-use Selvi\Database\Schema;
+use Selvi\Database\Contracts\GrammarInterface;
+use Selvi\Database\Contracts\ResultInterface;
+use Selvi\Database\Contracts\SanitizerInterface;
+use Selvi\Database\Contracts\SchemaInterface;
 use Selvi\Exception\DatabaseException;
 
-class SQLSrvSchema implements Schema {
+class SQLSrvSchema implements SchemaInterface {
 
     private Array | null $config;
     private mixed $instance;
@@ -25,6 +26,14 @@ class SQLSrvSchema implements Schema {
     private ?string $_dropColumn = null;
     private ?string $_dropPrimary = null;
     private ?string $_addPrimary = null;
+
+    public function grammar(): GrammarInterface {
+        throw new \RuntimeException('SQLSrv grammar is not implemented yet.');
+    }
+
+    public function sanitizer(): SanitizerInterface {
+        throw new \RuntimeException('SQLSrv sanitizer is not implemented yet.');
+    }
 
     public function __construct(Array $config)
     {
@@ -70,7 +79,7 @@ class SQLSrvSchema implements Schema {
         return false;
     }
 
-    public function prepareMigrationTables(): Result | bool {
+    public function prepareMigrationTables(): ResultInterface | bool {
         return $this->create('_migration', [
             'id' => 'INT IDENTITY(1,1) PRIMARY KEY',
             'filename' => 'VARCHAR(150) NOT NULL',
@@ -87,7 +96,7 @@ class SQLSrvSchema implements Schema {
         return sqlsrv_errors();
     }
 
-    public function query(string $sql): SQLSrvResult | bool
+    public function query(string $sql): ResultInterface | bool
     {
         $res = sqlsrv_query($this->instance, $sql, null, ['Scrollable' => SQLSRV_CURSOR_CLIENT_BUFFERED]);
         if(is_bool($res)) {
@@ -114,14 +123,14 @@ class SQLSrvSchema implements Schema {
         return (string) $val;
     }
 
-    public function select(string|array $cols): Schema
+    public function select(string|array $cols): SchemaInterface
     {
         if(is_string($cols)) $this->_select = $cols;
         if(is_array($cols)) $this->_select = implode(", ", $cols);
         return $this;
     }
 
-    public function where(string|array $where): Schema
+    public function where(string|array $where): SchemaInterface
     {
         $tmp = "";
         if(is_string($where)) $tmp = $where;
@@ -139,19 +148,19 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
-    public function limit(int $limit): Schema
+    public function limit(int $limit): SchemaInterface
     {
         $this->_limit = "FETCH NEXT {$limit} ROWS ONLY";
         return $this;
     }
 
-    public function offset(int $offset): Schema
+    public function offset(int $offset): SchemaInterface
     {
         $this->_offset = "OFFSET {$offset} ROWS";
         return $this;
     }
 
-    public function order(string|array $order, ?string $direction = null): Schema
+    public function order(string|array $order, ?string $direction = null): SchemaInterface
     {
         $tmp = "";
         if(is_array($order) && count($order) > 0) {
@@ -173,7 +182,7 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
-    public function join(string $tbl, string $cond, ?string $direction = null): Schema {
+    public function join(string $tbl, string $cond, ?string $direction = null): SchemaInterface {
         $str = "";
         $str .= (($this->_join ?? '') !== '' ? " " : "");
         $str .= ($direction != null ? $direction." " : "");
@@ -182,15 +191,15 @@ class SQLSrvSchema implements Schema {
         return $this;
     }
 
-    public function innerJoin(string $tbl, string $cond): Schema {
+    public function innerJoin(string $tbl, string $cond): SchemaInterface {
         return $this->join($tbl, $cond, 'INNER');
     }
 
-    public function leftJoin(string $tbl, string $cond): Schema {
+    public function leftJoin(string $tbl, string $cond): SchemaInterface {
         return $this->join($tbl, $cond, 'LEFT');
     }
 
-    public function rightJoin(string $tbl, string $cond): Schema {
+    public function rightJoin(string $tbl, string $cond): SchemaInterface {
         return $this->join($tbl, $cond, 'RIGHT');
     }
 
@@ -237,13 +246,13 @@ class SQLSrvSchema implements Schema {
         return $query;
     }
 
-    public function get(string $table = null): Result|bool
+    public function get(string $table = null): ResultInterface|bool
     {
         $sql = $this->getSql($table);
         return $this->query($sql);
     }
 
-    public function create(string $table, array $columns): Result | bool{
+    public function create(string $table, array $columns): ResultInterface | bool{
         $sql = "IF NOT EXISTS (SELECT * FROM sysobjects WHERE ID = object_id(N'{$table}') AND OBJECTPROPERTY(id, N'IsUserTable') = 1)\n";
         $sql .= "CREATE TABLE {$table} (";
         $names = array_keys($columns);
@@ -259,7 +268,7 @@ class SQLSrvSchema implements Schema {
         return $this->query($sql);
     }
 
-    public function drop(string $table): Result|bool
+    public function drop(string $table): ResultInterface|bool
     {
         $sql = "IF EXISTS (SELECT * FROM sysobjects WHERE ID = object_id(N'{$table}') AND OBJECTPROPERTY(id, N'IsUserTable') = 1)\n";
         $sql .= "DROP TABLE {$table};";
@@ -267,7 +276,7 @@ class SQLSrvSchema implements Schema {
         return $this->query($sql);
     }
 
-    public function insert(string $table, array $data): Result | bool {
+    public function insert(string $table, array $data): ResultInterface | bool {
         $columns = [];
         $values = [];
         foreach($data as $c => $v){
@@ -284,7 +293,7 @@ class SQLSrvSchema implements Schema {
         return false;
     }
 
-    public function update(string $tbl, array $data): Result | bool {
+    public function update(string $tbl, array $data): ResultInterface | bool {
         $columns = [];
         foreach($data as $c => $v){
             $columns[] = "{$c} = " . $this->prepareValue($v);
@@ -299,7 +308,7 @@ class SQLSrvSchema implements Schema {
         return $this->query($sql);
     }
 
-    public function delete(string $tbl): Result | bool {
+    public function delete(string $tbl): ResultInterface | bool {
         $where = $this->_where;
         if (($where ?? '') !== '') $where = " ".$where;
 
@@ -308,7 +317,7 @@ class SQLSrvSchema implements Schema {
         return $this->query($sql); 
     }
 
-    public function groupBy(mixed $group): Schema {
+    public function groupBy(mixed $group): SchemaInterface {
         $str = "GROUP BY ";
         if(is_string($group)) $str .= $group;
         if(is_array($group)) $str .= implode(",", $group);
@@ -328,7 +337,7 @@ class SQLSrvSchema implements Schema {
         return sqlsrv_rollback($this->instance);
     }
 
-    public function orWhere(string|array $orWhere): Schema {
+    public function orWhere(string|array $orWhere): SchemaInterface {
         $tmp = "";
         if(is_string($orWhere)) $tmp = $orWhere;
         if(is_array($orWhere)) {
@@ -349,7 +358,7 @@ class SQLSrvSchema implements Schema {
         return $this->query("SELECT name FROM sys.key_constraints WHERE type = 'PK' AND OBJECT_NAME(parent_object_id) = N'{$table}';")->row();
     }
 
-    public function alter(string $table): Result | bool {
+    public function alter(string $table): ResultInterface | bool {
         $alter = "ALTER TABLE {$table}";
         $modifyColumn = $this->_modifyColumn;
         $addColumn = $this->_addColumn;
@@ -366,53 +375,53 @@ class SQLSrvSchema implements Schema {
         return $this->query($sql);
     }
 
-    public function modifyColumn(string $column, string $type): Schema {
+    public function modifyColumn(string $column, string $type): SchemaInterface {
         $this->_modifyColumn = "ALTER COLUMN {$column} {$type}";
         return $this;
     }
 
 
-    public function addColumn(string $column, string $type): Schema {
+    public function addColumn(string $column, string $type): SchemaInterface {
         $this->_addColumn = "ADD {$column} {$type}";
         return $this;
     }
 
-    public function addColumnAfter(string $afterCol, string $column, string $type): Schema {
+    public function addColumnAfter(string $afterCol, string $column, string $type): SchemaInterface {
         return $this;
     }
 
-    public function dropColumn(string $column): Schema {
+    public function dropColumn(string $column): SchemaInterface {
         $this->_dropColumn = "DROP COLUMN {$column}";
         return $this;
     }
 
-    public function dropPrimary(): Schema {
+    public function dropPrimary(): SchemaInterface {
         $this->_dropPrimary = "DROP CONSTRAINT";
         return $this;
     }
 
-    public function addPrimary(string $column, string $primary_name): Schema {
+    public function addPrimary(string $column, string $primary_name): SchemaInterface {
         $this->_addPrimary = "ADD CONSTRAINT {$primary_name} PRIMARY KEY CLUSTERED ({$column})";
         return $this;
     }
 
-    public function createIndex(string $table, string $index_name, array $cols): Result|bool {
+    public function createIndex(string $table, string $index_name, array $cols): ResultInterface|bool {
         $column = implode(",", $cols);
         $sql = "CREATE CLUSTERED INDEX {$index_name} ON {$table} ({$column});";
         return $this->query($sql);
     }
 
-    public function dropIndex(string $table, string $index_name): Result|bool {
+    public function dropIndex(string $table, string $index_name): ResultInterface|bool {
         $sql = "DROP INDEX {$index_name} ON {$table};";
         return $this->query($sql);
     }
 
-    public function truncate(string $table): Result|bool {
+    public function truncate(string $table): ResultInterface|bool {
         $sql = "TRUNCATE TABLE {$table}";
         return $this->query($sql);
     }
 
-    public function rename(string $table, string $new_table): Result | bool {
+    public function rename(string $table, string $new_table): ResultInterface | bool {
         return $this->query('sp_rename '.$table.', '.$new_table);
     }
 

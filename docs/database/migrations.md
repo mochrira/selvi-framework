@@ -23,9 +23,9 @@ Files are sorted alphabetically by filename, which ensures chronological executi
 <?php
 // app/Migrations/20240505_01_init.php
 
-use Selvi\Database\Schema;
+use Selvi\Database\Contracts\SchemaInterface;
 
-return function (Schema $schema, string $direction) {
+return function (SchemaInterface $schema, string $direction) {
     if ($direction === 'up') {
         $schema->create('produk', [
             'idProduk' => 'INT(11) PRIMARY KEY AUTO_INCREMENT',

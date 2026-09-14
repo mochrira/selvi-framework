@@ -3,11 +3,11 @@
 namespace Selvi\Tests\Models;
 
 use Selvi\Database\Manager;
-use Selvi\Database\Schema;
+use Selvi\Database\Contracts\SchemaInterface;
 
 class ProdukModel {
     
-    private Schema $db;
+    private SchemaInterface $db;
 
     function __construct() {
         $this->db = Manager::get('main');
