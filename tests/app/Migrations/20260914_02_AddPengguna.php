@@ -1,7 +1,7 @@
 <?php
 
 use Selvi\Database\Builder\DDL\Blueprint;
-use Selvi\Schema;
+use Selvi\Database\Schema;
 
 return function (Schema $schema, string $direction) {
 

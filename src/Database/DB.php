@@ -1,6 +1,6 @@
 <?php 
 
-namespace Selvi;
+namespace Selvi\Database;
 
 use Selvi\Database\Builder\DDL\SchemaBuilder;
 use Selvi\Database\Builder\DML\QueryBuilder;

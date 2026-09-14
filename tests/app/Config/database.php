@@ -2,8 +2,7 @@
 
 use Selvi\Database\DatabaseManager;
 use Selvi\Database\DatabaseMigration;
-use Selvi\Database\Migration;
-use Selvi\Database\Seeder;
+use Selvi\Database\DatabaseSeeder;
 use Selvi\Env;
 
 DatabaseManager::add('main', [
@@ -14,6 +13,5 @@ DatabaseManager::add('main', [
     'database' => Env::get('DB_NAME')
 ]);
 
-Migration::add('main', BASEPATH.'/app/Migrations');
 DatabaseMigration::add('main', BASEPATH.'/app/Migrations');
-Seeder::add('main', BASEPATH.'/app/Seeders');
+DatabaseSeeder::add('main', BASEPATH.'/app/Seeders');

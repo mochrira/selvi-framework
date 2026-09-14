@@ -1,10 +1,10 @@
 <?php
 
-use Selvi\Database\Contracts\SchemaInterface;
+use Selvi\Database\Schema;
 
-return function (SchemaInterface $schema) {
+return function (Schema $schema) {
 
-    $schema->insert('pengguna', [
+    $schema->table('pengguna')->insert([
         'nmPengguna' => 'Administrator',
         'username' => 'admin',
         'password' => md5('admin')

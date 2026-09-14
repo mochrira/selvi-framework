@@ -1,7 +1,7 @@
 <?php
 
 use Selvi\Database\Builder\DDL\AlterBlueprint;
-use Selvi\Schema;
+use Selvi\Database\Schema;
 
 /**
  * Menyelaraskan tabel kontak dengan model Selvi\Tests\Models\Kontak.

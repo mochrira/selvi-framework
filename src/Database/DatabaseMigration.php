@@ -8,9 +8,7 @@ use Closure;
 use ReflectionFunction;
 use ReflectionNamedType;
 use RuntimeException;
-use Selvi\Database\Contracts\SchemaInterface;
 use Selvi\Exception\DatabaseException;
-use Selvi\Schema;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -22,33 +20,30 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Throwable;
 
 /**
- * Perintah migrasi berbasis stack database terbaru.
+ * Perintah migrasi database.
  *
- * Padanan Selvi\Database\Migration (yang tetap dipertahankan apa adanya untuk BC),
- * dengan alur dan perilaku yang sama — argumen, opsi, konfirmasi interaktif,
- * format logger, aturan skip, serta tabel riwayat _migration — tetapi seluruh
- * akses database memakai handle Schema (yang membungkus DatabaseManager +
- * ConnectionInterface + QueryBuilder + SchemaBuilder), dan penamaan perintah
- * memakai atribut #[AsCommand].
+ * Alur dan perilakunya: argumen name+direction, opsi --step/--all, konfirmasi
+ * interaktif, format logger [status:direction], aturan skip berdasarkan record
+ * terakhir, dan tabel riwayat _migration. Seluruh akses database memakai handle
+ * Schema (yang membungkus DatabaseManager + ConnectionInterface + QueryBuilder +
+ * SchemaBuilder), dan penamaan perintah memakai atribut #[AsCommand].
  *
  * Nama perintah default 'db:migrate' (dari atribut). Beri nama lain lewat
- * konstruktor bila perlu menemani perintah legacy di Application yang sama:
+ * konstruktor bila perlu:
  *
  *     $app->addCommand(new DatabaseMigration());          // db:migrate
- *     $app->addCommand(new DatabaseMigration('migrate')); // mendampingi Migration
+ *     $app->addCommand(new DatabaseMigration('migrate')); // migrate
  *
- * File migrasi didaftarkan seperti biasa, dengan registry TERPISAH dari legacy:
+ * Path migrasi didaftarkan lewat registry statis:
  *
  *     DatabaseMigration::add('main', BASEPATH.'/app/Migrations');
  *
- * Kontrak file migrasi — Schema sudah terikat ke koneksi 'main' di contoh ini:
+ * Kontrak file migrasi — Schema sudah terikat ke koneksi yang diminta, mis. 'main'
+ * pada perintah `db:migrate main up`:
  *
  *     return function (Schema $schema, string $direction) { ... };
  *
- * File lama yang masih memakai SchemaInterface tetap bisa dijalankan (lihat
- * resolve()), sehingga konversi bisa dilakukan bertahap per file.
- *
- * @see \Selvi\Schema
+ * @see \Selvi\Database\Schema
  * @see \Selvi\Database\MigrationLog
  */
 #[AsCommand(
@@ -187,7 +182,7 @@ class DatabaseMigration extends Command {
                 $start = time();
 
                 try {
-                    $this->resolve($file, $schema, $connection)($direction);
+                    $this->resolve($file, $schema)($direction);
                     $log->write($basename, $direction, $start, 'success');
                     if($logger) $logger($basename . ' berhasil dijalankan', 'success', 'success');
                 } catch(DatabaseException $e) {
@@ -235,11 +230,8 @@ class DatabaseMigration extends Command {
      *
      * Dipakai include (bukan include_once) supaya closure selalu didapat segar,
      * dan hasilnya divalidasi agar kesalahan file terbaca jelas.
-     *
-     * File gaya lama yang menerima SchemaInterface dijalankan lewat Manager —
-     * jembatan BC agar migrasi bisa dikonversi bertahap per file.
      */
-    private function resolve(string $file, Schema $schema, string $connection): callable {
+    private function resolve(string $file, Schema $schema): callable {
         $basename = basename($file);
 
         $closure = (static function () use ($file) {
@@ -248,16 +240,6 @@ class DatabaseMigration extends Command {
 
         if(!$closure instanceof Closure) {
             throw new RuntimeException("File migrasi {$basename} harus mengembalikan closure.");
-        }
-
-        if($this->accepts($closure, SchemaInterface::class)) {
-            if(!Manager::has($connection)) {
-                throw new RuntimeException("File migrasi {$basename} masih memakai SchemaInterface, tetapi koneksi '{$connection}' tidak terdaftar di Manager.");
-            }
-
-            $legacy = Manager::get($connection);
-
-            return static fn(string $direction) => $closure($legacy, $direction);
         }
 
         if(!$this->accepts($closure, Schema::class)) {

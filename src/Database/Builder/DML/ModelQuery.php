@@ -7,7 +7,7 @@ use RuntimeException;
 use Selvi\Collection;
 use Selvi\Database\Contracts\ConnectionInterface;
 use Selvi\Database\DatabaseManager;
-use Selvi\DB;
+use Selvi\Database\DB;
 use Selvi\Model;
 
 /**
@@ -144,9 +144,8 @@ class ModelQuery {
     /**
      * Insert satu record dan mengembalikan kolom key-nya.
      *
-     * SQL disusun QueryBuilder + Grammar, bukan SchemaInterface::insert() yang
-     * direncanakan deprecated. Key yang dikirim eksplisit di $data dipakai apa
-     * adanya (mis. UUID).
+     * SQL disusun QueryBuilder + Grammar. Key yang dikirim eksplisit di $data
+     * dipakai apa adanya (mis. UUID).
      *
      * Kegagalan insert dilempar sebagai DatabaseException oleh lapisan driver.
      *

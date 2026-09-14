@@ -86,7 +86,7 @@ class Model extends Base implements Arrayable {
     }
 
     /**
-     * Nama koneksi Manager tempat model ini berada (dari Table::schema).
+     * Nama koneksi tempat model ini berada (dari Table::schema).
      */
     static function get_schema() : string {
         $table = static::get_attr(Table::class);

@@ -15,7 +15,7 @@ use Selvi\Database\DatabaseManager;
  * Menjalankan callback definisi, lalu meminta Grammar menyusun SQL dan
  * mengeksekusinya lewat ConnectionInterface:
  *
- *     DB::schema()->create('kontak', function (Blueprint $table) {
+ *     (new Selvi\Database\Schema('main'))->create('kontak', function (Blueprint $table) {
  *         $table->integer('idKontak')->key()->autoIncrement();
  *         $table->string('nmKontak', 100)->nullable();
  *         $table->text('content')->nullable();

@@ -9,11 +9,10 @@ use Selvi\Database\Contracts\ConnectionInterface;
 use Selvi\Database\Drivers\MySQL\MySQLConnection;
 
 /**
- * Registry koneksi database untuk builder stack baru.
+ * Registry koneksi database.
  *
- * Bentuk API-nya sama dengan Manager (add / get / default / has), tetapi yang
- * disimpan dan dikembalikan adalah ConnectionInterface — bukan SchemaInterface.
- * Manager tetap ada apa adanya untuk backwards compatibility.
+ * API-nya: add / get / default / has. Yang disimpan dan dikembalikan adalah
+ * ConnectionInterface.
  */
 class DatabaseManager {
 
@@ -34,8 +33,7 @@ class DatabaseManager {
     private static array $connections = [];
 
     /**
-     * Mendaftarkan koneksi. Nama yang sudah terdaftar tidak ditimpa, sama
-     * seperti perilaku Manager.
+     * Mendaftarkan koneksi. Nama yang sudah terdaftar tidak ditimpa.
      */
     public static function add(string $name, array $config): void {
         if(isset(self::$connections[$name])) return;
@@ -54,9 +52,8 @@ class DatabaseManager {
     /**
      * Mengambil koneksi yang sudah terdaftar.
      *
-     * Berbeda dari Manager::get() yang bisa mengembalikan null sehingga memicu
-     * TypeError, di sini nama yang tidak terdaftar langsung dilempar exception
-     * dengan pesan yang jelas. Gunakan has() bila ingin mengecek lebih dulu.
+     * Nama yang tidak terdaftar langsung dilempar exception dengan pesan yang
+     * jelas. Gunakan has() bila ingin mengecek lebih dulu.
      */
     public static function get(string $name): ConnectionInterface {
         if(!self::has($name)) {

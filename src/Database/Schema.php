@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Selvi;
+namespace Selvi\Database;
 
 use Closure;
 use Selvi\Database\Builder\DDL\SchemaBuilder;
@@ -34,8 +34,8 @@ use Selvi\Database\Contracts\ConnectionInterface;
  *
  * Objek ini juga bisa dipakai di luar migrasi: `(new Schema('main'))->create(...)`.
  *
- * DDL yang tersedia: create(), drop(), rename(), truncate(), alter(). Operasi lain
- * (index, primary key, foreign key) belum ada — sementara pakai connection().
+ * DDL yang tersedia: create(), drop(), rename(), truncate(), dan alter() — lewat
+ * alter() itu tersedia pula index, primary key, dan foreign key.
  *
  * @see \Selvi\Database\Builder\DDL\SchemaBuilder
  */
