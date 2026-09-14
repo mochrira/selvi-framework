@@ -1,6 +1,8 @@
 <?php
 
-namespace Selvi\Database\Builder;
+namespace Selvi\Database\Builder\DML;
+
+use Selvi\Database\Builder\DML\Clauses\JoinClause;
 
 class JoinBuilder {
 

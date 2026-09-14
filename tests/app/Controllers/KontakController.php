@@ -2,11 +2,9 @@
 
 namespace Selvi\Tests\Controllers;
 
-use Selvi\Database\Builder\ModelQuery;
-use Selvi\Database\Builder\QueryBuilder;
-use Selvi\Database\Builder\WhereBuilder;
-use Selvi\Database\Manager;
-use Selvi\DB;
+use Selvi\Database\Builder\DML\ModelQuery;
+use Selvi\Database\Builder\DML\QueryBuilder;
+use Selvi\Database\Builder\DML\WhereBuilder;
 use Selvi\Exception;
 use Selvi\Input\Request;
 use Selvi\Tests\Models\Kontak;
@@ -68,6 +66,7 @@ class KontakController {
 
     function row(string $idKontak) {
         $data = Kontak::with('grup')->find((int)$idKontak);
+        if($data == null) throw new Exception("Kontak tidak ditemukan", "kontak/not-found", 404);
         return \jsonResponse($data->toArray(), 200);
     }
 

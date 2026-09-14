@@ -3,7 +3,7 @@
 namespace Selvi\Database\Drivers\MySQL;
 
 use InvalidArgumentException;
-use Selvi\Database\Builder\WhereClause;
+use Selvi\Database\Builder\DML\Clauses\WhereClause;
 use Selvi\Database\Contracts\GrammarInterface;
 use Selvi\Database\Contracts\QueryBuilderInterface;
 use Selvi\Database\Contracts\SanitizerInterface;

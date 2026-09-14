@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Selvi\Database\Builder;
+namespace Selvi\Database\Builder\DML;
 
 use InvalidArgumentException;
 

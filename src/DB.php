@@ -2,7 +2,7 @@
 
 namespace Selvi;
 
-use Selvi\Database\Builder\QueryBuilder;
+use Selvi\Database\Builder\DML\QueryBuilder;
 
 class DB {
     public static function connection(string $name = '') {

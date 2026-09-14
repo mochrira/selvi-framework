@@ -13,8 +13,8 @@ use Selvi\Contracts\Arrayable;
 use Selvi\Database\Attributes\BelongsTo;
 use Selvi\Database\Attributes\Column;
 use Selvi\Database\Attributes\Table;
-use Selvi\Database\Builder\ModelQuery;
-use Selvi\Database\Builder\QueryBuilder;
+use Selvi\Database\Builder\DML\ModelQuery;
+use Selvi\Database\Builder\DML\QueryBuilder;
 
 class Model extends Base implements Arrayable {
 

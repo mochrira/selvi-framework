@@ -1,8 +1,9 @@
 <?php
 
-namespace Selvi\Database\Builder;
+namespace Selvi\Database\Builder\DML;
 
 use Closure;
+use Selvi\Database\Builder\DML\Clauses\WithClause;
 
 /**
  * Collector relasi untuk `with()`.

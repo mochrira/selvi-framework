@@ -14,7 +14,7 @@ namespace Selvi\Database\Contracts;
  *   harus dikonversi menjadi literal oleh SanitizerInterface milik driver.
  *
  * @see \Selvi\Database\Contracts\QueryBuilderInterface
- * @see \Selvi\Database\Builder\WhereClause
+ * @see \Selvi\Database\Builder\DML\Clauses\WhereClause
  */
 interface GrammarInterface {
 

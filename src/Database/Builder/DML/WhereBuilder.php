@@ -1,9 +1,10 @@
 <?php
 
-namespace Selvi\Database\Builder;
+namespace Selvi\Database\Builder\DML;
 
 use Closure;
 use InvalidArgumentException;
+use Selvi\Database\Builder\DML\Clauses\WhereClause;
 
 class WhereBuilder {
 

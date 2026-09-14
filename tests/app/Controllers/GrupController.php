@@ -2,7 +2,7 @@
 
 namespace Selvi\Tests\Controllers;
 
-use Selvi\Database\Builder\WhereBuilder;
+use Selvi\Database\Builder\DML\WhereBuilder;
 use Selvi\Database\Manager;
 use Selvi\DB;
 use Selvi\Exception;

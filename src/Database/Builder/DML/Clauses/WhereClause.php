@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Selvi\Database\Builder;
+namespace Selvi\Database\Builder\DML\Clauses;
 
 use InvalidArgumentException;
 use LogicException;
+use Selvi\Database\Builder\DML\WhereBuilder;
 
 /**
  * Value object untuk SATU kondisi WHERE.

@@ -13,8 +13,8 @@ namespace Selvi\Database\Contracts;
  * dan netral driver, jadi setiap Grammar mengonsumsi pola yang sama dan hanya
  * berbeda saat render.
  *
- * @see \Selvi\Database\Builder\WhereClause bentuk lengkap tiap node dan aturan normalisasinya.
- * @see \Selvi\Database\Builder\JoinClause bentuk kanonik daftar join.
+ * @see \Selvi\Database\Builder\DML\Clauses\WhereClause bentuk lengkap tiap node dan aturan normalisasinya.
+ * @see \Selvi\Database\Builder\DML\Clauses\JoinClause bentuk kanonik daftar join.
  */
 interface QueryBuilderInterface {
 
@@ -37,7 +37,7 @@ interface QueryBuilderInterface {
      *
      * Node bertipe nested menaruh node anaknya secara rekursif pada key 'wheres'.
      *
-     * @see \Selvi\Database\Builder\WhereClause daftar tipe node dan aturan normalisasinya.
+     * @see \Selvi\Database\Builder\DML\Clauses\WhereClause daftar tipe node dan aturan normalisasinya.
      */
     public function wheres(): array;
 
@@ -48,7 +48,7 @@ interface QueryBuilderInterface {
      *
      *     ['join' => 'LEFT', 'table' => 'another', 'on' => 'another.colA = table.colA']
      *
-     * @see \Selvi\Database\Builder\JoinClause bentuk node dan aturan normalisasinya.
+     * @see \Selvi\Database\Builder\DML\Clauses\JoinClause bentuk node dan aturan normalisasinya.
      */
     public function joins(): array;
 
@@ -73,7 +73,7 @@ interface QueryBuilderInterface {
      * Struktur kanonik (AST) daftar ORDER BY. Array kosong berarti tanpa sorting.
      *
      * @return array<int, array{column: string, direction: string}>
-     * @see \Selvi\Database\Builder\OrderClause
+     * @see \Selvi\Database\Builder\DML\Clauses\OrderClause
      */
     public function orders(): array;
 

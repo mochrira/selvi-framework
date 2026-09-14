@@ -1,6 +1,6 @@
 <?php 
 
-namespace Selvi\Database\Builder;
+namespace Selvi\Database\Builder\DML;
 
 use RuntimeException;
 use Selvi\Database\Contracts\ConnectionInterface;

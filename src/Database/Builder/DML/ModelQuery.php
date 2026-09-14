@@ -1,6 +1,6 @@
 <?php
 
-namespace Selvi\Database\Builder;
+namespace Selvi\Database\Builder\DML;
 
 use Closure;
 use RuntimeException;
