@@ -27,11 +27,17 @@ class MySQLGrammar implements GrammarInterface {
 
         $wheres = $builder->wheres();
         $where = empty($wheres) ? "" : "WHERE " . $this->compileWhere($wheres);
+
+        $groups = $builder->groups();
+        $group = empty($groups) ? "" : $this->compileGroups($groups);
+
+        $limit = $this->compileLimit($builder->getLimit(), $builder->getOffset());
         
-        return join(" ", array_filter([$select, $from, $join, $where], function ($part) {
+        return join(" ", array_filter([$select, $from, $join, $where, $group, $limit], function ($part) {
             return $part !== '';
         }));
     }
+
 
     /**
      * Merender daftar JOIN menjadi SQL MySQL.
@@ -92,6 +98,36 @@ class MySQLGrammar implements GrammarInterface {
                 'Tipe kondisi tidak dikenal: ' . $w['type']
             ),
         };
+    }
+
+    /**
+     * Merender klausa GROUP BY menjadi SQL MySQL.
+     *
+     * @param string[] $groups
+     */
+    protected function compileGroups(array $groups): string
+    {
+        if (empty($groups)) {
+            return '';
+        }
+        return "GROUP BY " . join(', ', $groups);
+    }
+
+    /**
+     * Merender klausa LIMIT dan OFFSET menjadi SQL MySQL.
+     */
+    protected function compileLimit(?int $limit, ?int $offset = null): string
+    {
+        if ($limit === null || $limit < 0) {
+            return '';
+        }
+
+        $sql = "LIMIT " . $limit;
+        if ($offset !== null && $offset > 0) {
+            $sql .= " OFFSET " . $offset;
+        }
+
+        return $sql;
     }
 
 }

@@ -52,12 +52,31 @@ class KontakController {
             });
         }
 
+        // 5. Limit & Offset
+        $limit = $this->request->get('limit');
+        if ($limit !== null && is_numeric($limit)) {
+            $query->limit((int)$limit);
+        }
+
+        $offset = $this->request->get('offset');
+        if ($offset !== null && is_numeric($offset)) {
+            $query->offset((int)$offset);
+        }
+
         $data = $query->get()->result();
         return \jsonResponse($data, 200);
     }
 
     function row(string $idKontak) {
         $data = DB::table('kontak')
+            ->innerJoin('grup', 'grup.idGrup = kontak.idGrup')
+            ->select([
+                'kontak.idKontak', 
+                'kontak.nmKontak', 
+                'kontak.idGrup',
+                'grup.idGrup AS grup__idGrup',
+                'grup.nmGrup AS grup__nmGrup'
+            ])
             ->where([
                 ['kontak.idKontak', '=', (int)$idKontak]
             ])

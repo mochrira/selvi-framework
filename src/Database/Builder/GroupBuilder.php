@@ -62,10 +62,11 @@ class GroupBuilder
         return !empty($this->groups);
     }
 
-    public function getGroups(): array
+    public function toArray(): array
     {
         return $this->groups;
     }
+
 
     public function toSql(): string
     {

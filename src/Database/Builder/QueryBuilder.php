@@ -19,9 +19,16 @@ class QueryBuilder implements QueryBuilderInterface {
 
     private JoinBuilder $join;
 
+    private GroupBuilder $group;
+
+    private ?int $limit = null;
+
+    private ?int $offset = null;
+
     function __construct() {
         $this->where = new WhereBuilder();
         $this->join = new JoinBuilder();
+        $this->group = new GroupBuilder();
     }
 
     public function connection(string $name): QueryBuilder {
@@ -54,6 +61,19 @@ class QueryBuilder implements QueryBuilderInterface {
     public function joins(): array {
         return $this->join->toArray();
     }
+
+    public function groups(): array {
+        return $this->group->toArray();
+    }
+
+    public function getLimit(): ?int {
+        return $this->limit;
+    }
+
+    public function getOffset(): ?int {
+        return $this->offset;
+    }
+
 
     public function db(): SchemaInterface {
         if(!empty($this->connection)) return Manager::get($this->connection);
@@ -90,7 +110,28 @@ class QueryBuilder implements QueryBuilderInterface {
         return $this;
     }
 
+    public function groupBy(...$columns): static {
+        $this->group->group(...$columns);
+        return $this;
+    }
+
+    public function group(...$columns): static {
+        $this->group->group(...$columns);
+        return $this;
+    }
+
+    public function limit(?int $limit): static {
+        $this->limit = $limit;
+        return $this;
+    }
+
+    public function offset(?int $offset): static {
+        $this->offset = $offset;
+        return $this;
+    }
+
     public function get(): ResultInterface {
+
         $db = $this->db();
         $grammar = $db->grammar();
         $sql = $grammar->compileSelect($this);

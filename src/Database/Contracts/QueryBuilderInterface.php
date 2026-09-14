@@ -52,4 +52,21 @@ interface QueryBuilderInterface {
      */
     public function joins(): array;
 
+    /**
+     * Daftar kolom GROUP BY. Array kosong berarti tanpa grouping.
+     *
+     * @return string[]
+     */
+    public function groups(): array;
+
+    /**
+     * Nilai LIMIT query, atau null jika tidak dibatasi.
+     */
+    public function getLimit(): ?int;
+
+    /**
+     * Nilai OFFSET query, atau null jika tidak ada offset.
+     */
+    public function getOffset(): ?int;
+
 }
