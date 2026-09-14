@@ -9,10 +9,12 @@ namespace Selvi\Database\Contracts;
  * jawab menyusunnya. Anggota tulis (table(), select(), where(), orWhere(), get())
  * sengaja tidak dideklarasikan supaya Grammar tidak bisa memutasi state builder.
  *
- * Struktur WHERE yang dikembalikan wheres() sudah kanonik dan netral driver,
- * jadi setiap Grammar mengonsumsi pola yang sama dan hanya berbeda saat render.
+ * Struktur WHERE (wheres()) dan JOIN (joins()) yang dikembalikan sudah kanonik
+ * dan netral driver, jadi setiap Grammar mengonsumsi pola yang sama dan hanya
+ * berbeda saat render.
  *
  * @see \Selvi\Database\Builder\WhereClause bentuk lengkap tiap node dan aturan normalisasinya.
+ * @see \Selvi\Database\Builder\JoinClause bentuk kanonik daftar join.
  */
 interface QueryBuilderInterface {
 
@@ -38,5 +40,16 @@ interface QueryBuilderInterface {
      * @see \Selvi\Database\Builder\WhereClause daftar tipe node dan aturan normalisasinya.
      */
     public function wheres(): array;
+
+    /**
+     * Struktur kanonik (AST) daftar JOIN. Array kosong berarti tanpa join.
+     *
+     * Setiap elemen adalah satu join, misalnya:
+     *
+     *     ['join' => 'LEFT', 'table' => 'another', 'on' => 'another.colA = table.colA']
+     *
+     * @see \Selvi\Database\Builder\JoinClause bentuk node dan aturan normalisasinya.
+     */
+    public function joins(): array;
 
 }

@@ -22,12 +22,32 @@ class MySQLGrammar implements GrammarInterface {
         $columns = count($builder->getColumns()) == 0 ? ['*'] : $builder->getColumns();
         $select = "SELECT " . join(', ', $columns);
 
+        $joins = $builder->joins();
+        $join = empty($joins) ? "" : $this->compileJoins($joins);
+
         $wheres = $builder->wheres();
         $where = empty($wheres) ? "" : "WHERE " . $this->compileWhere($wheres);
         
-        return join(" ", array_filter([$select, $from, $where], function ($part) {
+        return join(" ", array_filter([$select, $from, $join, $where], function ($part) {
             return $part !== '';
         }));
+    }
+
+    /**
+     * Merender daftar JOIN menjadi SQL MySQL.
+     *
+     * Klausa ON sudah berupa string mentah dari JoinClause, jadi tidak ada
+     * sanitasi/normalisasi di sini.
+     */
+    protected function compileJoins(array $joins): string
+    {
+        $parts = [];
+
+        foreach ($joins as $j) {
+            $parts[] = "{$j['join']} JOIN {$j['table']} ON {$j['on']}";
+        }
+
+        return implode(' ', $parts);
     }
 
     /**

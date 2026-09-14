@@ -16,7 +16,14 @@ class KontakController {
 
     function result() {
         $query = DB::table('kontak')
-            ->select(['kontak.idKontak', 'kontak.nmKontak', 'kontak.idGrup']);
+            ->innerJoin('grup', 'grup.idGrup = kontak.idGrup')
+            ->select([
+                'kontak.idKontak', 
+                'kontak.nmKontak', 
+                'kontak.idGrup',
+                'grup.idGrup AS grup__idGrup',
+                'grup.nmGrup AS grup__nmGrup'
+            ]);
 
         // 1. Raw string condition
         $query->where('kontak.idKontak > 0');
@@ -39,7 +46,8 @@ class KontakController {
         if ($search !== null && $search !== '') {
             $query->where(function (WhereBuilder $builder) use ($search) {
                 $builder->orWhere([
-                    ['kontak.nmKontak', 'LIKE', '%'.$search.'%']
+                    ['kontak.nmKontak', 'LIKE', '%'.$search.'%'],
+                    ['grup.nmGrup', 'LIKE', '%'.$search.'%']
                 ]);
             });
         }

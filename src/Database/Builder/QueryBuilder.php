@@ -17,8 +17,11 @@ class QueryBuilder implements QueryBuilderInterface {
 
     private WhereBuilder $where;
 
+    private JoinBuilder $join;
+
     function __construct() {
         $this->where = new WhereBuilder();
+        $this->join = new JoinBuilder();
     }
 
     public function connection(string $name): QueryBuilder {
@@ -48,6 +51,10 @@ class QueryBuilder implements QueryBuilderInterface {
         return $this->where->toArray();
     }
 
+    public function joins(): array {
+        return $this->join->toArray();
+    }
+
     public function db(): SchemaInterface {
         if(!empty($this->connection)) return Manager::get($this->connection);
         return Manager::default();
@@ -60,6 +67,26 @@ class QueryBuilder implements QueryBuilderInterface {
 
     public function orWhere($input): static {
         $this->where->orWhere($input);
+        return $this;
+    }
+
+    public function join(string $table, string $on): static {
+        $this->join->join($table, $on);
+        return $this;
+    }
+
+    public function leftJoin(string $table, string $on): static {
+        $this->join->leftJoin($table, $on);
+        return $this;
+    }
+
+    public function innerJoin(string $table, string $on): static {
+        $this->join->innerJoin($table, $on);
+        return $this;
+    }
+
+    public function rightJoin(string $table, string $on): static {
+        $this->join->rightJoin($table, $on);
         return $this;
     }
 
