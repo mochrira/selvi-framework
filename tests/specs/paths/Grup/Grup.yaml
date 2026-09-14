@@ -3,6 +3,23 @@ get:
   summary: Mengambil semua data grup
   security: 
     - token: [read]
+  parameters:
+    - in: query
+      name: search
+      schema:
+        type: string
+    - in: query
+      name: sort
+      schema:
+        type: string
+    - in: query
+      name: offset
+      schema:
+        type: integer
+    - in: query
+      name: limit
+      schema:
+        type: integer
   responses:
     '200':
       description: Semua data grup dalam format JSON
