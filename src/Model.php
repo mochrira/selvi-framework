@@ -8,52 +8,86 @@ use Closure;
 use InvalidArgumentException;
 use ReflectionClass;
 use Selvi\Base;
+use Selvi\Contracts\Arrayable;
 use Selvi\Database\Attributes\BelongsTo;
 use Selvi\Database\Attributes\Column;
 use Selvi\Database\Attributes\Table;
 use Selvi\Database\Builder\ModelQuery;
 use Selvi\Database\Builder\WhereBuilder;
-use Selvi\Database\Manager;
 use Selvi\Database\Builder\QueryBuilder;
 
-class Model extends Base {
+class Model extends Base implements Arrayable {
 
-    static function get_attr(string $attr_classpath) {
+    /**
+     * Cache instance attribute per class dan per classpath attribute.
+     *
+     * @var array<string, object|null>
+     */
+    private static array $attr_cache = [];
+
+    static function get_attr(string $attr_classpath) : ?object {
+        $key = static::class . '::' . $attr_classpath;
+
+        // array_key_exists dipakai supaya hasil null (attribute tidak ada) tetap ter-cache.
+        if(array_key_exists($key, self::$attr_cache)) {
+            return self::$attr_cache[$key];
+        }
+
         $reflection = new ReflectionClass(static::class);
         $attributes = $reflection->getAttributes($attr_classpath);
-        if(!isset($attributes)) return null;
-        return $attributes[0]->newInstance();
+
+        return self::$attr_cache[$key] = empty($attributes) ? null : $attributes[0]->newInstance();
     }
 
-    static function get_properties() {
-        $reflection = new ReflectionClass(static::class);
+    /**
+     * Cache metadata property per class.
+     *
+     * Reflection cukup dijalankan sekali untuk setiap class model, bukan setiap
+     * kali metadata dibutuhkan (mis. per baris saat hidrasi di of()).
+     *
+     * @var array<string, array<string, array{type: ?string, column: ?Column, relation: ?BelongsTo}>>
+     */
+    private static array $property_cache = [];
+
+    /**
+     * Metadata tiap property: tipe, kolom, dan relasinya.
+     *
+     * @return array<string, array{type: ?string, column: ?Column, relation: ?BelongsTo}>
+     */
+    static function get_properties() : array {
+        $class = static::class;
+
+        if(isset(self::$property_cache[$class])) {
+            return self::$property_cache[$class];
+        }
+
+        $reflection = new ReflectionClass($class);
         $result = [];
         foreach($reflection->getProperties() as $property) {
-            $instance = new ModelProperty();
-            $instance->type = $property->getType()?->getName();
-
             $column_attr = $property->getAttributes(Column::class);
-            if(!empty($column_attr)) {
-                $instance->column = $column_attr[0]->newInstance();
-            }
-
             $relation_attr = $property->getAttributes(BelongsTo::class);
-            if(!empty($relation_attr)) {
-                $instance->relation = $relation_attr[0]->newInstance();
-            }
 
-            $result[$property->getName()] = $instance;
+            $result[$property->getName()] = [
+                'type' => $property->getType()?->getName(),
+                'column' => empty($column_attr) ? null : $column_attr[0]->newInstance(),
+                'relation' => empty($relation_attr) ? null : $relation_attr[0]->newInstance(),
+            ];
         }
-        return $result;
+
+        return self::$property_cache[$class] = $result;
     }
 
     static function get_table() : string {
-        return static::get_attr(Table::class)->name;
+        $table = static::get_attr(Table::class);
+        if($table === null) {
+            throw new InvalidArgumentException(static::class . ' tidak punya attribute Table.');
+        }
+        return $table->name;
     }
 
     static function get_key() : ?string {
         foreach(static::get_properties() as $property) {
-            if($property->column?->key) return $property->column->name;
+            if($property['column']?->key) return $property['column']->name;
         }
         return null;
     }
@@ -69,17 +103,17 @@ class Model extends Base {
     static function column_names() : array {
         $names = [];
         foreach(static::get_properties() as $property) {
-            if($property->column !== null) $names[] = $property->column->name;
+            if($property['column'] !== null) $names[] = $property['column']->name;
         }
         return $names;
     }
 
     static function relation(string $name) : BelongsTo {
         $property = static::get_properties()[$name] ?? null;
-        if($property?->relation === null) {
+        if($property === null || $property['relation'] === null) {
             throw new InvalidArgumentException("Relasi '{$name}' tidak ditemukan pada " . static::class . '.');
         }
-        return $property->relation;
+        return $property['relation'];
     }
 
     static function query() : ModelQuery {
@@ -126,11 +160,11 @@ class Model extends Base {
         $properties = static::get_properties();
 
         foreach($properties as $name => $property) {
-            if($property->relation !== null || $property->column === null) continue;
+            if($property['relation'] !== null || $property['column'] === null) continue;
 
-            $key = $prefix . $property->column->name;
+            $key = $prefix . $property['column']->name;
 
-            switch ($property->type) {
+            switch ($property['type']) {
                 case "int": $obj->{$name} = (int)$item->{$key};
                     break;
                 case "bool": $obj->{$name} = (bool)$item->{$key};
@@ -145,11 +179,11 @@ class Model extends Base {
             $name = $node['relation'];
             $property = $properties[$name] ?? null;
 
-            if($property?->relation === null) continue;
+            if($property === null || $property['relation'] === null) continue;
 
-            $related = $property->relation->model;
+            $related = $property['relation']->model;
             $child_prefix = $prefix . $name . '__';
-            $related_key = $property->relation->ownerKey ?? $related::key_column();
+            $related_key = $property['relation']->ownerKey ?? $related::key_column();
 
             if(($item->{$child_prefix . $related_key} ?? null) === null) {
                 $obj->{$name} = null;
@@ -162,8 +196,34 @@ class Model extends Base {
         return $obj;
     }
 
-    function toArray() {
-        
+    /**
+     * Representasi array model untuk output (mis. jsonResponse).
+     *
+     * - kolom ditampilkan apa adanya, memakai nama property,
+     * - relasi yang terisi dikonversi lewat toArray() model terkait,
+     * - relasi bernilai null dihilangkan key-nya (nanti diatur lewat IncludeIfNull),
+     * - property yang bukan kolom dan bukan relasi tidak diikutkan.
+     */
+    #[\Override]
+    function toArray() : array {
+        $result = [];
+
+        foreach(static::get_properties() as $name => $property) {
+            if($property['column'] !== null) {
+                $result[$name] = $this->{$name};
+                continue;
+            }
+
+            if($property['relation'] !== null) {
+                $value = $this->{$name};
+
+                if($value === null) continue;
+
+                $result[$name] = $value instanceof Arrayable ? $value->toArray() : $value;
+            }
+        }
+
+        return $result;
     }
 
     function toArrayDb() {

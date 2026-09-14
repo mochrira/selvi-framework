@@ -17,7 +17,7 @@ class KontakController {
     ) { }
 
     function result() {
-        $result = Kontak::with('grup')->all(function (QueryBuilder $query) {
+        $filter = function (QueryBuilder $query) {
             // 1. Raw string condition
             $query->where('kontak.idKontak > 0');
 
@@ -44,6 +44,11 @@ class KontakController {
                     ]);
                 });
             }
+        };
+
+        $count = Kontak::with('grup')->count($filter);
+        $data = Kontak::with('grup')->all(function (QueryBuilder $query) use ($filter) {
+            $filter($query);
 
             // 5. Order / Sorting
             $orderBy = $this->request->get('orderBy');
@@ -76,8 +81,10 @@ class KontakController {
             }
         });
 
-        var_dump($result);
-        die();
+        return jsonResponse([
+            'count' => $count,
+            'data' => $data->toArray()
+        ]);
     }
 
     function row(string $idKontak) {

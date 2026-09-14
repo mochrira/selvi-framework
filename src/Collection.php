@@ -2,12 +2,14 @@
 
 namespace Selvi;
 
+use Selvi\Contracts\Arrayable;
+
 /**
  * Type-safe list class — setara dengan List<T> di C#.
  *
  * @template T
  */
-class Collection
+class Collection implements Arrayable
 {
     /** @var array<int, T> */
     private array $items = [];
@@ -137,13 +139,20 @@ class Collection
     }
 
     /**
-     * Mengambil seluruh item sebagai array.
+     * Mengambil seluruh item sebagai array, dengan konversi rekursif.
      *
-     * @return array<int, T>
+     * Item yang mengimplementasikan Arrayable (mis. Model) dikonversi lewat
+     * toArray()-nya sendiri; item lain dibiarkan apa adanya.
+     *
+     * @return array<int, mixed>
      */
+    #[\Override]
     public function toArray(): array
     {
-        return $this->items;
+        return array_map(
+            fn(mixed $item) => $item instanceof Arrayable ? $item->toArray() : $item,
+            $this->items
+        );
     }
 
     /**
