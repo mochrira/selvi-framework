@@ -274,11 +274,72 @@ class Model extends Base implements Arrayable {
         return $result;
     }
 
-    function toArrayDb() {
-
-    }
     /**
-     * Kontak::with('grup')->all();
+     * Representasi array kolom database fisik (hanya kolom #[Column] yang terisi).
+     *
+     * @return array<string, mixed>
      */
+    public function toArrayDb() : array {
+        $result = [];
+
+        foreach(static::get_properties() as $name => $property) {
+            if($property['column'] !== null && isset($this->{$name})) {
+                $result[$property['column']->name] = $this->{$name};
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Update data model ini ke database (Mode 3: Active Record Instance).
+     *
+     * Mendukung mutasi properti sebelum memanggil update() maupun mass-assignment
+     * dengan mengirimkan $data array.
+     *
+     * @param ?array<string, mixed> $data Data baru opsional.
+     */
+    public function update(?array $data = null): bool {
+        $key_column = static::key_column();
+        $key_value = $this->{$key_column} ?? null;
+
+        if ($key_value === null) {
+            throw new \LogicException("Model " . static::class . " tidak memiliki nilai primary key untuk di-update.");
+        }
+
+        if ($data !== null) {
+            foreach(static::get_properties() as $name => $property) {
+                if($property['column'] === null) continue;
+
+                $column = $property['column']->name;
+                if(array_key_exists($column, $data)) {
+                    $this->{$name} = static::cast_value($property['type'], $data[$column]);
+                }
+            }
+        }
+
+        $dbData = $this->toArrayDb();
+        unset($dbData[$key_column]);
+
+        return static::query()
+            ->where([[$key_column, '=', $key_value]])
+            ->update($dbData);
+    }
+
+    /**
+     * Hapus record model ini dari database (Mode 3: Active Record Instance).
+     */
+    public function delete(): bool {
+        $key_column = static::key_column();
+        $key_value = $this->{$key_column} ?? null;
+
+        if ($key_value === null) {
+            throw new \LogicException("Model " . static::class . " tidak memiliki nilai primary key untuk di-delete.");
+        }
+
+        return static::query()
+            ->where([[$key_column, '=', $key_value]])
+            ->delete();
+    }
 
 }

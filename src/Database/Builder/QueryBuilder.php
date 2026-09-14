@@ -166,4 +166,29 @@ class QueryBuilder implements QueryBuilderInterface {
         return $db->lastId();
     }
 
+    public function update(array $values): bool {
+        if (!$this->where->hasWheres()) {
+            throw new \LogicException('Operasi UPDATE memerlukan setidaknya satu kondisi WHERE untuk mencegah perubahan data massal secara tidak sengaja.');
+        }
+
+        $updateBuilder = new UpdateBuilder($values);
+        $db = $this->db();
+        $sql = $db->grammar()->compileUpdate(
+            $this->table,
+            $updateBuilder->getValues(),
+            $this->wheres()
+        );
+        return $db->query($sql) !== false;
+    }
+
+    public function delete(): bool {
+        if (!$this->where->hasWheres()) {
+            throw new \LogicException('Operasi DELETE memerlukan setidaknya satu kondisi WHERE untuk mencegah penghapusan data massal secara tidak sengaja.');
+        }
+
+        $db = $this->db();
+        $sql = $db->grammar()->compileDelete($this->table, $this->wheres());
+        return $db->query($sql) !== false;
+    }
+
 }

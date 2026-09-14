@@ -25,16 +25,29 @@ class ModelQuery {
 
     private WithBuilder $with;
 
+    private WhereBuilder $where;
+
     /**
      * @param class-string<Model> $model
      */
     public function __construct(string $model) {
         $this->model = $model;
         $this->with = new WithBuilder();
+        $this->where = new WhereBuilder();
     }
 
     public function with(string $relation, ?Closure $nest = null): static {
         $this->with->with($relation, $nest);
+        return $this;
+    }
+
+    public function where(mixed $input): static {
+        $this->where->where($input);
+        return $this;
+    }
+
+    public function orWhere(mixed $input): static {
+        $this->where->orWhere($input);
         return $this;
     }
 
@@ -117,6 +130,36 @@ class ModelQuery {
     }
 
     /**
+     * Update record yang sesuai kondisi WHERE dan mengembalikan status keberhasilan.
+     *
+     * @param array<string, mixed> $data Data berkunci nama kolom.
+     */
+    public function update(array $data): bool {
+        $model = $this->model;
+        $builder = DB::connection($this->schema($model))->table($model::get_table());
+
+        if ($this->where->hasWheres()) {
+            $builder->where($this->where);
+        }
+
+        return $builder->update($data);
+    }
+
+    /**
+     * Hapus record yang sesuai kondisi WHERE dan mengembalikan status keberhasilan.
+     */
+    public function delete(): bool {
+        $model = $this->model;
+        $builder = DB::connection($this->schema($model))->table($model::get_table());
+
+        if ($this->where->hasWheres()) {
+            $builder->where($this->where);
+        }
+
+        return $builder->delete();
+    }
+
+    /**
      * Nama koneksi (Table::schema) model, divalidasi terdaftar di Manager.
      *
      * @param class-string<Model> $model
@@ -187,6 +230,10 @@ class ModelQuery {
 
         foreach($joins as [$table, $on]) {
             $builder->leftJoin($table, $on);
+        }
+
+        if ($this->where->hasWheres()) {
+            $builder->where($this->where);
         }
 
         if($query !== null) {

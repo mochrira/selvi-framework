@@ -73,6 +73,49 @@ class MySQLGrammar implements GrammarInterface {
         return "INSERT INTO `{$table}` ({$columnList}) VALUES {$valuesStr}";
     }
 
+    public function compileUpdate(string $table, array $values, array $wheres): string
+    {
+        $table = trim($table, '` ');
+        if ($table === '') {
+            throw new InvalidArgumentException('Nama tabel untuk update tidak boleh kosong.');
+        }
+
+        if (empty($values)) {
+            throw new InvalidArgumentException('Data kolom untuk update tidak boleh kosong.');
+        }
+
+        if (empty($wheres)) {
+            throw new InvalidArgumentException('Operasi UPDATE memerlukan setidaknya satu kondisi WHERE.');
+        }
+
+        $setParts = [];
+        foreach ($values as $column => $val) {
+            $col = "`" . trim((string)$column, '` ') . "`";
+            $setParts[] = "{$col} = " . $this->sanitizer->sanitize($val);
+        }
+
+        $setStr = implode(', ', $setParts);
+        $whereStr = $this->compileWhere($wheres);
+
+        return "UPDATE `{$table}` SET {$setStr} WHERE {$whereStr}";
+    }
+
+    public function compileDelete(string $table, array $wheres): string
+    {
+        $table = trim($table, '` ');
+        if ($table === '') {
+            throw new InvalidArgumentException('Nama tabel untuk delete tidak boleh kosong.');
+        }
+
+        if (empty($wheres)) {
+            throw new InvalidArgumentException('Operasi DELETE memerlukan setidaknya satu kondisi WHERE.');
+        }
+
+        $whereStr = $this->compileWhere($wheres);
+
+        return "DELETE FROM `{$table}` WHERE {$whereStr}";
+    }
+
 
     /**
      * Merender daftar JOIN menjadi SQL MySQL.

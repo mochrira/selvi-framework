@@ -46,6 +46,13 @@ class WhereBuilder {
 
     protected function addConditions(string $boolean, $input): static
     {
+        if ($input instanceof self) {
+            foreach ($input->clauses as $clause) {
+                $this->clauses[] = $clause;
+            }
+            return $this;
+        }
+
         // (5) Closure → nested where
         if ($input instanceof Closure) {
             $sub = new static();

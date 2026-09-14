@@ -137,14 +137,46 @@ class KontakController {
 
     function update(string $idKontak) {
         $data = json_decode($this->request->raw() ?? '', true) ?? [];
-        $db = Manager::get('main');
-        $db->where([['kontak.idKontak', (int)$idKontak]])->update('kontak', $data);
+
+        // Versi 1 (Mentah / DBAL):
+        // DB::table('kontak')->where([['kontak.idKontak', '=', (int)$idKontak]])->update([
+        //     'nmKontak' => $data['nmKontak'],
+        //     'idGrup' => $data['idGrup']
+        // ]);
+
+        // Versi 2 (Tanpa Objek / ModelQuery):
+        // Kontak::query()->where([['kontak.idKontak', '=', (int)$idKontak]])->update([
+        //     'nmKontak' => $data['nmKontak'],
+        //     'idGrup' => $data['idGrup']
+        // ]);
+
+        // Versi 3 (Objek Model / Active Record Instance):
+        $kontak = Kontak::find((int)$idKontak);
+        if ($kontak === null) {
+            throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
+        }
+
+        $kontak->nmKontak = $data['nmKontak'];
+        $kontak->idGrup = (int)$data['idGrup'];
+        $kontak->update();
+
         return \jsonResponse(null, 204);
     }
 
     function delete(string $idKontak) {
-        $db = Manager::get('main');
-        $db->where([['kontak.idKontak', (int)$idKontak]])->delete('kontak');
+        // Versi 1 (Mentah / DBAL):
+        // DB::table('kontak')->where([['kontak.idKontak', '=', (int)$idKontak]])->delete();
+
+        // Versi 2 (Tanpa Objek / ModelQuery):
+        // Kontak::query()->where([['kontak.idKontak', '=', (int)$idKontak]])->delete();
+
+        // Versi 3 (Objek Model / Active Record Instance):
+        $kontak = Kontak::find((int)$idKontak);
+        if ($kontak === null) {
+            throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
+        }
+        $kontak->delete();
+
         return \jsonResponse(null, 204);
     }
 

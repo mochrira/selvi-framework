@@ -32,4 +32,21 @@ interface GrammarInterface {
      */
     function compileInsert(string $table, array $columns, array $rows): string;
 
+    /**
+     * Menghasilkan satu statement UPDATE lengkap (wajib memiliki kondisi WHERE).
+     *
+     * @param string $table Nama tabel target
+     * @param array<string, mixed> $values Pasangan nama kolom => nilai baru
+     * @param array $wheres AST kondisi WHERE
+     */
+    function compileUpdate(string $table, array $values, array $wheres): string;
+
+    /**
+     * Menghasilkan satu statement DELETE lengkap (wajib memiliki kondisi WHERE).
+     *
+     * @param string $table Nama tabel target
+     * @param array $wheres AST kondisi WHERE
+     */
+    function compileDelete(string $table, array $wheres): string;
+
 }
