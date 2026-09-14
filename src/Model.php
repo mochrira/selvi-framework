@@ -7,13 +7,13 @@ namespace Selvi;
 use Closure;
 use InvalidArgumentException;
 use ReflectionClass;
+use RuntimeException;
 use Selvi\Base;
 use Selvi\Contracts\Arrayable;
 use Selvi\Database\Attributes\BelongsTo;
 use Selvi\Database\Attributes\Column;
 use Selvi\Database\Attributes\Table;
 use Selvi\Database\Builder\ModelQuery;
-use Selvi\Database\Builder\WhereBuilder;
 use Selvi\Database\Builder\QueryBuilder;
 
 class Model extends Base implements Arrayable {
@@ -111,6 +111,16 @@ class Model extends Base implements Arrayable {
         return $key;
     }
 
+    /**
+     * Nama property yang menyimpan kolom key, untuk membaca nilainya dari instance.
+     */
+    private static function key_property() : string {
+        foreach(static::get_properties() as $name => $property) {
+            if($property['column']?->key) return $name;
+        }
+        throw new InvalidArgumentException(static::class . ' tidak punya kolom key. Tambahkan Column(key: true).');
+    }
+
     static function column_names() : array {
         $names = [];
         foreach(static::get_properties() as $property) {
@@ -140,23 +150,13 @@ class Model extends Base implements Arrayable {
      *
      * - satu id  -> model tunggal (atau null)
      * - array id -> Collection
+     *
+     * Untuk sekaligus memuat relasi, gunakan rantai with():
+     *
+     *     Kontak::with('grup')->find($id);
      */
     static function find(mixed $id) : Model | Collection | null {
-        $key = static::key_column();
-
-        if(is_array($id)) {
-            if(empty($id)) return new Collection();
-
-            return static::query()->all(function(QueryBuilder $query) use ($key, $id) {
-                $query->where(function(WhereBuilder $builder) use ($key, $id) {
-                    foreach($id as $value) {
-                        $builder->orWhere([[$key, '=', $value]]);
-                    }
-                });
-            });
-        }
-
-        return static::query()->first(fn(QueryBuilder $query) => $query->where([[$key, '=', $id]]));
+        return static::query()->find($id);
     }
 
     static function all() : Collection {
@@ -206,6 +206,40 @@ class Model extends Base implements Arrayable {
             'float' => (float) $value,
             default => $value,
         };
+    }
+
+    /**
+     * Membaca ulang record ini dari database sebagai instance baru.
+     *
+     * Modifier menerima ModelQuery, sehingga relasi bisa diminta lewat with() —
+     * satu jalur dengan pembacaan biasa:
+     *
+     *     $kontak->fresh(function (ModelQuery $query) {
+     *         $query->with('grup');
+     *     });
+     *
+     * @param ?Closure(ModelQuery): void $modifier
+     * @return static|null null bila record-nya sudah tidak ada.
+     * @throws RuntimeException bila instance ini belum punya nilai key.
+     */
+    function fresh(?Closure $modifier = null) : ?static {
+        $key_column = static::key_column();
+        $key_property = static::key_property();
+        $id = $this->{$key_property};
+
+        if($id === null) {
+            throw new RuntimeException(static::class . ' belum punya nilai key sehingga tidak bisa di-fresh.');
+        }
+
+        $builder = static::query();
+        if($modifier !== null) {
+            $modifier($builder);
+        }
+
+        /** @var static|null $model */
+        $model = $builder->first(fn(QueryBuilder $query) => $query->where([[$key_column, '=', $id]]));
+
+        return $model;
     }
 
     /**
