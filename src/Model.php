@@ -402,8 +402,9 @@ class Model extends Base implements Arrayable {
      */
     public function update(?array $data = null): bool {
         $key_column = static::key_column();
-        $key_value = $this->{$key_column} ?? null;
-
+        $key_property = static::key_property();
+        $key_value = $this->{$key_property} ?? $this->{$key_column} ?? null;
+        
         if ($key_value === null) {
             throw new \LogicException("Model " . static::class . " tidak memiliki nilai primary key untuk di-update.");
         }
@@ -432,11 +433,12 @@ class Model extends Base implements Arrayable {
      */
     public function delete(): bool {
         $key_column = static::key_column();
-        $key_value = $this->{$key_column} ?? null;
-
+        $key_property = static::key_property();
+        $key_value = $this->{$key_property} ?? $this->{$key_column} ?? null;
         if ($key_value === null) {
             throw new \LogicException("Model " . static::class . " tidak memiliki nilai primary key untuk di-delete.");
         }
+
 
         return static::query()
             ->where([[$key_column, '=', $key_value]])
