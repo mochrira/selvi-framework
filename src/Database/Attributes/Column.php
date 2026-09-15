@@ -2,8 +2,8 @@
 
 namespace Selvi\Database\Attributes;
 
-use Selvi\Database\Casting\CastInterface;
-use Selvi\Database\Casting\SerializesCastInterface;
+use Selvi\Database\Contracts\CastInterface;
+use Selvi\Database\Contracts\SerializesCastInterface;
 
 /**
  * Pemetaan satu property model ke satu kolom database.

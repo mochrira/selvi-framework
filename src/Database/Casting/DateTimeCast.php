@@ -7,6 +7,8 @@ namespace Selvi\Database\Casting;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Selvi\Database\Contracts\CastInterface;
+use Selvi\Database\Contracts\SerializesCastInterface;
 
 /**
  * Cast property bertipe DateTimeInterface.

@@ -6,6 +6,8 @@ namespace Selvi\Database\Casting;
 
 use BackedEnum;
 use ReflectionEnum;
+use Selvi\Database\Contracts\CastInterface;
+use Selvi\Database\Contracts\SerializesCastInterface;
 
 /**
  * Cast property bertipe BackedEnum.

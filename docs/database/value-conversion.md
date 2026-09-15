@@ -106,8 +106,8 @@ untuk model → DB.
 ```php
 namespace App\Casts;
 
-use Selvi\Database\Casting\CastInterface;
-use Selvi\Database\Casting\SerializesCastInterface;
+use Selvi\Database\Contracts\CastInterface;
+use Selvi\Database\Contracts\SerializesCastInterface;
 
 final class MoneyCast implements CastInterface, SerializesCastInterface {
 
