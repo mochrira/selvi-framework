@@ -39,7 +39,7 @@ class KontakController {
         $data = Kontak::with('grup')->all(function (QueryBuilder $query) use ($filter) {
             $filter($query);
 
-            $orderBy = $this->request->get('orderBy') ?? 'kontak.idKontak';
+            $orderBy = $this->request->get('orderBy') ?? 'kontak.id_kontak';
             $sortBy = $this->request->get('sortBy') ?? 'DESC';
             $query->orderBy($orderBy, $sortBy);
 
@@ -73,7 +73,7 @@ class KontakController {
             'idGrup' => $data['idGrup'],
             'createdAt' => new DateTime()
         ]);
-        return \jsonResponse(['idKontak' => $kontak->idKontak], 201);
+        return \jsonResponse(['id_kontak' => $kontak->idKontak], 201);
     }
 
     function update(string $idKontak) {

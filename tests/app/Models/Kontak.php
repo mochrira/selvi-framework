@@ -11,7 +11,7 @@ use Selvi\Model;
 #[Table('kontak', schema: 'main')]
 class Kontak extends Model {
     
-    #[Column('idKontak', key: true)]
+    #[Column('id_kontak', key: true)]
     public int $idKontak;
 
     #[Column('nmKontak')]

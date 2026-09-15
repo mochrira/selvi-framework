@@ -9,7 +9,7 @@ use Selvi\Model;
 #[Table('grup', 'main')]
 class Grup extends Model {
 
-    #[Column('idGrup', key: true)]
+    #[Column('id_grup', key: true)]
     public int $idGrup;
 
     #[Column('nmGrup')]
