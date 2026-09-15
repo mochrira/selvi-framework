@@ -7,6 +7,8 @@ namespace Selvi\Database\Casting;
 use BackedEnum;
 use DateTimeInterface;
 use Selvi\Contracts\Arrayable;
+use Selvi\Database\Contracts\CastInterface;
+use Selvi\Database\Contracts\SerializesCastInterface;
 
 /**
  * Pusat konversi value: DB <-> model dan model -> output (toArray/JSON).

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Selvi\Database\Casting;
+namespace Selvi\Database\Contracts;
 
 /**
  * Serialisasi value untuk toArray()/JSON.
@@ -13,6 +13,8 @@ namespace Selvi\Database\Casting;
  *
  * Cast yang tidak mengimplementasikannya (mis. cast tipe skalar) tidak perlu
  * serializer terpisah, karena value-nya sudah dalam bentuk yang diinginkan.
+ *
+ * @see \Selvi\Database\Casting\Converter pemakai kontrak ini di sisi framework
  */
 interface SerializesCastInterface {
 

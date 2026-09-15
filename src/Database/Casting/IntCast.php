@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Selvi\Database\Casting;
 
+use Selvi\Database\Contracts\CastInterface;
+
 /**
  * Cast property bertipe int.
  *

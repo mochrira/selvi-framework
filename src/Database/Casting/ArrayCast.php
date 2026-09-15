@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Selvi\Database\Casting;
 
 use Selvi\Contracts\Arrayable;
+use Selvi\Database\Contracts\CastInterface;
+use Selvi\Database\Contracts\SerializesCastInterface;
 
 /**
  * Cast property bertipe array untuk kolom JSON.
