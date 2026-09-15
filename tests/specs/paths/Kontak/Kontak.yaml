@@ -49,9 +49,12 @@ post:
               type: string
             idGrup:
               type: integer
+            createdAt:
+              type: string
           example:
             nmKontak: John Doe
             idGrup: 1
+            createdAt: '2026-09-14 09:00:00'
   responses:
     '201':
       description: Created
