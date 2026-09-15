@@ -15,6 +15,7 @@ use Selvi\Database\Attributes\Column;
 use Selvi\Database\Attributes\Table;
 use Selvi\Database\Builder\DML\ModelQuery;
 use Selvi\Database\Builder\DML\QueryBuilder;
+use Selvi\Database\Casting\Converter;
 
 class Model extends Base implements Arrayable {
 
@@ -138,6 +139,25 @@ class Model extends Base implements Arrayable {
     }
 
     /**
+     * Converter value yang dipakai model ini.
+     *
+     * Bawaannya singleton aplikasi, sehingga cast kustom cukup didaftarkan sekali
+     * di bootstrap: `Converter::instance()->register(Money::class, new MoneyCast());`
+     *
+     * Model boleh menimpanya bila ingin converter sendiri, mis. supaya cast kustom
+     * hanya berlaku di model tersebut:
+     *
+     *     private static ?Converter $converter = null;
+     *
+     *     static function converter() : Converter {
+     *         return self::$converter ??= (new Converter())->register(Money::class, new MoneyCast());
+     *     }
+     */
+    static function converter() : Converter {
+        return Converter::instance();
+    }
+
+    /**
      * @return ModelQuery<static>
      */
     static function query() : ModelQuery {
@@ -235,25 +255,13 @@ class Model extends Base implements Arrayable {
             $column = $property['column']->name;
 
             if(array_key_exists($column, $data)) {
-                $model->{$name} = static::cast_value($property['type'], $data[$column]);
+                $model->{$name} = static::converter()->get($property['type'], $data[$column], $property['column']->cast);
             } elseif($column === $key_column) {
-                $model->{$name} = static::cast_value($property['type'], $id);
+                $model->{$name} = static::converter()->get($property['type'], $id, $property['column']->cast);
             }
         }
 
         return $model;
-    }
-
-    /**
-     * Menyamakan tipe value dengan tipe property model (int / bool / float).
-     */
-    private static function cast_value(?string $type, mixed $value) : mixed {
-        return match($type) {
-            'int'   => (int) $value,
-            'bool'  => (bool) $value,
-            'float' => (float) $value,
-            default => $value,
-        };
     }
 
     /**
@@ -302,7 +310,7 @@ class Model extends Base implements Arrayable {
 
             $key = $prefix . $property['column']->name;
 
-            $obj->{$name} = static::cast_value($property['type'], $item->{$key});
+            $obj->{$name} = static::converter()->get($property['type'], $item->{$key}, $property['column']->cast);
         }
 
         foreach($with as $node) {
@@ -329,7 +337,7 @@ class Model extends Base implements Arrayable {
     /**
      * Representasi array model untuk output (mis. jsonResponse).
      *
-     * - kolom ditampilkan apa adanya, memakai nama property,
+     * - kolom ditampilkan lewat converter (nama property, hasil serialize cast),
      * - relasi yang terisi dikonversi lewat toArray() model terkait,
      * - relasi bernilai null dihilangkan key-nya (nanti diatur lewat IncludeIfNull),
      * - property yang bukan kolom dan bukan relasi tidak diikutkan.
@@ -339,8 +347,10 @@ class Model extends Base implements Arrayable {
         $result = [];
 
         foreach(static::get_properties() as $name => $property) {
-            if($property['column'] !== null) {
-                $result[$name] = $this->{$name};
+            $column = $property['column'];
+
+            if($column !== null) {
+                $result[$name] = static::converter()->serialize($property['type'], $this->{$name}, $column->cast, $column->serialize);
                 continue;
             }
 
@@ -359,14 +369,23 @@ class Model extends Base implements Arrayable {
     /**
      * Representasi array kolom database fisik (hanya kolom #[Column] yang terisi).
      *
+     * Setiap value sudah dilewatkan set() cast, sehingga hasilnya value PHP siap
+     * kirim ke QueryBuilder - mis. DateTime menjadi string dan value object
+     * menjadi bentuk simpannya.
+     *
+     * Kolom bernilai null TIDAK diikutkan (isset), jadi jalur ini tidak bisa
+     * mengeset kolom menjadi NULL.
+     *
      * @return array<string, mixed>
      */
     public function toArrayDb() : array {
         $result = [];
 
         foreach(static::get_properties() as $name => $property) {
-            if($property['column'] !== null && isset($this->{$name})) {
-                $result[$property['column']->name] = $this->{$name};
+            $column = $property['column'];
+
+            if($column !== null && isset($this->{$name})) {
+                $result[$column->name] = static::converter()->set($property['type'], $this->{$name}, $column->cast);
             }
         }
 
@@ -395,7 +414,7 @@ class Model extends Base implements Arrayable {
 
                 $column = $property['column']->name;
                 if(array_key_exists($column, $data)) {
-                    $this->{$name} = static::cast_value($property['type'], $data[$column]);
+                    $this->{$name} = static::converter()->get($property['type'], $data[$column], $property['column']->cast);
                 }
             }
         }

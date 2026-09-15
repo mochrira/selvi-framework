@@ -2,6 +2,7 @@
 
 namespace Selvi\Tests\Models;
 
+use DateTime;
 use Selvi\Database\Attributes\BelongsTo;
 use Selvi\Database\Attributes\Column;
 use Selvi\Database\Attributes\Table;
@@ -18,6 +19,9 @@ class Kontak extends Model {
 
     #[Column(name: 'idGrup')]
     public ?int $idGrup;
+
+    #[Column(name: 'createdAt')]
+    public ?DateTime $createdAt;
 
     #[BelongsTo(Grup::class, foreignKey: 'idGrup')]
     public ?Grup $grup = null;

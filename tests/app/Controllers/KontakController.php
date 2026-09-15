@@ -2,6 +2,7 @@
 
 namespace Selvi\Tests\Controllers;
 
+use DateTime;
 use Selvi\Database\Builder\DML\QueryBuilder;
 use Selvi\Database\Builder\DML\WhereBuilder;
 use Selvi\Exception;
@@ -69,7 +70,8 @@ class KontakController {
         $data = json_decode($this->request->raw() ?? '', true) ?? [];
         $kontak = Kontak::create([
             'nmKontak' => $data['nmKontak'],
-            'idGrup' => $data['idGrup']
+            'idGrup' => $data['idGrup'],
+            'createdAt' => new DateTime()
         ]);
         return \jsonResponse(['idKontak' => $kontak->idKontak], 201);
     }
