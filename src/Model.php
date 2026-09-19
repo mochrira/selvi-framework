@@ -172,6 +172,32 @@ class Model extends Base implements Arrayable {
     }
 
     /**
+     * Memulai query dengan filter where, tanpa harus lewat query() atau callback.
+     *
+     * Bentuk $input sama dengan WhereBuilder::where(), jadi semua bentuk berikut sah:
+     *
+     *     Kontak::where([['kontak.idGrup', '=', 1]])->all();
+     *     Kontak::where([['kontak.nmKontak', 'LIKE', 'a%'], 'kontak.aktif = 1'])->all();
+     *     Kontak::where('kontak.nmKontak = \'Budi\'')->first();
+     *     Kontak::where(function (\Selvi\Database\Builder\DML\WhereBuilder $query) {
+     *         $query->where([['kontak.idGrup', '=', 1]]);
+     *     })->all();
+     *
+     * Catatan: array asosiatif (['kolom' => 'value']) TIDAK didukung — bentuk itu
+     * terbaca sebagai raw string, bukan kondisi. Gunakan pasangan [kolom, operator, value].
+     *
+     * Rantai tanpa where juga tetap bisa: Kontak::where(...)->with('grup')->all().
+     * Where tambahan bisa ditumpuk, dan orWhere() bisa dipanggil dari ModelQuery
+     * yang dikembalikan method ini.
+     *
+     * @param mixed $input Kondisi where (string raw, array, WhereBuilder, atau Closure).
+     * @return ModelQuery<static>
+     */
+    static function where(mixed $input) : ModelQuery {
+        return static::query()->where($input);
+    }
+
+    /**
      * Mencari berdasarkan kolom key.
      *
      * - satu id  -> model tunggal (atau null)

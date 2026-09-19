@@ -15,7 +15,10 @@
     "license": "MIT",
     "autoload": {
         "files": [
-            "src/Helpers.php"
+            "src/Helpers/LoadHelper.php",
+            "src/Helpers/RequestHelper.php",
+            "src/Helpers/ResponseHelper.php",
+            "src/Helpers/UrlHelper.php"
         ],
         "psr-4": {
             "Selvi\\": "src/",
