@@ -39,9 +39,8 @@ class KontakController {
         $data = Kontak::with('grup')->all(function (QueryBuilder $query) use ($filter) {
             $filter($query);
 
-            $orderBy = $this->request->get('orderBy') ?? 'kontak.id_kontak';
-            $sortBy = $this->request->get('sortBy') ?? 'DESC';
-            $query->orderBy($orderBy, $sortBy);
+            $order = parseSort($this->request->get('order'));
+            $query->order($order);
 
             $limit = $this->request->get('limit');
             if ($limit !== null && is_numeric($limit)) {
