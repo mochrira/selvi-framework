@@ -3,6 +3,7 @@
 namespace Selvi\Tests\Models;
 
 use Selvi\Database\Attributes\Column;
+use Selvi\Database\Attributes\NotMapped;
 use Selvi\Database\Attributes\Table;
 use Selvi\Model;
 
@@ -14,5 +15,8 @@ class Grup extends Model {
 
     #[Column('nmGrup')]
     public ?string $nmGrup;
+
+    #[NotMapped]
+    public ?string $randomCode;
 
 }

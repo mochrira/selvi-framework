@@ -44,6 +44,9 @@ class GrupController {
             if ($offset !== null && is_numeric($offset)) {
                 $query->offset((int)$offset);
             }
+        })->map(function (&$grup) {
+            $grup->randomCode = md5($grup->nmGrup);
+            return $grup;
         });
 
         return jsonResponse([

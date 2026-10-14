@@ -11,6 +11,7 @@ use RuntimeException;
 use Selvi\Base;
 use Selvi\Contracts\Arrayable;
 use Selvi\Database\Attributes\BelongsTo;
+use Selvi\Database\Attributes\NotMapped;
 use Selvi\Database\Attributes\Column;
 use Selvi\Database\Attributes\Table;
 use Selvi\Database\Builder\DML\ModelQuery;
@@ -46,14 +47,14 @@ class Model extends Base implements Arrayable {
      * Reflection cukup dijalankan sekali untuk setiap class model, bukan setiap
      * kali metadata dibutuhkan (mis. per baris saat hidrasi di of()).
      *
-     * @var array<string, array<string, array{type: ?string, column: ?Column, relation: ?BelongsTo}>>
+     * @var array<string, array<string, array{type: ?string, column: ?Column, relation: ?BelongsTo, notMapped: ?NotMapped}>>
      */
     private static array $property_cache = [];
 
     /**
      * Metadata tiap property: tipe, kolom, dan relasinya.
      *
-     * @return array<string, array{type: ?string, column: ?Column, relation: ?BelongsTo}>
+     * @return array<string, array{type: ?string, column: ?Column, relation: ?BelongsTo, notMapped: ?NotMapped}>
      */
     static function get_properties() : array {
         $class = static::class;
@@ -67,11 +68,13 @@ class Model extends Base implements Arrayable {
         foreach($reflection->getProperties() as $property) {
             $column_attr = $property->getAttributes(Column::class);
             $relation_attr = $property->getAttributes(BelongsTo::class);
+            $notMapped_attr = $property->getAttributes(NotMapped::class);
 
             $result[$property->getName()] = [
                 'type' => $property->getType()?->getName(),
                 'column' => empty($column_attr) ? null : $column_attr[0]->newInstance(),
                 'relation' => empty($relation_attr) ? null : $relation_attr[0]->newInstance(),
+                'notMapped' => empty($notMapped_attr) ? null : $notMapped_attr[0]->newInstance()
             ];
         }
 
@@ -386,6 +389,14 @@ class Model extends Base implements Arrayable {
                 if($value === null) continue;
 
                 $result[$name] = $value instanceof Arrayable ? $value->toArray() : $value;
+            }
+
+            $notMapped = $property['notMapped'];
+            if($notMapped !== null) {
+                $value = $this->{$name};
+                if($notMapped->includeIfNull === true || ($notMapped->includeIfNull === false && $value !== null)) {
+                    $result[$name] = $value instanceof Arrayable ? $value->toArray() : $value;
+                }
             }
         }
 
