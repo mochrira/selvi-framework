@@ -5,6 +5,7 @@ namespace Selvi\Tests\Controllers;
 use Selvi\Database\Builder\DML\QueryBuilder;
 use Selvi\Database\Builder\DML\WhereBuilder;
 use Selvi\Exception;
+use Selvi\Exception\DatabaseException;
 use Selvi\Input\Request;
 use Selvi\Tests\Models\Grup;
 
@@ -30,7 +31,7 @@ class GrupController {
         $data = Grup::all(function (QueryBuilder $query) use ($filter) {
             $filter($query);
 
-            $orderBy = $this->request->get('orderBy') ?? 'grup.idGrup';
+            $orderBy = $this->request->get('orderBy') ?? 'grup.id_grup';
             $sortBy = $this->request->get('sortBy') ?? 'DESC';
             $query->orderBy($orderBy, $sortBy);
 
@@ -76,11 +77,18 @@ class GrupController {
     }
 
     function delete(string $idGrup) {
-        $grup = Grup::find((int)$idGrup);
-        if ($grup === null) throw new Exception('Grup tidak ditemukan', 'grup/not-found', 404);
-        
-        $grup->delete();
-        return \jsonResponse(null, 204);
+        try {
+            $grup = Grup::find((int)$idGrup);
+            if ($grup === null) throw new Exception('Grup tidak ditemukan', 'grup/not-found', 404);
+            
+            $grup->delete();
+            return \jsonResponse(null, 204);
+        } catch(DatabaseException $e) {
+            if($e->getState() == '23000') {
+                throw new Exception('Grup sedang digunakan di data lain', 'grup/delete-fail', 409);
+            }
+            throw $e;
+        }
     }
 
 }

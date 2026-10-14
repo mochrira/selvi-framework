@@ -410,7 +410,10 @@ class Model extends Base implements Arrayable {
         foreach(static::get_properties() as $name => $property) {
             $column = $property['column'];
 
-            if($column !== null && isset($this->{$name})) {
+            if(
+                $column->nullable == true || 
+                ($column->nullable == false && $column !== null && isset($this->{$name}))
+            ) {
                 $result[$column->name] = static::converter()->set($property['type'], $this->{$name}, $column->cast);
             }
         }

@@ -17,7 +17,7 @@ class Kontak extends Model {
     #[Column('nmKontak')]
     public ?string $nmKontak;
 
-    #[Column(name: 'idGrup')]
+    #[Column(name: 'idGrup', nullable: true)]
     public ?int $idGrup;
 
     #[Column(name: 'createdAt')]

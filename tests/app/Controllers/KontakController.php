@@ -39,8 +39,8 @@ class KontakController {
         $data = Kontak::with('grup')->all(function (QueryBuilder $query) use ($filter) {
             $filter($query);
 
-            $order = parseSort($this->request->get('order'));
-            $query->order($order);
+            // $order = parseSort($this->request->get('order'));
+            // $query->order($order);
 
             $limit = $this->request->get('limit');
             if ($limit !== null && is_numeric($limit)) {
@@ -81,7 +81,7 @@ class KontakController {
         if ($kontak === null) throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
 
         $kontak->nmKontak = $data['nmKontak'];
-        $kontak->idGrup = (int)$data['idGrup'];
+        $kontak->idGrup = $data['idGrup'];
         $kontak->update();
         return \jsonResponse(null, 204);
     }

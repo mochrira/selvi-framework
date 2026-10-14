@@ -28,6 +28,7 @@ class Column {
     public function __construct(
         public string $name,
         public bool $key = false,
+        public bool $nullable = false,
         public ?CastInterface $cast = null,
         public ?SerializesCastInterface $serialize = null
     ) { }
