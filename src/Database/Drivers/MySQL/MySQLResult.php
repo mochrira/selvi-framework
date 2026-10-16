@@ -21,7 +21,7 @@ class MySQLResult implements ResultInterface {
         return $this->result->num_rows;
     }
 
-    public function result(): array | bool | null {
+    public function rows(): array | bool | null {
         if(is_bool($this->result)) return $this->result;
         if($this->result instanceof mysqli_result) {
             $this->result->data_seek(0);
@@ -32,6 +32,13 @@ class MySQLResult implements ResultInterface {
             return $res;
         }
         return null;
+    }
+
+    /**
+     * @deprecated since 3.3.1, use rows() instead.
+     */
+    public function result(): array | bool | null {
+        return $this->rows();
     }
 
     public function row(): stdClass | bool | null {

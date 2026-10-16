@@ -116,8 +116,11 @@ class QueryBuilder implements QueryBuilderInterface {
         return $this;
     }
 
-    public function join(string $table, string $on): static {
-        $this->join->join($table, $on);
+    /**
+     * @param JoinBuilder|string $input
+     */
+    public function join(mixed $input, ?string $on = null): static {
+        $this->join->join($input, $on);
         return $this;
     }
 
@@ -164,6 +167,12 @@ class QueryBuilder implements QueryBuilderInterface {
     public function order(mixed ...$args): static {
         $this->order->order(...$args);
         return $this;
+    }
+
+    public function getSql(): string {
+        $db = $this->connection();
+        $grammar = $db->grammar();
+        return $grammar->compileSelect($this);
     }
 
     public function get(): ResultInterface {

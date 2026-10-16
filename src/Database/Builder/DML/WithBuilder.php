@@ -2,56 +2,26 @@
 
 namespace Selvi\Database\Builder\DML;
 
-use Closure;
-use Selvi\Database\Builder\DML\Clauses\WithClause;
+use Selvi\Model\Contracts\IRelationAttribute;
 
-/**
- * Collector relasi untuk `with()`.
- *
- * Meniru pola WhereBuilder: closure menerima builder yang sama dan memanggil
- * method yang sama (`with()`) untuk relasi turunan. Jadi level berapa pun
- * memakai nama method yang konsisten.
- *
- *     Kontak::with('grup', function (WithBuilder $builder) {
- *         $builder->with('wilayah');
- *     });
- */
 class WithBuilder {
 
-    /**
-     * @var WithClause[]
-     */
-    protected array $clauses = [];
+    /** @var array<IRelationAttribute> */
+    private array $relations = [];
 
-    public function with(string $relation, ?Closure $nest = null): static
-    {
-        $child = null;
-        if ($nest !== null) {
-            $child = new static();
-            $nest($child);
-        }
-
-        $this->clauses[] = WithClause::relation($relation, $child);
-        return $this;
-    }
-
-    public function hasWiths(): bool
-    {
-        return !empty($this->clauses);
+    public function with(IRelationAttribute $attribute) {
+        $this->relations[] = $attribute;
     }
 
     /**
-     * Struktur kanonik (AST) dari seluruh relasi.
+     * @return array<IRelationAttribute>
      */
-    public function toArray(): array
-    {
-        $nodes = [];
+    public function relations(): array {
+        return $this->relations;
+    }
 
-        foreach ($this->clauses as $clause) {
-            $nodes[] = $clause->toArray();
-        }
-
-        return $nodes;
+    public function hasRelations() : bool {
+        return count($this->relations) > 0;
     }
 
 }
