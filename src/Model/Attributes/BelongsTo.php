@@ -62,7 +62,7 @@ class BelongsTo implements IRelationAttribute {
      * @param array<string> $columns
      */
     #[\Override]
-    public function build(QueryBuilder $builder, array &$columns): void {
+    public function build(QueryBuilder $builder): void {
         $right_table = $this->model::getTable();
 
         /** @var Column */
@@ -74,10 +74,15 @@ class BelongsTo implements IRelationAttribute {
 
         $this->columnPrefix = $this->propertyName() . "__";
 
-        $right_select_columns = array_map(fn(Column $col) => "{$this->propertyName()}.{$col->name} AS {$this->columnPrefix}{$col->name}", $this->model::columns());
-        $columns = array_merge($columns, $right_select_columns);
+        /** @var Column $column */
+        foreach($this->model::columns() as $column) {
+            $builder->select("{$this->propertyName()}.{$column->name} AS {$this->columnPrefix}{$column->name}");
+        }
 
-        $builder->leftJoin("{$right_table} AS {$this->propertyName()}", "{$this->propertyName()}.{$right_key} = {$left_table}.{$left_key}");
+        $builder->leftJoin(
+            "{$right_table} AS {$this->propertyName()}", 
+            "{$this->propertyName()}.{$right_key} = {$left_table}.{$left_key}"
+        );
     }
 
     #[\Override]
@@ -88,10 +93,7 @@ class BelongsTo implements IRelationAttribute {
 
     #[Override]
     public function toArray(array &$result, mixed $value): void {
-        if($value == null) {
-            if($this->includeIfNull) $result[$this->propertyName()] = null;
-        } else {
-            $result[$this->propertyName()] = $value instanceof Arrayable ? $value->toArray() : $value;
-        }
+        if($value == null && $this->includeIfNull == false) return;
+        $result[$this->propertyName()] = $value instanceof Arrayable ? $value->toArray() : $value;
     }
 }

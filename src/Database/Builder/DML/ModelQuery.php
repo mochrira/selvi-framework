@@ -38,10 +38,10 @@ class ModelQuery {
         $builder = $this->builder();
 
         $table = $this->model::getTable();
-        $columns = array_values(array_map(
-            fn (Column $column) => "{$table}.{$column->name}", 
-            $this->model::columns()
-        ));
+        /** @var Column $column */
+        foreach($this->model::columns() as $column) {
+            $builder->select("{$table}.{$column->name}");
+        }
 
         if($this->whereBuilder->hasWheres()) {
             $builder->where($this->whereBuilder);
@@ -54,11 +54,9 @@ class ModelQuery {
         if($this->withBuilder->hasRelations()) {
             $relations = $this->withBuilder->relations();
             foreach($relations as $relation) {
-                $relation->build($builder, $columns);
+                $relation->build($builder);
             }
         }
-        
-        $builder->select($columns);
 
         if($query != null) $query($builder);
         return $builder;
@@ -91,7 +89,7 @@ class ModelQuery {
         /** @var Column */
         $key = $this->model::getKey();
 
-        $builder = $this->builder()->select(["COUNT({$table}.{$key->name}) AS total"]);
+        $builder = $this->builder()->select("COUNT({$table}.{$key->name}) AS total");
         if($query != null) $query($builder);
 
         $row = $builder->get()->row();

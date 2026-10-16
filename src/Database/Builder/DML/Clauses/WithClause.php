@@ -6,6 +6,7 @@ namespace Selvi\Database\Builder\DML\Clauses;
 
 use InvalidArgumentException;
 use Selvi\Database\Builder\DML\WithBuilder;
+use Selvi\Model\Contracts\IRelationAttribute;
 
 /**
  * Value object untuk SATU relasi pada `with()`.
@@ -20,29 +21,14 @@ use Selvi\Database\Builder\DML\WithBuilder;
  *         ['relation' => 'wilayah', 'with' => []],
  *     ]]
  */
-final class WithClause {
+class WithClause {
 
-    private function __construct(
-        private readonly string $relation,
-        private readonly ?WithBuilder $nest = null
+    public function __construct(
+        private readonly IRelationAttribute $relation
     ) { }
 
-    public static function relation(string $relation, ?WithBuilder $nest = null): self
-    {
-        $relation = trim($relation);
-
-        if ($relation === '') {
-            throw new InvalidArgumentException('Nama relasi with tidak boleh kosong.');
-        }
-
-        return new self($relation, $nest);
+    function build() {
+    
     }
 
-    public function toArray(): array
-    {
-        return [
-            'relation' => $this->relation,
-            'with'     => $this->nest?->toArray() ?? [],
-        ];
-    }
 }

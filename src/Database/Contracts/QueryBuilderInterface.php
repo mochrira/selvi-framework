@@ -26,7 +26,7 @@ interface QueryBuilderInterface {
     /**
      * Daftar kolom untuk SELECT. Array kosong berarti semua kolom.
      */
-    public function getColumns(): array;
+    public function selects(): array;
 
     /**
      * Struktur kanonik (AST) kondisi WHERE. Array kosong berarti tanpa kondisi.

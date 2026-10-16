@@ -9,8 +9,8 @@ class WithBuilder {
     /** @var array<IRelationAttribute> */
     private array $relations = [];
 
-    public function with(IRelationAttribute $attribute) {
-        $this->relations[] = $attribute;
+    public function with(IRelationAttribute $relation) {
+        $this->relations[] = $relation;
     }
 
     /**
