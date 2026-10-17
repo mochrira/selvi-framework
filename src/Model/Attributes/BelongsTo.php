@@ -58,9 +58,6 @@ class BelongsTo implements IRelationAttribute {
 
     private string $columnPrefix = "";
 
-    /**
-     * @param array<string> $columns
-     */
     #[\Override]
     public function build(QueryBuilder $builder): void {
         $right_table = $this->model::getTable();

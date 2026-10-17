@@ -5,6 +5,7 @@ namespace Selvi\Tests\Controllers;
 use DateTime;
 use Selvi\Database\Builder\DML\QueryBuilder;
 use Selvi\Database\Builder\DML\WhereBuilder;
+use Selvi\Database\DB;
 use Selvi\Exception;
 use Selvi\Input\Request;
 use Selvi\Model\Attributes\Table;
@@ -64,6 +65,11 @@ class KontakController {
                 });
             }
         };
+
+        $grup = DB::table('grup')->getSql();
+        $query = DB::table('kontak')->innerJoin("({$grup}) grupSql", "grupSql.id_grup = kontak.id_grup")->get()->rows();
+        var_dump($query);
+        die();
 
         $count = Kontak::count($filter);
         $data = Kontak::with('grup')->all(function (QueryBuilder $query) use ($filter) {
