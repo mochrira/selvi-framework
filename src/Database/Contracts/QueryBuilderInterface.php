@@ -2,6 +2,8 @@
 
 namespace Selvi\Database\Contracts;
 
+use Selvi\Database\Builder\DML\SelectBuilder;
+
 /**
  * Kontrak baca QueryBuilder untuk Grammar.
  *
@@ -17,6 +19,8 @@ namespace Selvi\Database\Contracts;
  * @see \Selvi\Database\Builder\DML\Clauses\JoinClause bentuk kanonik daftar join.
  */
 interface QueryBuilderInterface {
+
+    public SelectBuilder $selectBuilder { get; set; }
 
     /**
      * Nama tabel sumber query (bagian FROM).

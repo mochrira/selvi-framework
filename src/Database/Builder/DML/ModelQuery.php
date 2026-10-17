@@ -2,27 +2,74 @@
 
 namespace Selvi\Database\Builder\DML;
 
+use Closure;
 use Selvi\Model;
 use Selvi\Collection;
 use Selvi\Database\DB;
 use Selvi\Model\Attributes\Column;
+use Selvi\Model\Contracts\IRelationAttribute;
 
 /**
  * @template T of \Selvi\Model
  */
 class ModelQuery {
 
-    /** @var class-string<T> */
-    private string $model;
-
     private WhereBuilder $whereBuilder;
     private JoinBuilder $joinBuilder;
+    private WithBuilder $withBuilder;
 
     /** @param class-string<T> $model */
-    public function __construct(string $model) {
-        $this->model = $model;
+    public function __construct(
+        private string $model, 
+        public array $paths = []
+    ) {
+        $this->paths = [...$paths, $model::getTable()];
         $this->whereBuilder = new WhereBuilder();
         $this->joinBuilder = new JoinBuilder();
+        $this->withBuilder = new WithBuilder();
+    }
+
+    public function with(string $name, ?Closure $closure = null) {
+        $this->withBuilder->with($name, $closure);
+        return $this;
+    }
+
+    private function buildWith(QueryBuilder $builder) {
+        foreach($this->withBuilder->clauses as $name => $closure) {
+            /** @var IRelationAttribute */
+            $relation = $this->model::relation($name);
+
+            $leftTable = $this->model::getTable();
+            $leftKey = $relation->foreignKey;
+            
+            /** @var ModelQuery */
+            $childQuery = $relation->model::query($this->paths);
+            if($closure) $closure($childQuery->withBuilder);
+            $childBuilder = $childQuery->build();
+            
+            $rightTable = $relation->model::getTable();
+            $subQueryMode = !empty($relation->model::relations());
+            if($subQueryMode) {
+                $rightTable = "({$childBuilder->getSql()})";
+            }
+
+            $childPaths = $childQuery->paths;
+            $rightTableAlias = join("_", $childPaths);
+            
+            /** @var Column */
+            $rightKeyColumn = $relation->model::getKey();
+            $rightKey = $rightKeyColumn->name;
+            if($subQueryMode) {
+                $rightKey = "{$rightTableAlias}__{$rightKey}";
+            }
+
+            $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
+
+            $rightColumns = $childBuilder->selectBuilder->columns;
+            foreach($rightColumns as $rightColumn) {
+                $builder->select("{$rightTableAlias}", $rightColumn[ $subQueryMode ? 'alias' : 'column' ], $rightColumn['alias']);
+            }
+        }
     }
 
     public function builder(): QueryBuilder {
@@ -32,13 +79,14 @@ class ModelQuery {
     }
 
     /** @param callable(QueryBuilder): void $query */
-    public function build(?callable $query = null) {
+    public function build(?callable $query = null): QueryBuilder {
         $builder = $this->builder();
 
         $table = $this->model::getTable();
         /** @var Column $column */
         foreach($this->model::columns() as $column) {
-            $builder->select("{$table}.{$column->name}");
+            $prefix = join("_", $this->paths);
+            $builder->select("{$table}", "{$column->name}", "{$prefix}__{$column->name}");
         }
 
         if($this->whereBuilder->hasWheres()) {
@@ -47,6 +95,10 @@ class ModelQuery {
 
         if($this->joinBuilder->hasJoins()) {
             $builder->join($this->joinBuilder);
+        }
+
+        if($this->withBuilder->hasClauses()) {
+            $this->buildWith($builder);
         }
 
         if($query != null) $query($builder);
@@ -58,8 +110,9 @@ class ModelQuery {
      * @return Collection<T>
      */
     public function all(\Closure $query): Collection {
-        $rows = $this->build($query)->get()->rows();
-        return Collection::fromMap(fn($item) => $this->model::of($item), $rows);
+        $builder = $this->build($query);
+        $rows = $builder->get()->rows();
+        return Collection::fromMap(fn($item) => $this->model::of($item, $this->paths, $this->withBuilder->clauses), $rows);
     }
 
     /**
@@ -80,7 +133,7 @@ class ModelQuery {
         /** @var Column */
         $key = $this->model::getKey();
 
-        $builder = $this->builder()->select("COUNT({$table}.{$key->name}) AS total");
+        $builder = $this->builder()->select(null, "COUNT({$table}.{$key->name})", "total");
         if($query != null) $query($builder);
 
         $row = $builder->get()->row();

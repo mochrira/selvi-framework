@@ -2,6 +2,7 @@
 
 namespace Selvi\Model\Attributes;
 
+use Override;
 use Selvi\Model;
 use Selvi\Model\Contracts\IRelationAttribute;
 
@@ -22,6 +23,7 @@ class BelongsTo implements IRelationAttribute {
     private string $owner;
     private string $propertyName;
     private string $propertyType;
+    private string $prefix;
 
     #[\Override]
     public function setOwner(string $owner): void {
@@ -51,5 +53,17 @@ class BelongsTo implements IRelationAttribute {
     #[\Override]
     public function propertyType(): string {
         return $this->propertyType;
+    }
+
+    #[Override]
+    public function setPrefix(string $prefix): void {
+        $this->prefix = $prefix;
+    }
+
+    #[Override]
+    public function serialize(object $obj, ?string $prefix = null): Model {
+        var_dump($this->model);
+        var_dump($prefix ?? $this->prefix);
+        return $this->model::of($obj, $prefix ?? $this->prefix);
     }
 }

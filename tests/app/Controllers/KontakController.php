@@ -19,35 +19,6 @@ class KontakController {
     ) { }
 
     function result() {
-        // $attributes = Kontak::attributes();
-        // var_dump($attributes);
-
-        // $attributes = Grup::attributes();
-        // var_dump($attributes);
-
-        // $properties = Kontak::properties();
-        // var_dump($properties);
-
-        // $properties = Grup::properties();
-        // var_dump($properties);
-
-        // $columns = Kontak::columns();
-        // var_dump($columns);
-
-        // $columns = Grup::columns();
-        // var_dump($columns);
-
-        // $relations = Kontak::relations();
-        // var_dump($relations);
-
-        // $property = Kontak::relation('grup');
-        // var_dump($property);
-
-        // $properties = Kontak::properties();
-        // var_dump($properties);
-
-        // die();
-
         $filter = function (QueryBuilder $query) {
             $idGrup = $this->request->get('idGrup');
             if ($idGrup !== null && $idGrup !== '') {
@@ -67,7 +38,14 @@ class KontakController {
         };
 
         $count = Kontak::count($filter);
-        $data = Kontak::all(function (QueryBuilder $query) use ($filter) {
+        $data = Kontak::with('departemen')
+            ->with('unit', fn($b) => $b
+                ->with('departemen'))
+            ->with('profesi', fn($b) => $b
+                ->with('unit', fn($b) => $b
+                    ->with('departemen'))
+            )
+            ->all(function (QueryBuilder $query) use ($filter) {
             $filter($query);
 
             $limit = $this->request->get('limit') ?? 30;
@@ -79,8 +57,6 @@ class KontakController {
             if ($offset !== null && is_numeric($offset)) {
                 $query->offset((int)$offset);
             }
-
-            echo $query->getSql()."\n\n";
         });
 
         return jsonResponse([

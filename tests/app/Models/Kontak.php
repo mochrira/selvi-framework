@@ -28,5 +28,14 @@ class Kontak extends Model {
 
     #[Column('created_at')]
     public ?DateTime $createdAt = null;
+
+    #[BelongsTo(Departemen::class, 'id_departemen')]
+    public ?Departemen $departemen = null;
+
+    #[BelongsTo(Unit::class, 'id_unit')]
+    public ?Unit $unit = null;
+
+    #[BelongsTo(Profesi::class, 'id_profesi')]
+    public ?Profesi $profesi = null;
     
 }

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Selvi;
 
+use Closure;
 use Selvi\Base;
 use Selvi\Contracts\Arrayable;
 use Selvi\Model\Attributes\Table;
 use Selvi\Database\Builder\DML\ModelQuery;
 use Selvi\Database\Builder\DML\QueryBuilder;
+use Selvi\Database\Builder\DML\WithBuilder;
 use Selvi\Database\Casting\Converter;
 use Selvi\Model\Attributes\Column;
 use Selvi\Model\Contracts\IAttribute;
@@ -250,25 +252,35 @@ class Model extends Base implements Arrayable {
     /**
      * @param array<int, array{relation: string, with: array}> $with AST relasi dari WithBuilder.
      */
-    static function of(mixed $item, string $prefix = '', array $with = []) {
+    static function of(mixed $item, array $paths = [], array $withClauses = []) {
         $obj = new static();
 
-        foreach(static::properties() as $property) {
+        foreach(static::properties() as $name => $property) {
+            $prefix = join("_", $paths);
+            
+
             if($property->column() != null) {
                 $column = $property->column();
                 $obj->{$column->propertyName()} = static::converter()->get(
                     type: $column->propertyType(), 
-                    value: $item->{$prefix . $column->name}, 
+                    value: $item->{"{$prefix}__{$column->name}"}, 
                     cast: $column->cast
                 );
                 continue;
             }
 
-            // if($property->relation() != null) {
-            //     $relation = $property->relation();
-            //     $obj->{$relation->propertyName()} = $relation->serialize($item);
-            //     continue;
-            // }
+            if($property->relation() != null) {
+                $relation = $property->relation();
+                if($item->{"{$prefix}_{$name}__{$relation->foreignKey}"} == null) continue;
+
+                $withKeys = array_keys($withClauses);
+                if(!in_array($name, $withKeys)) continue;
+
+                $withBuilder = new WithBuilder();
+                if($withClauses[$name] != null) $withClauses[$name]($withBuilder);
+                $obj->{$name} = $relation->model::of($item, [...$paths, $name], $withBuilder->clauses);
+                continue;
+            }
         }
 
         return $obj;
@@ -294,11 +306,11 @@ class Model extends Base implements Arrayable {
                 continue;
             }
 
-            // if($property->relation() != null) {
-            //     $value = $this->{$propertyName};
-            //     $relation = $property->relation();
-            //     $relation->toArray($result, $value);
-            // }
+            if($property->relation() != null) {
+                $value = $this->{$propertyName};
+                $result[$propertyName] = $value;
+                continue;
+            }
 
             if($property->notMapped() !== null) {
                 $value = $this->{$propertyName};
@@ -315,8 +327,8 @@ class Model extends Base implements Arrayable {
     /**
      * @return ModelQuery<static>
      */
-    static function query() : ModelQuery {
-        return new ModelQuery(static::class);
+    static function query(array $paths = []) : ModelQuery {
+        return new ModelQuery(static::class, $paths);
     }
 
     /**
@@ -500,8 +512,8 @@ class Model extends Base implements Arrayable {
     /**
      * @return ModelQuery<static>
      */
-    // static function with(string $name) : ModelQuery {
-    //     return static::query()->with($name);
-    // }
+    static function with(string $name, ?Closure $closure = null) : ModelQuery {
+        return static::query()->with($name, $closure);
+    }
 
 }

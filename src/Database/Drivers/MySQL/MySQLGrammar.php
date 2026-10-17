@@ -23,8 +23,7 @@ class MySQLGrammar implements GrammarInterface {
     function compileSelect(QueryBuilderInterface $builder) : string {
         $from = "FROM {$builder->getTable()}";
 
-        $selects = $builder->selects();
-        $select = "SELECT " . (empty($selects) ? "*" : join(',', $selects));
+        $select = $builder->selectBuilder->build();
 
         $joins = $builder->joins();
         $join = empty($joins) ? "" : $this->compileJoins($joins);

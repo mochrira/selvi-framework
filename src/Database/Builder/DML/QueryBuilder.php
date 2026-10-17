@@ -24,7 +24,7 @@ class QueryBuilder implements QueryBuilderInterface {
 
     private OrderBuilder $order;
 
-    private SelectBuilder $select;
+    public SelectBuilder $selectBuilder;
 
     private ?int $limit = null;
 
@@ -35,7 +35,8 @@ class QueryBuilder implements QueryBuilderInterface {
         $this->join = new JoinBuilder();
         $this->group = new GroupBuilder();
         $this->order = new OrderBuilder();
-        $this->select = new SelectBuilder();
+
+        $this->selectBuilder = new SelectBuilder();
     }
 
     /**
@@ -57,13 +58,13 @@ class QueryBuilder implements QueryBuilderInterface {
         return $this;
     }
 
-    public function select(string $column) : QueryBuilder {
-        $this->select->add($column);
+    public function select(?string $table, string $column, ?string $alias = null) : QueryBuilder {
+        $this->selectBuilder->add($table, $column, $alias);
         return $this;
     }
 
     public function selects(): array {
-        return $this->select->toArray();
+        return $this->selectBuilder->toArray();
     }
 
     public function getTable(): string {
