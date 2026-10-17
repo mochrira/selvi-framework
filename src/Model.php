@@ -10,7 +10,6 @@ use Selvi\Model\Attributes\Table;
 use Selvi\Database\Builder\DML\ModelQuery;
 use Selvi\Database\Builder\DML\QueryBuilder;
 use Selvi\Database\Casting\Converter;
-use Selvi\Model\Attributes\BelongsTo;
 use Selvi\Model\Attributes\Column;
 use Selvi\Model\Contracts\IAttribute;
 use Selvi\Model\Contracts\IPropertyAttribute;
@@ -265,11 +264,11 @@ class Model extends Base implements Arrayable {
                 continue;
             }
 
-            if($property->relation() != null) {
-                $relation = $property->relation();
-                $obj->{$relation->propertyName()} = $relation->serialize($item);
-                continue;
-            }
+            // if($property->relation() != null) {
+            //     $relation = $property->relation();
+            //     $obj->{$relation->propertyName()} = $relation->serialize($item);
+            //     continue;
+            // }
         }
 
         return $obj;
@@ -295,11 +294,11 @@ class Model extends Base implements Arrayable {
                 continue;
             }
 
-            if($property->relation() != null) {
-                $value = $this->{$propertyName};
-                $relation = $property->relation();
-                $relation->toArray($result, $value);
-            }
+            // if($property->relation() != null) {
+            //     $value = $this->{$propertyName};
+            //     $relation = $property->relation();
+            //     $relation->toArray($result, $value);
+            // }
 
             if($property->notMapped() !== null) {
                 $value = $this->{$propertyName};
@@ -501,8 +500,8 @@ class Model extends Base implements Arrayable {
     /**
      * @return ModelQuery<static>
      */
-    static function with(string $name) : ModelQuery {
-        return static::query()->with($name);
-    }
+    // static function with(string $name) : ModelQuery {
+    //     return static::query()->with($name);
+    // }
 
 }

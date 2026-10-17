@@ -17,14 +17,12 @@ class ModelQuery {
 
     private WhereBuilder $whereBuilder;
     private JoinBuilder $joinBuilder;
-    private WithBuilder $withBuilder;
 
     /** @param class-string<T> $model */
     public function __construct(string $model) {
         $this->model = $model;
         $this->whereBuilder = new WhereBuilder();
         $this->joinBuilder = new JoinBuilder();
-        $this->withBuilder = new WithBuilder();
     }
 
     public function builder(): QueryBuilder {
@@ -49,13 +47,6 @@ class ModelQuery {
 
         if($this->joinBuilder->hasJoins()) {
             $builder->join($this->joinBuilder);
-        }
-
-        if($this->withBuilder->hasRelations()) {
-            $relations = $this->withBuilder->relations();
-            foreach($relations as $relation) {
-                $relation->build($builder);
-            }
         }
 
         if($query != null) $query($builder);
@@ -148,11 +139,6 @@ class ModelQuery {
 
     public function rightJoin(string $table, string $on) {
         $this->joinBuilder->rightJoin($table, $on);
-        return $this;
-    }
-    
-    public function with(string $name) {
-        $this->withBuilder->with($this->model::relation($name));
         return $this;
     }
 

@@ -7,8 +7,5 @@ use Selvi\Database\Builder\DML\QueryBuilder;
 
 interface IRelationAttribute extends IPropertyAttribute {
 
-    public function build(QueryBuilder $builder): void;
-    public function serialize(object $row): ?Model;
-    public function toArray(array &$result, mixed $value): void;
 
 }

@@ -66,13 +66,8 @@ class KontakController {
             }
         };
 
-        $grup = DB::table('grup')->getSql();
-        $query = DB::table('kontak')->innerJoin("({$grup}) grupSql", "grupSql.id_grup = kontak.id_grup")->get()->rows();
-        var_dump($query);
-        die();
-
         $count = Kontak::count($filter);
-        $data = Kontak::with('grup')->all(function (QueryBuilder $query) use ($filter) {
+        $data = Kontak::all(function (QueryBuilder $query) use ($filter) {
             $filter($query);
 
             $limit = $this->request->get('limit') ?? 30;
@@ -116,7 +111,7 @@ class KontakController {
         if ($kontak === null) throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
 
         $kontak->nmKontak = $data['nmKontak'];
-        $kontak->idGrup = $data['idGrup'];
+        $kontak->idDepartemen = $data['idDepartemen'];
         $kontak->update();
         return \jsonResponse(null, 204);
     }

@@ -17,11 +17,14 @@ class Kontak extends Model {
     #[Column('nm_kontak')]
     public ?string $nmKontak = null;
 
-    #[Column('id_grup', nullable: true)]
-    public ?int $idGrup = null;
+    #[Column('id_departemen', nullable: true)]
+    public ?int $idDepartemen = null;
 
-    #[BelongsTo(Grup::class, 'id_grup', includeIfNull: true)]
-    public ?Grup $grup = null;
+    #[Column('id_unit', nullable: true)]
+    public ?int $idUnit = null;
+
+    #[Column('id_profesi', nullable: true)]
+    public ?int $idProfesi = null;
 
     #[Column('created_at')]
     public ?DateTime $createdAt = null;
