@@ -2,10 +2,10 @@
 
 namespace Selvi\Tests\Models;
 
-use Selvi\Database\Attributes\Column;
-use Selvi\Database\Attributes\NotMapped;
-use Selvi\Database\Attributes\Table;
 use Selvi\Model;
+use Selvi\Model\Attributes\Column;
+use Selvi\Model\Attributes\NotMapped;
+use Selvi\Model\Attributes\Table;
 
 #[Table('grup', 'main')]
 class Grup extends Model {
@@ -13,10 +13,10 @@ class Grup extends Model {
     #[Column('id_grup', key: true)]
     public int $idGrup;
 
-    #[Column('nmGrup')]
+    #[Column('nm_grup')]
     public ?string $nmGrup;
 
-    #[NotMapped]
-    public ?string $randomCode;
+    #[NotMapped(includeIfNull: false)]
+    public ?string $randomCode = null;
 
 }

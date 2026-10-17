@@ -4,6 +4,7 @@ namespace Selvi\Tests\Controllers;
 
 use Selvi\Database\Builder\DML\QueryBuilder;
 use Selvi\Database\Builder\DML\WhereBuilder;
+use Selvi\Database\DB;
 use Selvi\Exception;
 use Selvi\Exception\DatabaseException;
 use Selvi\Input\Request;
@@ -29,6 +30,7 @@ class GrupController {
 
         $count = Grup::count($filter);
         $data = Grup::all(function (QueryBuilder $query) use ($filter) {
+
             $filter($query);
 
             $orderBy = $this->request->get('orderBy') ?? 'grup.id_grup';
@@ -44,9 +46,6 @@ class GrupController {
             if ($offset !== null && is_numeric($offset)) {
                 $query->offset((int)$offset);
             }
-        })->map(function (&$grup) {
-            $grup->randomCode = md5($grup->nmGrup);
-            return $grup;
         });
 
         return jsonResponse([

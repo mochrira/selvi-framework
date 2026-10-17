@@ -16,8 +16,6 @@ class QueryBuilder implements QueryBuilderInterface {
 
     private string $table = '';
 
-    private array $columns = [];
-
     private WhereBuilder $where;
 
     private JoinBuilder $join;
@@ -25,6 +23,8 @@ class QueryBuilder implements QueryBuilderInterface {
     private GroupBuilder $group;
 
     private OrderBuilder $order;
+
+    private SelectBuilder $select;
 
     private ?int $limit = null;
 
@@ -35,6 +35,7 @@ class QueryBuilder implements QueryBuilderInterface {
         $this->join = new JoinBuilder();
         $this->group = new GroupBuilder();
         $this->order = new OrderBuilder();
+        $this->select = new SelectBuilder();
     }
 
     /**
@@ -56,17 +57,17 @@ class QueryBuilder implements QueryBuilderInterface {
         return $this;
     }
 
-    public function select(array $columns) : QueryBuilder {
-        $this->columns = $columns;
+    public function select(string $column) : QueryBuilder {
+        $this->select->add($column);
         return $this;
+    }
+
+    public function selects(): array {
+        return $this->select->toArray();
     }
 
     public function getTable(): string {
         return $this->table;
-    }
-
-    public function getColumns(): array {
-        return $this->columns;
     }
 
     public function wheres(): array {
@@ -116,8 +117,11 @@ class QueryBuilder implements QueryBuilderInterface {
         return $this;
     }
 
-    public function join(string $table, string $on): static {
-        $this->join->join($table, $on);
+    /**
+     * @param JoinBuilder|string $input
+     */
+    public function join(mixed $input, ?string $on = null): static {
+        $this->join->join($input, $on);
         return $this;
     }
 
@@ -164,6 +168,12 @@ class QueryBuilder implements QueryBuilderInterface {
     public function order(mixed ...$args): static {
         $this->order->order(...$args);
         return $this;
+    }
+
+    public function getSql(): string {
+        $db = $this->connection();
+        $grammar = $db->grammar();
+        return $grammar->compileSelect($this);
     }
 
     public function get(): ResultInterface {

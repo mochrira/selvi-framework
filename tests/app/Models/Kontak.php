@@ -3,26 +3,27 @@
 namespace Selvi\Tests\Models;
 
 use DateTime;
-use Selvi\Database\Attributes\BelongsTo;
-use Selvi\Database\Attributes\Column;
-use Selvi\Database\Attributes\Table;
+use Selvi\Model\Attributes\BelongsTo;
+use Selvi\Model\Attributes\Column;
+use Selvi\Model\Attributes\Table;
 use Selvi\Model;
 
 #[Table('kontak', schema: 'main')]
 class Kontak extends Model {
-    
+
     #[Column('id_kontak', key: true)]
     public int $idKontak;
 
-    #[Column('nmKontak')]
-    public ?string $nmKontak;
+    #[Column('nm_kontak')]
+    public ?string $nmKontak = null;
 
-    #[Column(name: 'idGrup', nullable: true)]
-    public ?int $idGrup;
+    #[Column('id_grup', nullable: true)]
+    public ?int $idGrup = null;
 
-    #[Column(name: 'createdAt')]
-    public ?DateTime $createdAt;
-
-    #[BelongsTo(Grup::class, foreignKey: 'idGrup')]
+    #[BelongsTo(Grup::class, 'id_grup', includeIfNull: true)]
     public ?Grup $grup = null;
+
+    #[Column('created_at')]
+    public ?DateTime $createdAt = null;
+    
 }

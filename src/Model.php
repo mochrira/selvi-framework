@@ -4,160 +4,313 @@ declare(strict_types=1);
 
 namespace Selvi;
 
-use Closure;
-use InvalidArgumentException;
-use ReflectionClass;
-use RuntimeException;
 use Selvi\Base;
 use Selvi\Contracts\Arrayable;
-use Selvi\Database\Attributes\BelongsTo;
-use Selvi\Database\Attributes\NotMapped;
-use Selvi\Database\Attributes\Column;
-use Selvi\Database\Attributes\Table;
+use Selvi\Model\Attributes\Table;
 use Selvi\Database\Builder\DML\ModelQuery;
 use Selvi\Database\Builder\DML\QueryBuilder;
 use Selvi\Database\Casting\Converter;
+use Selvi\Model\Attributes\BelongsTo;
+use Selvi\Model\Attributes\Column;
+use Selvi\Model\Contracts\IAttribute;
+use Selvi\Model\Contracts\IPropertyAttribute;
+use Selvi\Model\Contracts\IRelationAttribute;
+use Selvi\Model\RawProperty;
 
 class Model extends Base implements Arrayable {
 
     /**
-     * Cache instance attribute per class dan per classpath attribute.
-     *
-     * @var array<string, object|null>
+     * ==== Start of Optimized Model
      */
-    private static array $attr_cache = [];
-
-    static function get_attr(string $attr_classpath) : ?object {
-        $key = static::class . '::' . $attr_classpath;
-
-        // array_key_exists dipakai supaya hasil null (attribute tidak ada) tetap ter-cache.
-        if(array_key_exists($key, self::$attr_cache)) {
-            return self::$attr_cache[$key];
-        }
-
-        $reflection = new ReflectionClass(static::class);
-        $attributes = $reflection->getAttributes($attr_classpath);
-
-        return self::$attr_cache[$key] = empty($attributes) ? null : $attributes[0]->newInstance();
-    }
 
     /**
-     * Cache metadata property per class.
-     *
-     * Reflection cukup dijalankan sekali untuk setiap class model, bukan setiap
-     * kali metadata dibutuhkan (mis. per baris saat hidrasi di of()).
-     *
-     * @var array<string, array<string, array{type: ?string, column: ?Column, relation: ?BelongsTo, notMapped: ?NotMapped}>>
+     * 
+     * Cache are shared accross all registered models.
+     * So, it saved with following format :
+     * 
+     * $attributes_cache = [
+     *      "Selvi\Tests\Models\Kontak": [
+     *          "Selvi\Model\Attributes\Table": IAttribute,
+     *          ...
+     *      ],
+     *      "Selvi\Tests\Models\Grup": [
+     *          "Selvi\Model\Attributes\Table": IAttribute,
+     *          ...
+     *      ]
+     * ]
+     * 
+     * @var ?array<string, array<string, IAttribute>> $attributes_cache
      */
-    private static array $property_cache = [];
+    protected static ?array $attributes_cache = null;
 
     /**
-     * Metadata tiap property: tipe, kolom, dan relasinya.
-     *
-     * @return array<string, array{type: ?string, column: ?Column, relation: ?BelongsTo, notMapped: ?NotMapped}>
+     * 
+     * $properties_cache = [
+     *      "Selvi\Tests\Models\Kontak": [
+     *          "idKontak": RawProperty,
+     *          "nmKontak": RawProperty,
+     *          ...
+     *      ],
+     *      "Selvi\Tests\Models\Grup": [
+     *          "idGrup": RawProperty,
+     *          "nmGrup": RawProperty,
+     *          ...
+     *      ]
+     * ]
+     * 
+     * @var ?array<string, array<string, RawProperty>> $properties_cache
      */
-    static function get_properties() : array {
-        $class = static::class;
+    protected static ?array $properties_cache = null;
 
-        if(isset(self::$property_cache[$class])) {
-            return self::$property_cache[$class];
-        }
+    /**
+     * 
+     * $columns_cache = [
+     *      "Selvi\Tests\Models\Kontak": [
+     *          "idKontak": Column,
+     *          "nmKontak": Column
+     *          ...
+     *      ]
+     *      "Selvi\Tests\Models\Grup": [
+     *          "idGrup": Column,
+     *          "nmGrup": Column
+     *          ...
+     *      ]
+     * ]
+     * 
+     * @var ?array<string, array<string, Column>> $columns_cache
+     */
+    protected static ?array $columns_cache = null;
 
-        $reflection = new ReflectionClass($class);
+    /**
+     * 
+     * $relations_cache = [
+     *      "Selvi\Tests\Models\Kontak": [
+     *          "grup": IRelationAttribute,
+     *          ...
+     *      ]
+     *      "Selvi\Tests\Models\Grup": [
+     *          "kontak": IRelationAttribute,
+     *          ...
+     *      ]
+     * ]
+     * 
+     * @var ?array<string, array<string, IRelationAttribute>> $relations_cache
+     */
+    protected static ?array $relations_cache = null;
+
+    /**
+     * @return array<string, object>
+     */
+    public static function attributes(): array {
+        $key = static::class;
+        if(isset(static::$attributes_cache[$key])) 
+            return static::$attributes_cache[$key];
+
+        $reflection = new \ReflectionClass($key);
+        $attributes = $reflection->getAttributes();
         $result = [];
-        foreach($reflection->getProperties() as $property) {
-            $column_attr = $property->getAttributes(Column::class);
-            $relation_attr = $property->getAttributes(BelongsTo::class);
-            $notMapped_attr = $property->getAttributes(NotMapped::class);
+        foreach($attributes as $attribute) {
+            $name = $attribute->getName();
+            if(isset($result[$name])) continue;
 
-            $result[$property->getName()] = [
-                'type' => $property->getType()?->getName(),
-                'column' => empty($column_attr) ? null : $column_attr[0]->newInstance(),
-                'relation' => empty($relation_attr) ? null : $relation_attr[0]->newInstance(),
-                'notMapped' => empty($notMapped_attr) ? null : $notMapped_attr[0]->newInstance()
-            ];
+            /** @var IAttribute */
+            $obj = $attribute->newInstance();
+            $obj->setOwner($key);
+            $result[$name] = $obj;
         }
-
-        return self::$property_cache[$class] = $result;
-    }
-
-    static function get_table() : string {
-        $table = static::get_attr(Table::class);
-        if($table === null) {
-            throw new InvalidArgumentException(static::class . ' tidak punya attribute Table.');
-        }
-        return $table->name;
+        return static::$attributes_cache[$key] = $result;
     }
 
     /**
-     * Nama koneksi tempat model ini berada (dari Table::schema).
+     * @param class-string $classpath
      */
-    static function get_schema() : string {
-        $table = static::get_attr(Table::class);
-        if($table === null) {
-            throw new InvalidArgumentException(static::class . ' tidak punya attribute Table.');
-        }
-        return $table->schema;
-    }
-
-    static function get_key() : ?string {
-        foreach(static::get_properties() as $property) {
-            if($property['column']?->key) return $property['column']->name;
-        }
-        return null;
-    }
-
-    static function key_column() : string {
-        $key = static::get_key();
-        if($key === null) {
-            throw new InvalidArgumentException(static::class . ' tidak punya kolom key. Tambahkan Column(key: true).');
-        }
-        return $key;
+    public static function attribute(string $classpath): ?object {
+        $attributes = static::attributes();
+        if(!isset($attributes[$classpath])) return null;
+        return $attributes[$classpath];
     }
 
     /**
-     * Nama property yang menyimpan kolom key, untuk membaca nilainya dari instance.
+     * @return array<string, RawProperty>
      */
-    private static function key_property() : string {
-        foreach(static::get_properties() as $name => $property) {
-            if($property['column']?->key) return $name;
+    public static function properties(): array {
+        $key = static::class;
+        if(isset(static::$properties_cache[$key]) && static::$properties_cache[$key] != null) 
+            return static::$properties_cache[$key];
+        
+        $reflection = new \ReflectionClass(static::class);
+        $properties = $reflection->getProperties();
+        $excluded = [
+            "properties_cache", "attributes_cache", 
+            "columns_cache", "relations_cache"
+        ];
+
+        /**
+         * @var array<string, RawProperty>
+         */
+        $result = [];
+        foreach($properties as $property) {
+            $name = $property->getName();
+            if(isset($result[$name]) || in_array($name, $excluded)) continue;
+
+            $result[$name] = new RawProperty(
+                name: $property->getName(),
+                type: $property->getType()?->getName(),
+                attributes: array_map(function ($attribute) use ($key, $property) {
+                    /** @var IPropertyAttribute */
+                    $obj = $attribute->newInstance();
+                    $obj->setOwner($key);
+                    $obj->setPropertyName($property->getName());
+                    $obj->setPropertyType($property->getType()?->getName());
+                    return $obj;
+                }, $property->getAttributes())
+            );
         }
-        throw new InvalidArgumentException(static::class . ' tidak punya kolom key. Tambahkan Column(key: true).');
+        return static::$properties_cache[$key] = $result;
     }
 
-    static function column_names() : array {
-        $names = [];
-        foreach(static::get_properties() as $property) {
-            if($property['column'] !== null) $names[] = $property['column']->name;
-        }
-        return $names;
-    }
-
-    static function relation(string $name) : BelongsTo {
-        $property = static::get_properties()[$name] ?? null;
-        if($property === null || $property['relation'] === null) {
-            throw new InvalidArgumentException("Relasi '{$name}' tidak ditemukan pada " . static::class . '.');
-        }
-        return $property['relation'];
+    public static function property(string $name): ?RawProperty {
+        $properties = static::properties();
+        if(!isset($properties[$name])) return null;
+        return $properties[$name];
     }
 
     /**
-     * Converter value yang dipakai model ini.
-     *
-     * Bawaannya singleton aplikasi, sehingga cast kustom cukup didaftarkan sekali
-     * di bootstrap: `Converter::instance()->register(Money::class, new MoneyCast());`
-     *
-     * Model boleh menimpanya bila ingin converter sendiri, mis. supaya cast kustom
-     * hanya berlaku di model tersebut:
-     *
-     *     private static ?Converter $converter = null;
-     *
-     *     static function converter() : Converter {
-     *         return self::$converter ??= (new Converter())->register(Money::class, new MoneyCast());
-     *     }
+     * @return array<string, Column>
      */
-    static function converter() : Converter {
-        return Converter::instance();
+    public static function columns(): array {
+        $key = static::class;
+        if(isset(static::$columns_cache[$key]) && static::$columns_cache[$key] != null) 
+            return static::$columns_cache[$key];
+
+        $result = [];
+        foreach(static::properties() as $property) {
+            $column = $property->column();
+            if($column == null) continue;
+            $result[$property->name()] = $column;
+        }
+        return static::$columns_cache[$key] = $result;
+    }
+    
+    public static function column(string $name): ?Column {
+        $columns = static::columns();
+        if(!isset($columns[$name])) return null;
+        return $columns[$name];
+    }
+
+    /**
+     * @return array<string, IRelationAttribute>
+     */
+    public static function relations(): array {
+        $key = static::class;
+        if(isset(static::$relations_cache[$key]) && static::$relations_cache[$key] != null) 
+            return static::$relations_cache[$key];
+
+        $result = [];
+        foreach(static::properties() as $property) {
+            $relation = $property->relation();
+            if($relation == null) continue;
+            $result[$property->name()] = $relation;
+        }
+        return static::$relations_cache[$key] = $result;
+    }
+    
+    public static function relation(string $name): ?IRelationAttribute {
+        $relations = static::relations();
+        if(!isset($relations[$name])) return null;
+        return $relations[$name];
+    }
+
+    public static function getTable(): string {
+        /**
+         * @var Table
+         */
+        $attribute = static::attribute(Table::class);
+        if($attribute == null) throw new \InvalidArgumentException("Kelas ".static::class." belum punya atribute Table");
+        return $attribute->name;
+    }
+
+    public static function getSchema(): string {
+        /**
+         * @var Table
+         */
+        $attribute = static::attribute(Table::class);
+        if($attribute == null) throw new \InvalidArgumentException("Kelas ".static::class." belum punya atribute Table");
+        return $attribute->schema;
+    }
+
+    public static function getKey(): Column {
+        $columns = static::columns();
+        $key_columns = array_values(array_filter($columns, function($column) {
+            return $column->key;
+        }));
+        if(empty($key_columns)) throw new \InvalidArgumentException("Kelas ".static::class." tidak punya kolom kunci");
+        return $key_columns[0];
+    }
+
+    /**
+     * @param array<int, array{relation: string, with: array}> $with AST relasi dari WithBuilder.
+     */
+    static function of(mixed $item, string $prefix = '', array $with = []) {
+        $obj = new static();
+
+        foreach(static::properties() as $property) {
+            if($property->column() != null) {
+                $column = $property->column();
+                $obj->{$column->propertyName()} = static::converter()->get(
+                    type: $column->propertyType(), 
+                    value: $item->{$prefix . $column->name}, 
+                    cast: $column->cast
+                );
+                continue;
+            }
+
+            if($property->relation() != null) {
+                $relation = $property->relation();
+                $obj->{$relation->propertyName()} = $relation->serialize($item);
+                continue;
+            }
+        }
+
+        return $obj;
+    }
+
+
+    /**
+     * @return array<string, mixed>
+     */
+    #[\Override]
+    function toArray() : array {
+
+        /** @var array<string, mixed> */
+        $result = [];
+
+        foreach(static::properties() as $propertyName => $property) {
+            if($property->column() !== null) {
+                $result[$propertyName] = static::converter()->serialize(
+                    type: $property->type(), 
+                    value: $this->{$propertyName}, 
+                    cast: $property->column()->cast, 
+                    serialize: $property->column()->serialize);
+                continue;
+            }
+
+            if($property->relation() != null) {
+                $value = $this->{$propertyName};
+                $relation = $property->relation();
+                $relation->toArray($result, $value);
+            }
+
+            if($property->notMapped() !== null) {
+                $value = $this->{$propertyName};
+                $notMapped = $property->notMapped();
+                if($notMapped->includeIfNull === true || ($notMapped->includeIfNull === false && $value !== null)) {
+                    $result[$propertyName] = $value instanceof Arrayable ? $value->toArray() : $value;
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -168,48 +321,21 @@ class Model extends Base implements Arrayable {
     }
 
     /**
-     * @return ModelQuery<static>
+     * @param ?\Closure(QueryBuilder): void $query
+     * @return Collection<static>
      */
-    static function with(string $relation, ?Closure $nest = null) : ModelQuery {
-        return static::query()->with($relation, $nest);
+    static function all(?\Closure $query = null) : Collection {
+        return static::query()->all($query);
     }
 
     /**
-     * Memulai query dengan filter where, tanpa harus lewat query() atau callback.
-     *
-     * Bentuk $input sama dengan WhereBuilder::where(), jadi semua bentuk berikut sah:
-     *
-     *     Kontak::where([['kontak.idGrup', '=', 1]])->all();
-     *     Kontak::where([['kontak.nmKontak', 'LIKE', 'a%'], 'kontak.aktif = 1'])->all();
-     *     Kontak::where('kontak.nmKontak = \'Budi\'')->first();
-     *     Kontak::where(function (\Selvi\Database\Builder\DML\WhereBuilder $query) {
-     *         $query->where([['kontak.idGrup', '=', 1]]);
-     *     })->all();
-     *
-     * Catatan: array asosiatif (['kolom' => 'value']) TIDAK didukung — bentuk itu
-     * terbaca sebagai raw string, bukan kondisi. Gunakan pasangan [kolom, operator, value].
-     *
-     * Rantai tanpa where juga tetap bisa: Kontak::where(...)->with('grup')->all().
-     * Where tambahan bisa ditumpuk, dan orWhere() bisa dipanggil dari ModelQuery
-     * yang dikembalikan method ini.
-     *
-     * @param mixed $input Kondisi where (string raw, array, WhereBuilder, atau Closure).
-     * @return ModelQuery<static>
+     * @param ?\Closure(QueryBuilder): void $query
      */
-    static function where(mixed $input) : ModelQuery {
-        return static::query()->where($input);
+    static function count(?\Closure $query = null) : int {
+        return static::query()->count($query);
     }
 
     /**
-     * Mencari berdasarkan kolom key.
-     *
-     * - satu id  -> model tunggal (atau null)
-     * - array id -> Collection
-     *
-     * Untuk sekaligus memuat relasi, gunakan rantai with():
-     *
-     *     Kontak::with('grup')->find($id);
-     *
      * @param mixed $id
      * @return static|Collection<static>|null
      * @phpstan-return ($id is array ? Collection<static> : static|null)
@@ -220,73 +346,90 @@ class Model extends Base implements Arrayable {
     }
 
     /**
-     * Mengambil seluruh baris sebagai Collection model.
-     *
-     * Callback $query dijalankan setelah tabel, kolom, dan JOIN relasi terpasang,
-     * sehingga alias relasi (mis. "grup.nmGrup") bisa dipakai di dalamnya:
-     *
-     *     Kontak::with('grup')->all(function (QueryBuilder $query) {
-     *         $query->where([['kontak.idGrup', '=', 1]])->orderBy('kontak.nmKontak');
-     *     });
-     *
-     * @param ?Closure(QueryBuilder): void $query
-     * @return Collection<static>
+     * @param ?\Closure(QueryBuilder): void $query
      */
-    static function all(?Closure $query = null) : Collection {
-        return static::query()->all($query);
-    }
-
-    /**
-     * Mengambil baris pertama, atau null bila tidak ada.
-     *
-     * LIMIT 1 dipasang setelah callback, jadi hasilnya tidak pernah lebih dari satu
-     * baris berapa pun limit yang diatur di dalam callback.
-     *
-     * @param ?Closure(QueryBuilder): void $query
-     */
-    static function first(?Closure $query = null) : ?static {
+    static function first(?\Closure $query = null) : ?static {
         return static::query()->first($query);
     }
 
-    /**
-     * Menghitung jumlah baris, berguna untuk pagination.
-     *
-     * Yang dihitung adalah kolom key model, bukan COUNT(*), supaya hasilnya tetap
-     * jumlah baris model meski ada JOIN.
-     *
-     * @param ?Closure(QueryBuilder): void $query
-     */
-    static function count(?Closure $query = null) : int {
-        return static::query()->count($query);
+    static function converter() : Converter {
+        return Converter::instance();
     }
 
     /**
-     * Insert satu record, lalu mengembalikan instance model dari data yang diinput
-     * (kolom key diisi dari lastInsertId). Tanpa relasi.
-     *
-     * Hanya data yang dikirim yang diisikan, jadi nilai default database (kolom
-     * yang tidak ikut dikirim) belum tercermin di instance. Untuk keadaan sebenarnya
-     * dari database, jalurnya dibahas terpisah lewat fresh().
-     *
-     * Kegagalan insert dilempar sebagai DatabaseException oleh lapisan driver.
-     *
+     * @param ?\Closure(QueryBuilder): void $modifier
+     */
+    function fresh(?\Closure $modifier = null) : ?static {
+        $keyColumn = static::getKey();
+        $id = $this->{$keyColumn->propertyName()};
+        if($id === null) 
+            throw new \RuntimeException(static::class . ' belum punya nilai key');
+
+        $builder = static::query();
+        if($modifier !== null) $modifier($builder);
+
+        /** @var static|null $model */
+        $model = $builder->first(fn($query) => $query->where([[$keyColumn->name, '=', $id]]));
+        return $model;
+    }
+
+    /**
+     * @return ModelQuery<static>
+     */
+    static function where(mixed $input) : ModelQuery {
+        return static::query()->where($input);
+    }
+
+    /**
+     * @return ModelQuery<static>
+     */
+    static function join(string $table, string $on) : ModelQuery {
+        return static::query()->join($table, $on);
+    }
+
+    /**
+     * @return ModelQuery<static>
+     */
+    static function innerJoin(string $table, string $on) : ModelQuery {
+        return static::query()->innerJoin($table, $on);
+    }
+
+    /**
+     * @return ModelQuery<static>
+     */
+    static function leftJoin(string $table, string $on) : ModelQuery {
+        return static::query()->leftJoin($table, $on);
+    }
+
+    /**
+     * @return ModelQuery<static>
+     */
+    static function rightJoin(string $table, string $on) : ModelQuery {
+        return static::query()->rightJoin($table, $on);
+    }
+
+    /**
      * @param array<string, mixed> $data Data berkunci nama kolom.
      */
     static function create(array $data) : static {
         $id = static::query()->insert($data);
 
         $model = new static();
-        $key_column = static::key_column();
+        $key = static::getKey();
 
-        foreach(static::get_properties() as $name => $property) {
-            if($property['column'] === null) continue;
-
-            $column = $property['column']->name;
-
-            if(array_key_exists($column, $data)) {
-                $model->{$name} = static::converter()->get($property['type'], $data[$column], $property['column']->cast);
-            } elseif($column === $key_column) {
-                $model->{$name} = static::converter()->get($property['type'], $id, $property['column']->cast);
+        foreach(static::columns() as $column) {
+            if(array_key_exists($column->name, $data)) {
+                $model->{$column->propertyName()} = static::converter()->get(
+                    type: $column->propertyType(), 
+                    value: $data[$column->name], 
+                    cast: $column->cast
+                );
+            } elseif($column->propertyName() === $key->propertyName()) {
+                $model->{$column->propertyName()} = static::converter()->get(
+                    type: $column->propertyType(), 
+                    value: $id, 
+                    cast: $column->cast
+                );
             }
         }
 
@@ -294,195 +437,72 @@ class Model extends Base implements Arrayable {
     }
 
     /**
-     * Membaca ulang record ini dari database sebagai instance baru.
-     *
-     * Modifier menerima ModelQuery, sehingga relasi bisa diminta lewat with() —
-     * satu jalur dengan pembacaan biasa:
-     *
-     *     $kontak->fresh(function (ModelQuery $query) {
-     *         $query->with('grup');
-     *     });
-     *
-     * @param ?Closure(ModelQuery): void $modifier
-     * @return static|null null bila record-nya sudah tidak ada.
-     * @throws RuntimeException bila instance ini belum punya nilai key.
-     */
-    function fresh(?Closure $modifier = null) : ?static {
-        $key_column = static::key_column();
-        $key_property = static::key_property();
-        $id = $this->{$key_property};
-
-        if($id === null) {
-            throw new RuntimeException(static::class . ' belum punya nilai key sehingga tidak bisa di-fresh.');
-        }
-
-        $builder = static::query();
-        if($modifier !== null) {
-            $modifier($builder);
-        }
-
-        /** @var static|null $model */
-        $model = $builder->first(fn(QueryBuilder $query) => $query->where([[$key_column, '=', $id]]));
-
-        return $model;
-    }
-
-    /**
-     * @param array<int, array{relation: string, with: array}> $with AST relasi dari WithBuilder.
-     */
-    static function of(mixed $item, string $prefix = '', array $with = []) {
-        $obj = new static();
-        $properties = static::get_properties();
-
-        foreach($properties as $name => $property) {
-            if($property['relation'] !== null || $property['column'] === null) continue;
-
-            $key = $prefix . $property['column']->name;
-
-            $obj->{$name} = static::converter()->get($property['type'], $item->{$key}, $property['column']->cast);
-        }
-
-        foreach($with as $node) {
-            $name = $node['relation'];
-            $property = $properties[$name] ?? null;
-
-            if($property === null || $property['relation'] === null) continue;
-
-            $related = $property['relation']->model;
-            $child_prefix = $prefix . $name . '__';
-            $related_key = $property['relation']->ownerKey ?? $related::key_column();
-
-            if(($item->{$child_prefix . $related_key} ?? null) === null) {
-                $obj->{$name} = null;
-                continue;
-            }
-
-            $obj->{$name} = $related::of($item, $child_prefix, $node['with']);
-        }
-
-        return $obj;
-    }
-
-    /**
-     * Representasi array model untuk output (mis. jsonResponse).
-     *
-     * - kolom ditampilkan lewat converter (nama property, hasil serialize cast),
-     * - relasi yang terisi dikonversi lewat toArray() model terkait,
-     * - relasi bernilai null dihilangkan key-nya (nanti diatur lewat IncludeIfNull),
-     * - property yang bukan kolom dan bukan relasi tidak diikutkan.
-     */
-    #[\Override]
-    function toArray() : array {
-        $result = [];
-
-        foreach(static::get_properties() as $name => $property) {
-            $column = $property['column'];
-
-            if($column !== null) {
-                $result[$name] = static::converter()->serialize($property['type'], $this->{$name}, $column->cast, $column->serialize);
-                continue;
-            }
-
-            if($property['relation'] !== null) {
-                $value = $this->{$name};
-
-                if($value === null) continue;
-
-                $result[$name] = $value instanceof Arrayable ? $value->toArray() : $value;
-            }
-
-            $notMapped = $property['notMapped'];
-            if($notMapped !== null) {
-                $value = $this->{$name};
-                if($notMapped->includeIfNull === true || ($notMapped->includeIfNull === false && $value !== null)) {
-                    $result[$name] = $value instanceof Arrayable ? $value->toArray() : $value;
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Representasi array kolom database fisik (hanya kolom #[Column] yang terisi).
-     *
-     * Setiap value sudah dilewatkan set() cast, sehingga hasilnya value PHP siap
-     * kirim ke QueryBuilder - mis. DateTime menjadi string dan value object
-     * menjadi bentuk simpannya.
-     *
-     * Kolom bernilai null TIDAK diikutkan (isset), jadi jalur ini tidak bisa
-     * mengeset kolom menjadi NULL.
-     *
-     * @return array<string, mixed>
+     * @return array<string, scalar>
      */
     public function toArrayDb() : array {
+        /**
+         * @var array<string, scalar>
+         */
         $result = [];
-
-        foreach(static::get_properties() as $name => $property) {
-            $column = $property['column'];
-
-            if(
-                $column->nullable == true || 
-                ($column->nullable == false && $column !== null && isset($this->{$name}))
-            ) {
-                $result[$column->name] = static::converter()->set($property['type'], $this->{$name}, $column->cast);
+        foreach(static::columns() as $column) {
+            if($column->nullable == true || ($column->nullable == false && isset($this->{$column->propertyName()}))) {
+                $result[$column->name] = static::converter()->set(
+                    type: $column->propertyType(), 
+                    value: $this->{$column->propertyName()}, 
+                    cast: $column->cast
+                );
             }
         }
-
         return $result;
     }
 
     /**
-     * Update data model ini ke database (Mode 3: Active Record Instance).
-     *
-     * Mendukung mutasi properti sebelum memanggil update() maupun mass-assignment
-     * dengan mengirimkan $data array.
-     *
      * @param ?array<string, mixed> $data Data baru opsional.
      */
     public function update(?array $data = null): bool {
-        $key_column = static::key_column();
-        $key_property = static::key_property();
-        $key_value = $this->{$key_property} ?? $this->{$key_column} ?? null;
-        
-        if ($key_value === null) {
+        $keyColumn = static::getKey();
+        $keyValue = $this->{$keyColumn->propertyName()} ?? null;
+        if ($keyValue === null) 
             throw new \LogicException("Model " . static::class . " tidak memiliki nilai primary key untuk di-update.");
-        }
 
         if ($data !== null) {
-            foreach(static::get_properties() as $name => $property) {
-                if($property['column'] === null) continue;
-
-                $column = $property['column']->name;
-                if(array_key_exists($column, $data)) {
-                    $this->{$name} = static::converter()->get($property['type'], $data[$column], $property['column']->cast);
-                }
+            foreach(static::columns() as $column) {
+                if(!array_key_exists($column->name, $data)) continue;
+                $this->{$column->propertyName()} = static::converter()->get(
+                    type: $column->propertyType(), 
+                    value: $data[$column->name], 
+                    cast: $column->cast
+                );
             }
         }
 
         $dbData = $this->toArrayDb();
-        unset($dbData[$key_column]);
+        unset($dbData[$keyColumn->name]);
 
         return static::query()
-            ->where([[$key_column, '=', $key_value]])
+            ->where([[$keyColumn->name, '=', $keyValue]])
             ->update($dbData);
     }
 
-    /**
+     /**
      * Hapus record model ini dari database (Mode 3: Active Record Instance).
      */
     public function delete(): bool {
-        $key_column = static::key_column();
-        $key_property = static::key_property();
-        $key_value = $this->{$key_property} ?? $this->{$key_column} ?? null;
-        if ($key_value === null) {
-            throw new \LogicException("Model " . static::class . " tidak memiliki nilai primary key untuk di-delete.");
-        }
-
+        $keyColumn = static::getKey();
+        $keyValue = $this->{$keyColumn->name} ?? null;
+        if ($keyValue === null) 
+            throw new \LogicException("Model " . static::class . " tidak memiliki nilai primary key untuk di-update.");
 
         return static::query()
-            ->where([[$key_column, '=', $key_value]])
+            ->where([[$keyColumn->name, '=', $keyValue]])
             ->delete();
+    }
+
+    /**
+     * @return ModelQuery<static>
+     */
+    static function with(string $name) : ModelQuery {
+        return static::query()->with($name);
     }
 
 }
