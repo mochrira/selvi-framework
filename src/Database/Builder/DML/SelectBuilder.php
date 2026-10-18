@@ -4,31 +4,37 @@ namespace Selvi\Database\Builder\DML;
 
 class SelectBuilder {
 
-    /** @var list<array{
-     *      table: string,
-     *      column: string,
-     *      alias?: string
-     * }> $columns */
-    public array $columns = [];
+    /** @var list<string> $columns */
+    private array $columns = [];
+    private ?string $raw = null;
 
-    function add(?string $table, string $column, ?string $alias = null): void {
-        $this->columns[] = ['table' => $table, 'column' => $column, 'alias' => $alias];
+    public function basic(string $column, ?string $alias = null): static {
+        $this->columns[] = $column . ($alias != null ? "AS {$alias}": "");
+        return $this;
     }
 
-    /** @return array<string> */
-    function toArray(): array {
+    public function multi(array $columns): static {
+        foreach($columns as $column) {
+            if(is_array($column)) {
+                $this->basic($column[0], $column[1]);
+            }
+            if(is_string($column)) {
+                $this->basic($column);
+            }
+        }
+        return $this;
+    }
+
+    /** @return list<string> */
+    public function getColumns(): array {
         return $this->columns;
     }
 
-    function build() {
+    public function build() {
         $sql = "SELECT ";
-        if(empty($this->columns)) return "{$sql}*";
-        return $sql . join(", ", array_map(function ($col) {
-            $str = "{$col['column']}";
-            if(isset($col['table'])) $str = "{$col['table']}.{$str}";
-            if(isset($col['alias'])) $str .= " AS {$col['alias']}";
-            return $str;
-        }, $this->columns));
+        if(empty($this->columns) && !isset($this->raw)) return "{$sql}*";
+        if(isset($this->raw)) return $sql . $this->raw;
+        return $sql . join(", ", $this->columns);
     }
 
 }

@@ -1,22 +1,154 @@
-<?php 
+<?php
 
 namespace Selvi\Database\Builder\DML;
 
+use Closure;
 use RuntimeException;
-use Selvi\Database\Contracts\ConnectionInterface;
-use Selvi\Database\Contracts\QueryBuilderInterface;
-use Selvi\Database\Contracts\ResultInterface;
+use Selvi\Database\Interfaces\IQueryBuilder;
+use Selvi\Database\Interfaces\IConnection;
+use Selvi\Database\Interfaces\IResult;
 use Selvi\Database\Manager;
 
-class QueryBuilder implements QueryBuilderInterface {
+class QueryBuilder implements IQueryBuilder {
 
+    /**
+     * Start of Evaluated
+     */
     private string $connectionName = '';
-
-    private ?ConnectionInterface $injected = null;
+    private ?IConnection $connectionInjected = null;
 
     private string $table = '';
 
-    private WhereBuilder $where;
+    private WhereBuilder $whereBuilder;
+    private SelectBuilder $selectBuilder;
+
+    function __construct() {
+        $this->join = new JoinBuilder();
+        $this->group = new GroupBuilder();
+        $this->order = new OrderBuilder();
+        
+        $this->whereBuilder = new WhereBuilder();
+        $this->selectBuilder = new SelectBuilder();
+    }
+
+    public function connection(): IConnection {
+        if ($this->connectionInjected !== null) return $this->connectionInjected;
+        $db = $this->connectionName !== '' ? Manager::get($this->connectionName) : Manager::default();
+        if ($db === null) throw new RuntimeException('Koneksi database belum diatur.');
+        return $db;
+    }
+
+    public function useConnection(string | IConnection $connection): static {
+        if ($connection instanceof IConnection) {
+            $this->connectionInjected = $connection;
+            return $this;
+        }
+        $this->connectionName = $connection;
+        return $this;
+    }
+
+    public function table(string $name): static {
+        $this->table = $name;
+        return $this;
+    }
+
+    public function getTable(): string {
+        return $this->table;
+    }
+
+    public function select(mixed ...$columns): static {
+        $this->selectBuilder->multi($columns);
+        return $this;
+    }
+
+    public function selectColumns(array $columns): static {
+        $this->selectBuilder->multi($columns);
+        return $this;
+    }
+
+    public function selectUsing(Closure $input): static {
+        $input($this->selectBuilder);
+        return $this;
+    }
+
+    public function getSelectBuilder(): SelectBuilder {
+        return $this->selectBuilder;
+    }
+
+    public function getSql(): string {
+        $db = $this->connection();
+        $grammar = $db->grammar();
+        return $grammar->compileSelect($this);
+    }
+
+    public function get(): IResult {
+        $db = $this->connection();
+        $grammar = $db->grammar();
+        $sql = $grammar->compileSelect($this);
+        return $db->query($sql);
+    }
+
+    public function insert(array $values): int | string {
+        $insertBuilder = new InsertBuilder($this->table, $values);
+        $db = $this->connection();
+        $sql = $db->grammar()->compileInsert(
+            $insertBuilder->getTable(),
+            $insertBuilder->getColumns(),
+            $insertBuilder->getRows()
+        );
+        $db->query($sql);
+        return $db->lastId();
+    }
+
+    public function where(mixed $input): static {
+        $this->whereBuilder->where($input);
+        return $this;
+    }
+
+    public function orWhere(mixed $input): static {
+        $this->whereBuilder->orWhere($input);
+        return $this;
+    }
+
+    public function getWhereClauses(): array {
+        return $this->whereBuilder->toArray();
+    }
+
+    public function update(array $values): bool {
+        if (!$this->whereBuilder->hasWheres()) {
+            throw new \LogicException('Operasi UPDATE memerlukan setidaknya satu kondisi WHERE untuk mencegah perubahan data massal secara tidak sengaja.');
+        }
+
+        $updateBuilder = new UpdateBuilder($values);
+        $db = $this->connection();
+        $sql = $db->grammar()->compileUpdate(
+            $this->table,
+            $updateBuilder->getValues(),
+            $this->getWhereClauses()
+        );
+        return $db->query($sql) !== false;
+    }
+
+    public function delete(): bool {
+        if (!$this->whereBuilder->hasWheres()) {
+            throw new \LogicException('Operasi DELETE memerlukan setidaknya satu kondisi WHERE untuk mencegah penghapusan data massal secara tidak sengaja.');
+        }
+
+        $db = $this->connection();
+        $sql = $db->grammar()->compileDelete($this->table, $this->getWhereClauses());
+        return $db->query($sql) !== false;
+    }
+
+
+    /**
+     * End of Evaluated
+     */
+
+
+
+
+
+    
 
     private JoinBuilder $join;
 
@@ -24,57 +156,21 @@ class QueryBuilder implements QueryBuilderInterface {
 
     private OrderBuilder $order;
 
-    public SelectBuilder $selectBuilder;
+    
 
     private ?int $limit = null;
 
     private ?int $offset = null;
 
-    function __construct() {
-        $this->where = new WhereBuilder();
-        $this->join = new JoinBuilder();
-        $this->group = new GroupBuilder();
-        $this->order = new OrderBuilder();
+    
 
-        $this->selectBuilder = new SelectBuilder();
-    }
 
-    /**
-     * Menentukan koneksi: nama yang terdaftar di Manager, atau objek
-     * ConnectionInterface langsung bila ingin disuntikkan.
-     */
-    public function useConnection(string|ConnectionInterface $connection): static {
-        if($connection instanceof ConnectionInterface) {
-            $this->injected = $connection;
-        } else {
-            $this->connectionName = $connection;
-        }
 
-        return $this;
-    }
 
-    public function table(string $name): QueryBuilder {
-        $this->table = $name;
-        return $this;
-    }
 
-    public function select(?string $table, string $column, ?string $alias = null) : QueryBuilder {
-        $this->selectBuilder->add($table, $column, $alias);
-        return $this;
-    }
 
-    public function selects(): array {
-        return $this->selectBuilder->toArray();
-    }
 
-    public function getTable(): string {
-        return $this->table;
-    }
-
-    public function wheres(): array {
-        return $this->where->toArray();
-    }
-
+    
     public function joins(): array {
         return $this->join->toArray();
     }
@@ -96,27 +192,8 @@ class QueryBuilder implements QueryBuilderInterface {
     }
 
 
-    public function connection(): ConnectionInterface {
-        if($this->injected !== null) return $this->injected;
 
-        $db = $this->connectionName !== '' ? Manager::get($this->connectionName) : Manager::default();
-
-        if($db === null) {
-            throw new RuntimeException('Koneksi database belum diatur.');
-        }
-
-        return $db;
-    }
-
-    public function where($input): static {
-        $this->where->where($input);
-        return $this;
-    }
-
-    public function orWhere($input): static {
-        $this->where->orWhere($input);
-        return $this;
-    }
+    
 
     /**
      * @param JoinBuilder|string $input
@@ -171,54 +248,11 @@ class QueryBuilder implements QueryBuilderInterface {
         return $this;
     }
 
-    public function getSql(): string {
-        $db = $this->connection();
-        $grammar = $db->grammar();
-        return $grammar->compileSelect($this);
-    }
 
-    public function get(): ResultInterface {
-        $db = $this->connection();
-        $grammar = $db->grammar();
-        $sql = $grammar->compileSelect($this);
-        return $db->query($sql);
-    }
 
-    public function insert(array $values): int|string {
-        $insertBuilder = new InsertBuilder($this->table, $values);
-        $db = $this->connection();
-        $sql = $db->grammar()->compileInsert(
-            $insertBuilder->getTable(),
-            $insertBuilder->getColumns(),
-            $insertBuilder->getRows()
-        );
-        $db->query($sql);
-        return $db->lastId();
-    }
 
-    public function update(array $values): bool {
-        if (!$this->where->hasWheres()) {
-            throw new \LogicException('Operasi UPDATE memerlukan setidaknya satu kondisi WHERE untuk mencegah perubahan data massal secara tidak sengaja.');
-        }
 
-        $updateBuilder = new UpdateBuilder($values);
-        $db = $this->connection();
-        $sql = $db->grammar()->compileUpdate(
-            $this->table,
-            $updateBuilder->getValues(),
-            $this->wheres()
-        );
-        return $db->query($sql) !== false;
-    }
+    
 
-    public function delete(): bool {
-        if (!$this->where->hasWheres()) {
-            throw new \LogicException('Operasi DELETE memerlukan setidaknya satu kondisi WHERE untuk mencegah penghapusan data massal secara tidak sengaja.');
-        }
-
-        $db = $this->connection();
-        $sql = $db->grammar()->compileDelete($this->table, $this->wheres());
-        return $db->query($sql) !== false;
-    }
-
+    
 }

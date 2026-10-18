@@ -7,6 +7,7 @@ namespace Selvi\Database;
 use InvalidArgumentException;
 use Selvi\Database\Contracts\ConnectionInterface;
 use Selvi\Database\Drivers\MySQL\MySQLConnection;
+use Selvi\Database\Interfaces\IConnection;
 
 /**
  * Registry koneksi database.
@@ -28,7 +29,7 @@ class Manager {
     ];
 
     /**
-     * @var array<string, ConnectionInterface>
+     * @var array<string, IConnection>
      */
     private static array $connections = [];
 
@@ -37,7 +38,6 @@ class Manager {
      */
     public static function add(string $name, array $config): void {
         if(isset(self::$connections[$name])) return;
-
         $driver = $config['driver'] ?? 'mysql';
 
         if(!isset(self::$drivers[$driver])) {
@@ -45,7 +45,6 @@ class Manager {
         }
 
         $class = self::$drivers[$driver];
-
         self::$connections[$name] = new $class($config);
     }
 
@@ -55,7 +54,7 @@ class Manager {
      * Nama yang tidak terdaftar langsung dilempar exception dengan pesan yang
      * jelas. Gunakan has() bila ingin mengecek lebih dulu.
      */
-    public static function get(string $name): ConnectionInterface {
+    public static function get(string $name): IConnection {
         if(!self::has($name)) {
             throw new InvalidArgumentException("Koneksi '{$name}' tidak terdaftar.");
         }
@@ -66,11 +65,9 @@ class Manager {
     /**
      * Koneksi pertama yang terdaftar, atau null bila belum ada.
      */
-    public static function default(): ConnectionInterface | null {
+    public static function default(): IConnection | null {
         $keys = array_keys(self::$connections);
-
         if(empty($keys)) return null;
-
         return self::get($keys[0]);
     }
 

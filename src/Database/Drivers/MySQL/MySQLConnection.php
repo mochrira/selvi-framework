@@ -6,22 +6,16 @@ namespace Selvi\Database\Drivers\MySQL;
 
 use mysqli;
 use mysqli_sql_exception;
-use Selvi\Database\Contracts\ConnectionInterface;
-use Selvi\Database\Contracts\GrammarInterface;
-use Selvi\Database\Contracts\ResultInterface;
+use Selvi\Database\Interfaces\IConnection;
+use Selvi\Database\Interfaces\IGrammar;
+use Selvi\Database\Interfaces\IResult;
 use Selvi\Exception\DatabaseException;
 
-/**
- * Koneksi MySQL.
- *
- * Implementasi ConnectionInterface yang hanya menangani primitif koneksi:
- * menyediakan Grammar, mengeksekusi SQL mentah, mengambil last insert id, serta
- * mengelola koneksi dan transaksi.
- *
- * Tidak ada state query-builder di sini. Penyusunan SQL adalah tugas QueryBuilder
- * (struktur) dan MySQLGrammar (render) — lihat docs/database/grammar.md.
- */
-class MySQLConnection implements ConnectionInterface {
+class MySQLConnection implements IConnection {
+
+    /**
+     * Start of Evaluated
+     */
 
     private array $config;
     private mysqli $instance;
@@ -29,10 +23,6 @@ class MySQLConnection implements ConnectionInterface {
     public function __construct(array $config) {
         $this->config = $config;
         $this->connect();
-    }
-
-    public function grammar() : GrammarInterface {
-        return new MySQLGrammar(new MySQLSanitizer());
     }
 
     public function getConfig() : array | null {
@@ -64,10 +54,13 @@ class MySQLConnection implements ConnectionInterface {
         return false;
     }
 
-    public function query(string $sql) : ResultInterface | bool {
+    public function grammar() : IGrammar {
+        return new MySQLGrammar(new MySQLSanitizer());
+    }
+
+    public function query(string $sql) : IResult | bool {
         try {
             $result = $this->instance->query($sql);
-
             if(is_bool($result)) return $result;
 
             return new MySQLResult($result);
@@ -78,13 +71,15 @@ class MySQLConnection implements ConnectionInterface {
 
     public function lastId() : int {
         $result = $this->query("SELECT LAST_INSERT_ID() AS lastid");
-
-        if(!$result instanceof ResultInterface) return 0;
+        if(!$result instanceof IResult) return 0;
 
         $row = $result->row();
-
         return is_object($row) ? (int) $row->lastid : 0;
     }
+
+    /**
+     * End of Evaluated
+     */
 
     public function startTransaction() : bool {
         return $this->query("START TRANSACTION");

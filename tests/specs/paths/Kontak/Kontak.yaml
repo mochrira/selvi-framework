@@ -39,14 +39,17 @@ post:
           properties:
             nmKontak:
               type: string
-            idGrup:
+            idDepartemen:
               type: integer
-            createdAt:
-              type: string
+            idUnit:
+              type: integer
+            idProfesi:
+              type: integer
           example:
             nmKontak: John Doe
-            idGrup: 1
-            createdAt: '2026-09-14 09:00:00'
+            idDepartemen: 1
+            idUnit: 1
+            idProfesi: 1
   responses:
     '201':
       description: Created
