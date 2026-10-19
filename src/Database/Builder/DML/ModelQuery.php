@@ -20,6 +20,9 @@ class ModelQuery {
     private JoinBuilder $joinBuilder;
     private WithBuilder $withBuilder;
 
+    private ?int $offset = null;
+    private ?int $limit = null;
+
     /** @param class-string<T> $model */
     public function __construct(
         private string $model, 
@@ -142,6 +145,7 @@ class ModelQuery {
             $this->buildWith($builder);
         }
 
+        $builder->limit($this->limit)->offset($this->offset);
         if($query != null) $query($builder);
         return $builder;
     }
@@ -169,7 +173,7 @@ class ModelQuery {
     }
 
     /** @param \Closure(IQueryBuilder): void $query */
-    public function count(\Closure $query): int {
+    public function count(?\Closure $query = null): int {
         $table = $this->model::getTable();
 
         /** @var Column */
@@ -208,6 +212,16 @@ class ModelQuery {
         }
 
         return $this->where([[$key->name, '=', $id]])->first();
+    }
+
+    public function offset(?int $offset): static {
+        $this->offset = $offset;
+        return $this;
+    }
+
+    public function limit(?int $limit): static {
+        $this->limit = $limit;
+        return $this;
     }
 
     public function where(mixed $input): static {

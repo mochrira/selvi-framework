@@ -42,51 +42,32 @@ class KontakController {
         // return jsonResponse($data);
 
         /** Mode pake model */
-        $filter = function (QueryBuilder $query) {
-            $idGrup = $this->request->get('idGrup');
-            if ($idGrup !== null && $idGrup !== '') {
-                $query->where([
-                    ['kontak.id_grup', '=', (int)$idGrup]
-                ]);
-            }
-
-            $search = $this->request->get('search');
-            if ($search !== null && $search !== '') {
-                $query->where(function (WhereBuilder $builder) use ($search) {
-                    $builder->orWhere([
-                        ['kontak.nm_kontak', 'LIKE', '%'.$search.'%']
-                    ]);
-                });
-            }
-        };
-
-        $kontak = function () {
-            return Kontak::with('departemen', fn(WithBuilder $builder) => $builder
-                ->with('jmlKontak'))
+         
+        $baseQuery = Kontak::with('departemen')
             ->with('unit', fn(WithBuilder $builder) => $builder
                 ->with('departemen'))
             ->with('profesi', fn(WithBuilder $builder) => $builder
                 ->with('unit', fn(WithBuilder $builder) => $builder
                     ->with('departemen')));
-        };
 
-        $count = $kontak()->count(function (QueryBuilder $query) use ($filter) {
-            $filter($query);
-        });
-        
-        $data = $kontak()->all(function (QueryBuilder $query) use ($filter) {
-            $filter($query);
+        $idDepartemen = $this->request->get('idDepartemen');
+        if ($idDepartemen !== null && $idDepartemen !== '') {
+            $baseQuery->where([['kontak.id_departemen', '=', (int)$idDepartemen]]);
+        }
 
-            $limit = $this->request->get('limit') ?? 30;
-            if ($limit !== null && is_numeric($limit)) {
-                $query->limit((int)$limit);
-            }
+        $search = $this->request->get('search');
+        if ($search !== null && $search !== '') {
+            $baseQuery->where(fn($builder) => $builder->orWhere([
+                ['kontak.nm_kontak', 'LIKE', '%'.$search.'%'], 
+                ['kontak_departemen.kontak_departemen__nm_departemen', 'LIKE', '%'.$search.'%']
+            ]));
+        }
 
-            $offset = $this->request->get('offset') ?? 0;
-            if ($offset !== null && is_numeric($offset)) {
-                $query->offset((int)$offset);
-            }
-        });
+        $count = (clone $baseQuery)->count();
+
+        $limit = $this->request->get('limit') ?? 30;
+        $offset = $this->request->get('offset') ?? 0;
+        $data = (clone $baseQuery)->limit($limit)->offset($offset)->all();
 
         return jsonResponse([
             'count' => $count,
@@ -95,16 +76,14 @@ class KontakController {
     }
 
     function row(string $idKontak) {
-        $data = Kontak::with('unit', fn(WithBuilder $builder) => $builder
+        // $data = DB::table('kontak')->where([['id_kontak', $idKontak]])->get()->row();
+        $data = Kontak::with('departemen')
+            ->with('unit', fn(WithBuilder $builder) => $builder
                 ->with('departemen'))
             ->with('profesi', fn(WithBuilder $builder) => $builder
                 ->with('unit', fn(WithBuilder $builder) => $builder
-                    ->with('departemen'))
-            )->where([['kontak.id_kontak', $idKontak]])->first(function ($query) {
-                // echo $query->getSql();
-            });
+                    ->with('departemen')))->find($idKontak);
         if($data == null) throw new Exception("Kontak tidak ditemukan", "kontak/not-found", 404);
-        // $data = DB::table('kontak')->where([['id_kontak', $idKontak]])->get()->row();
         return \jsonResponse($data->toArray(), 200);
     }
 
