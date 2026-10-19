@@ -73,7 +73,12 @@ class DepartemenController {
         };
 
         $count = Departemen::count($filter);
-        $data = Departemen::with('jmlKontak')->all();
+        $data = Departemen::with('jmlKontak')
+            ->with('totalSales')
+            ->with('maxSales')
+            ->with('minSales')
+            ->with('avgSales')
+            ->all();
 
         return jsonResponse([
             'count' => $count,

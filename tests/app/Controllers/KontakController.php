@@ -61,13 +61,14 @@ class KontakController {
         };
 
         $count = Kontak::count($filter);
-        $data = Kontak::with('departemen')
+        $data = Kontak::with('departemen', fn(WithBuilder $builder) => $builder
+                ->with('jmlKontak'))
             ->with('unit', fn(WithBuilder $builder) => $builder
                 ->with('departemen'))
             ->with('profesi', fn(WithBuilder $builder) => $builder
                 ->with('unit', fn(WithBuilder $builder) => $builder
-                    ->with('departemen'))
-            )->all(function (QueryBuilder $query) use ($filter) {
+                    ->with('departemen')))
+            ->all(function (QueryBuilder $query) use ($filter) {
             $filter($query);
 
             $limit = $this->request->get('limit') ?? 30;
@@ -79,7 +80,6 @@ class KontakController {
             if ($offset !== null && is_numeric($offset)) {
                 $query->offset((int)$offset);
             }
-
         });
 
         return jsonResponse([

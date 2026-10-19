@@ -115,6 +115,12 @@ class Model extends Base implements Arrayable {
      */
     protected static ?array $aggregates_cache = null;
 
+    private array $withClauses = [];
+
+    public function setWithClause(array $withClauses): void {
+        $this->withClauses = $withClauses;
+    }
+
     /**
      * @return array<string, object>
      */
@@ -243,8 +249,8 @@ class Model extends Base implements Arrayable {
      */
     public static function aggregates(): array {
         $key = static::class;
-        if(isset(static::$relations_cache[$key]) && static::$relations_cache[$key] != null) 
-            return static::$relations_cache[$key];
+        if(isset(static::$aggregates_cache[$key]) && static::$aggregates_cache[$key] != null) 
+            return static::$aggregates_cache[$key];
 
         $result = [];
         foreach(static::properties() as $property) {
@@ -252,7 +258,7 @@ class Model extends Base implements Arrayable {
             if($relation == null) continue;
             $result[$property->name()] = $relation;
         }
-        return static::$relations_cache[$key] = $result;
+        return static::$aggregates_cache[$key] = $result;
     }
     
     public static function aggregate(string $name): ?IAggregateAttribute {
@@ -294,6 +300,7 @@ class Model extends Base implements Arrayable {
      */
     static function of(mixed $item, array $paths = [], array $withClauses = []) {
         $obj = new static();
+        $obj->setWithClause($withClauses);
 
         foreach(static::properties() as $name => $property) {
             $prefix = join("_", $paths);
@@ -327,7 +334,7 @@ class Model extends Base implements Arrayable {
                 $obj->{$aggregate->getPropertyName()} = static::converter()->get(
                     type: $aggregate->getPropertyType(), 
                     value: $item->{"{$prefix}__{$aggregate->column}"},
-                    cast: 
+                    cast: $aggregate->cast
                 );
             }
         }
@@ -346,18 +353,38 @@ class Model extends Base implements Arrayable {
         $result = [];
 
         foreach(static::properties() as $propertyName => $property) {
+            
             if($property->column() !== null) {
                 $result[$propertyName] = static::converter()->serialize(
                     type: $property->type(), 
                     value: $this->{$propertyName}, 
                     cast: $property->column()->cast, 
-                    serialize: $property->column()->serialize);
+                    serialize: $property->column()->serialize
+                );
                 continue;
             }
 
             if($property->relation() != null) {
+                $withKeys = array_keys($this->withClauses);
+                if(!in_array($propertyName, $withKeys)) continue;
+
                 $value = $this->{$propertyName};
                 if(!isset($value) && $property->relation()->includeIfNull === false) continue;
+                $result[$propertyName] = $value instanceof Arrayable ? $value->toArray() : $value;
+                continue;
+            }
+
+            if($property->aggregate() != null) {
+                $withKeys = array_keys($this->withClauses);
+                if(!in_array($propertyName, $withKeys)) continue;
+
+                $value = static::converter()->serialize(
+                    type: $property->type(),
+                    value: $this->{$propertyName},
+                    cast: $property->aggregate()->cast,
+                    serialize: $property->aggregate()->serialize
+                );
+                if(!isset($value) && $property->aggregate()->includeIfNull === false) continue;
                 $result[$propertyName] = $value;
                 continue;
             }

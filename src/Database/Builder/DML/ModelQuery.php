@@ -37,9 +37,8 @@ class ModelQuery {
     }
 
     private function buildWith(IQueryBuilder $builder) {
+        $loadedAggregatesQuery = [];
         foreach($this->withBuilder->clauses as $name => $closure) {
-            // Tentukan dulu, apakah with yang bersangkutan itu relation atau aggregate
-
             /** @var IRelationAttribute */
             $relation = $this->model::relation($name);
             if($relation != null) {
@@ -52,7 +51,7 @@ class ModelQuery {
                 $childBuilder = $childQuery->build();
                 
                 $rightTable = $relation->model::getTable();
-                $subQueryMode = !empty($relation->model::relations());
+                $subQueryMode = !empty($relation->model::relations()) || !empty($relation->model::aggregates());
                 if($subQueryMode) {
                     $rightTable = "({$childBuilder->getSql()})";
                 }
@@ -85,27 +84,28 @@ class ModelQuery {
              */
             $aggregate = $this->model::aggregate($name);
             if($aggregate != null) {
-                /** @var QueryBuilder */
-                $childBuilder = $this->model::{$aggregate->query}();
-                $rightTable = "({$childBuilder->getSql()})";
-
                 $prefix = join("_", $this->paths);
                 $rightTableAlias = "{$prefix}_{$aggregate->query}";
 
-                $rightKey = $aggregate->key;
-                $leftTable = $this->model::getTable();
+                if(!in_array($aggregate->query, $loadedAggregatesQuery)) {
+                    /** @var QueryBuilder */
+                    $childBuilder = $this->model::{$aggregate->query}();
+                    $rightTable = "({$childBuilder->getSql()})";
 
-                /** @var Column */
-                $leftKeyColumn = $this->model::getKey();
-                $leftKey = $leftKeyColumn->name;
+                    $rightKey = $aggregate->key;
+                    $leftTable = $this->model::getTable();
 
-                $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
+                    /** @var Column */
+                    $leftKeyColumn = $this->model::getKey();
+                    $leftKey = $leftKeyColumn->name;
 
+                    $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
+                    $loadedAggregatesQuery[] = $aggregate->query;
+                }
+                
                 $builder->select(
                     ["{$rightTableAlias}.{$aggregate->column}", "{$prefix}__{$aggregate->column}"]
                 );
-
-                var_dump($builder->getSql());
                 continue;
             }
 
