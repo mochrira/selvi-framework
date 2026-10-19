@@ -13,7 +13,6 @@ use Selvi\Database\Builder\DML\QueryBuilder;
 use Selvi\Database\Builder\DML\WithBuilder;
 use Selvi\Database\Casting\Converter;
 use Selvi\Model\Attributes\Column;
-use Selvi\Model\Base\PropertyAttribute;
 use Selvi\Model\Interfaces\IPropertyAttribute;
 use Selvi\Model\Interfaces\IRelationAttribute;
 use Selvi\Model\RawProperty;
@@ -100,6 +99,22 @@ class Model extends Base implements Arrayable {
     protected static ?array $relations_cache = null;
 
     /**
+     * 
+     * $aggregates_cache = [
+     *      "Selvi\Tests\Models\Departemen": [
+     *          "jmlKontak": IAggregateAttribute,
+     *          "totalSales": IAggregateAttribute
+     *      ],
+     *      "Selvi\Tests\Models\Profesi": [
+     *          "jmlKontak": IAggregateAttribute,
+     *          "totalSales": IAggregateAttribute
+     *      ]
+     * ]
+     * 
+     */
+    protected static ?array $aggregates_cache = null;
+
+    /**
      * @return array<string, object>
      */
     public static function attributes(): array {
@@ -143,7 +158,7 @@ class Model extends Base implements Arrayable {
         $properties = $reflection->getProperties();
         $excluded = [
             "properties_cache", "attributes_cache", 
-            "columns_cache", "relations_cache"
+            "columns_cache", "relations_cache", "aggregates_cache"
         ];
 
         /**
@@ -257,7 +272,6 @@ class Model extends Base implements Arrayable {
 
         foreach(static::properties() as $name => $property) {
             $prefix = join("_", $paths);
-            
 
             if($property->column() != null) {
                 $column = $property->column();
@@ -272,10 +286,11 @@ class Model extends Base implements Arrayable {
             if($property->relation() != null) {
                 $relation = $property->relation();
                 if($item->{"{$prefix}__{$relation->foreignKey}"} == null) continue;
-
+                if($item->{"{$prefix}_{$name}__{$relation->foreignKey}"} == null) continue;
+                
                 $withKeys = array_keys($withClauses);
                 if(!in_array($name, $withKeys)) continue;
-
+                
                 $withBuilder = new WithBuilder();
                 if($withClauses[$name] != null) $withClauses[$name]($withBuilder);
                 $obj->{$name} = $relation->model::of($item, [...$paths, $name], $withBuilder->clauses);
@@ -308,6 +323,7 @@ class Model extends Base implements Arrayable {
 
             if($property->relation() != null) {
                 $value = $this->{$propertyName};
+                if(!isset($value) && $property->relation()->includeIfNull === false) continue;
                 $result[$propertyName] = $value;
                 continue;
             }

@@ -29,7 +29,7 @@ class Kontak extends Model {
     #[Column('created_at')]
     public ?DateTime $createdAt = null;
 
-    #[BelongsTo(Departemen::class, foreignKey: 'id_departemen')]
+    #[BelongsTo(Departemen::class, foreignKey: 'id_departemen', includeIfNull: true)]
     public ?Departemen $departemen = null;
 
     #[BelongsTo(Unit::class, foreignKey: 'id_unit')]

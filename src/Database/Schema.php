@@ -6,8 +6,9 @@ namespace Selvi\Database;
 
 use Closure;
 use Selvi\Database\Builder\DDL\SchemaBuilder;
+use Selvi\Database\Builder\DDL\Blueprint;
 use Selvi\Database\Builder\DML\QueryBuilder;
-use Selvi\Database\Contracts\ConnectionInterface;
+use Selvi\Database\Interfaces\IConnection;
 
 /**
  * Handle database yang sudah terikat pada satu koneksi.
@@ -44,18 +45,18 @@ class Schema {
     private SchemaBuilder $builder;
 
     /**
-     * @param string|ConnectionInterface $connection Nama koneksi di Manager,
+     * @param string|IConnection $connection Nama koneksi di Manager,
      *                                               atau objek koneksi langsung.
      *                                               Kosong berarti koneksi default.
      */
-    public function __construct(string|ConnectionInterface $connection = '') {
+    public function __construct(string|IConnection $connection = '') {
         $this->builder = (new SchemaBuilder())->useConnection($connection);
     }
 
     /**
      * Mengganti koneksi yang dipakai.
      */
-    public function useConnection(string|ConnectionInterface $connection): static {
+    public function useConnection(string|IConnection $connection): static {
         $this->builder->useConnection($connection);
         return $this;
     }
@@ -66,7 +67,7 @@ class Schema {
      * Ini juga jalur darurat untuk operasi DDL yang belum punya API di sini
      * (alter kolom, index, foreign key), dengan konsekuensi SQL-nya spesifik driver. 
      */
-    public function connection(): ConnectionInterface {
+    public function connection(): IConnection {
         return $this->builder->connection();
     }
 
@@ -123,5 +124,4 @@ class Schema {
     public function table(string $name): QueryBuilder {
         return DB::table($name)->useConnection($this->connection());
     }
-
 }

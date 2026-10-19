@@ -4,7 +4,7 @@ namespace Selvi\Database\Builder\DDL;
 
 use InvalidArgumentException;
 use Selvi\Database\Builder\DDL\Clauses\ColumnClause;
-use Selvi\Database\Contracts\BlueprintInterface;
+use Selvi\Database\Interfaces\IBlueprint;
 
 /**
  * Collector definisi tabel untuk `create()`.
@@ -19,7 +19,7 @@ use Selvi\Database\Contracts\BlueprintInterface;
  * Objek ini sengaja hanya menyimpan struktur; rendering SQL adalah tugas Grammar
  * dan eksekusinya tugas SchemaBuilder.
  */
-class Blueprint implements BlueprintInterface {
+class Blueprint implements IBlueprint {
 
     use HasColumnTypes;
 
