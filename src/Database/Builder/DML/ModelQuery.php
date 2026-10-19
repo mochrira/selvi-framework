@@ -175,10 +175,11 @@ class ModelQuery {
         /** @var Column */
         $key = $this->model::getKey();
 
-        $builder = $this->builder()->select(
-            ["COUNT({$table}.{$key->name})", "total"]
+        $builder = $this->build($query);
+        $sql = $builder->getSql();
+        $builder = DB::table("({$sql}) count_{$table}")->select(
+            ["COUNT(count_{$table}.{$table}__{$key->name})", "total"]
         );
-        if($query != null) $query($builder);
 
         $row = $builder->get()->row();
         return $row != null ? (int)$row->total : 0;
