@@ -4,6 +4,7 @@ namespace Selvi\Model;
 
 use Selvi\Model\Attributes\Column;
 use Selvi\Model\Attributes\NotMapped;
+use Selvi\Model\Interfaces\IAggregateAttribute;
 use Selvi\Model\Interfaces\IPropertyAttribute;
 use Selvi\Model\Interfaces\IRelationAttribute;
 
@@ -50,6 +51,12 @@ class RawProperty {
 
     function relation(): ?IRelationAttribute {
         $result = array_filter($this->attributes, fn($obj) => $obj instanceof IRelationAttribute);
+        if (empty($result)) return null;
+        return $result[0];
+    }
+
+    function aggregate(): ?IAggregateAttribute {
+        $result = array_filter($this->attributes, fn($obj) => $obj instanceof IAggregateAttribute);
         if (empty($result)) return null;
         return $result[0];
     }

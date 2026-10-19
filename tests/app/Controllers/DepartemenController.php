@@ -3,8 +3,11 @@
 namespace Selvi\Tests\Controllers;
 
 use DateTime;
+use Selvi\Database\Builder\DML\QueryBuilder;
+use Selvi\Database\Builder\DML\WhereBuilder;
 use Selvi\Database\DB;
 use Selvi\Input\Request;
+use Selvi\Tests\Models\Departemen;
 
 class DepartemenController {
 
@@ -13,84 +16,74 @@ class DepartemenController {
     ) { }
 
     function result() {
-        $query = DB::connection('main')->table('departemen')
-            ->leftJoin('kontak', 'kontak.id_departemen = departemen.id_departemen')
-            ->select(
-                'departemen.id_departemen',
-                'departemen.nm_departemen',
-                'COUNT(kontak.id_kontak) AS jml_kontak'
-            )
-            ->group(
-                'departemen.id_departemen'
-            );
 
-        $search = $this->request->get('search') ?? null;
-        if($search != null) {
-            $query->where([['departemen.nm_departemen', 'LIKE', "%{$search}%"]]);
-        }
+        // $properties = Departemen::properties();
+        // var_dump($properties);
 
-        $order = $this->request->get('order') ?? null;
-        if($order != null) {
-            foreach(explode(',', $order) as $str) {
-                $clause = explode(':', $str);
-                $query->order($clause[0], $clause[1]);
-            }
-        }
-        
-        $limit = $this->request->get('limit') ?? 30;
-        $offset = $this->request->get('offset') ?? 0;
-        $query->limit($limit)->offset($offset);
-
-        $data = $query->get()->rows();
-        return jsonResponse($data);
-
-        // $filter = function (QueryBuilder $query) {
-        //     $idDepartemen = $this->request->get('idDepartemen');
-        //     if ($idDepartemen !== null && $idDepartemen !== '') {
-        //         $query->where([
-        //             ['departemen.id_departemen', '=', (int)$idDepartemen]
-        //         ]);
-        //     }
-
-        //     $search = $this->request->get('search');
-        //     if ($search !== null && $search !== '') {
-        //         $query->where(function (WhereBuilder $builder) use ($search) {
-        //             $builder->orWhere([
-        //                 ['departemen.nm_departemen', 'LIKE', '%'.$search.'%']
-        //             ]);
-        //         });
-        //     }
-        // };
-
-        // $count = Kontak::count($filter);
-        // $data = Kontak::with('departemen')
-        //     ->with('unit', fn($b) => $b
-        //         ->with('departemen'))
-        //     ->with('profesi', fn($b) => $b
-        //         ->with('unit', fn($b) => $b
-        //             ->with('departemen'))
+        // $aggregates = Departemen::aggregates();
+        // var_dump($aggregates);
+        // die();
+        // $query = DB::connection('main')->table('departemen')
+        //     ->leftJoin('kontak', 'kontak.id_departemen = departemen.id_departemen')
+        //     ->select(
+        //         'departemen.id_departemen',
+        //         'departemen.nm_departemen',
+        //         'COUNT(kontak.id_kontak) AS jml_kontak'
         //     )
-        // ->all(function (QueryBuilder $query) use ($filter) {
-        //     $filter($query);
+        //     ->group(
+        //         'departemen.id_departemen'
+        //     );
 
-        //     $limit = $this->request->get('limit') ?? 30;
-        //     if ($limit !== null && is_numeric($limit)) {
-        //         $query->limit((int)$limit);
+        // $search = $this->request->get('search') ?? null;
+        // if($search != null) {
+        //     $query->where([['departemen.nm_departemen', 'LIKE', "%{$search}%"]]);
+        // }
+
+        // $order = $this->request->get('order') ?? null;
+        // if($order != null) {
+        //     foreach(explode(',', $order) as $str) {
+        //         $clause = explode(':', $str);
+        //         $query->order($clause[0], $clause[1]);
         //     }
+        // }
+        
+        // $limit = $this->request->get('limit') ?? 30;
+        // $offset = $this->request->get('offset') ?? 0;
+        // $query->limit($limit)->offset($offset);
 
-        //     $offset = $this->request->get('offset') ?? 0;
-        //     if ($offset !== null && is_numeric($offset)) {
-        //         $query->offset((int)$offset);
-        //     }
+        // $data = $query->get()->rows();
+        // return jsonResponse($data);
 
-        //     echo $query->getSql();
-        //     echo "\n";
-        // });
+        $filter = function (QueryBuilder $query) {
+            $idDepartemen = $this->request->get('idDepartemen');
+            if ($idDepartemen !== null && $idDepartemen !== '') {
+                $query->where([
+                    ['departemen.id_departemen', '=', (int)$idDepartemen]
+                ]);
+            }
 
-        // return jsonResponse([
-        //     'count' => $count,
-        //     'data' => $data->toArray()
-        // ]);
+            $search = $this->request->get('search');
+            if ($search !== null && $search !== '') {
+                $query->where(function (WhereBuilder $builder) use ($search) {
+                    $builder->orWhere([
+                        ['departemen.nm_departemen', 'LIKE', '%'.$search.'%']
+                    ]);
+                });
+            }
+        };
+
+        $count = Departemen::count($filter);
+        $data = Departemen::with('jmlKontak')
+            ->with('totalSales')
+            ->with('maxSales')
+            ->with('minSales')
+            ->with('avgSales')
+            ->all();
+
+        return jsonResponse([
+            'count' => $count,
+            'data' => $data->toArray()
+        ]);
     }
 
     function row(string $idDepartemen) {

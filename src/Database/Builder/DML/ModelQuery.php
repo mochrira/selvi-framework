@@ -8,6 +8,7 @@ use Selvi\Collection;
 use Selvi\Database\DB;
 use Selvi\Database\Interfaces\IQueryBuilder;
 use Selvi\Model\Attributes\Column;
+use Selvi\Model\Interfaces\IAggregateAttribute;
 use Selvi\Model\Interfaces\IRelationAttribute;
 
 /**
@@ -36,43 +37,79 @@ class ModelQuery {
     }
 
     private function buildWith(IQueryBuilder $builder) {
+        $loadedAggregatesQuery = [];
         foreach($this->withBuilder->clauses as $name => $closure) {
             /** @var IRelationAttribute */
             $relation = $this->model::relation($name);
+            if($relation != null) {
+                $leftTable = $this->model::getTable();
+                $leftKey = $relation->foreignKey;
+                
+                /** @var ModelQuery */
+                $childQuery = $relation->model::query($this->paths);
+                if($closure) $closure($childQuery->withBuilder);
+                $childBuilder = $childQuery->build();
+                
+                $rightTable = $relation->model::getTable();
+                $subQueryMode = !empty($relation->model::relations()) || !empty($relation->model::aggregates());
+                if($subQueryMode) {
+                    $rightTable = "({$childBuilder->getSql()})";
+                }
 
-            $leftTable = $this->model::getTable();
-            $leftKey = $relation->foreignKey;
-            
-            /** @var ModelQuery */
-            $childQuery = $relation->model::query($this->paths);
-            if($closure) $closure($childQuery->withBuilder);
-            $childBuilder = $childQuery->build();
-            
-            $rightTable = $relation->model::getTable();
-            $subQueryMode = !empty($relation->model::relations());
-            if($subQueryMode) {
-                $rightTable = "({$childBuilder->getSql()})";
+                $childPaths = $childQuery->paths;
+                $rightTableAlias = join("_", $childPaths);
+                
+                /** @var Column */
+                $rightKeyColumn = $relation->model::getKey();
+                $rightKey = $rightKeyColumn->name;
+                if($subQueryMode) {
+                    $rightKey = "{$rightTableAlias}__{$rightKey}";
+                }
+
+                $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
+
+                $rightColumns = $childBuilder->getSelectBuilder()->toArray();
+                foreach($rightColumns as $rightColumn) {
+                    $col = $rightColumn[ $subQueryMode ? 'alias' : 'column' ];
+                    $builder->select(
+                        ["{$rightTableAlias}.{$col}", $rightColumn['alias']]
+                    );
+                }
+
+                continue;
             }
 
-            $childPaths = $childQuery->paths;
-            $rightTableAlias = join("_", $childPaths);
-            
-            /** @var Column */
-            $rightKeyColumn = $relation->model::getKey();
-            $rightKey = $rightKeyColumn->name;
-            if($subQueryMode) {
-                $rightKey = "{$rightTableAlias}__{$rightKey}";
-            }
+            /**
+             * @var IAggregateAttribute
+             */
+            $aggregate = $this->model::aggregate($name);
+            if($aggregate != null) {
+                $prefix = join("_", $this->paths);
+                $rightTableAlias = "{$prefix}_{$aggregate->query}";
 
-            $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
+                if(!in_array($aggregate->query, $loadedAggregatesQuery)) {
+                    /** @var QueryBuilder */
+                    $childBuilder = $this->model::{$aggregate->query}();
+                    $rightTable = "({$childBuilder->getSql()})";
 
-            $rightColumns = $childBuilder->getSelectBuilder()->toArray();
-            foreach($rightColumns as $rightColumn) {
-                $col = $rightColumn[ $subQueryMode ? 'alias' : 'column' ];
+                    $rightKey = $aggregate->key;
+                    $leftTable = $this->model::getTable();
+
+                    /** @var Column */
+                    $leftKeyColumn = $this->model::getKey();
+                    $leftKey = $leftKeyColumn->name;
+
+                    $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
+                    $loadedAggregatesQuery[] = $aggregate->query;
+                }
+                
                 $builder->select(
-                    ["{$rightTableAlias}.{$col}", $rightColumn['alias']]
+                    ["{$rightTableAlias}.{$aggregate->column}", "{$prefix}__{$aggregate->column}"]
                 );
+                continue;
             }
+
+            
         }
     }
 
@@ -113,7 +150,7 @@ class ModelQuery {
      * @param \Closure(IQueryBuilder): void $query
      * @return Collection<T>
      */
-    public function all(\Closure $query): Collection {
+    public function all(?\Closure $query = null): Collection {
         $builder = $this->build($query);
         $rows = $builder->get()->rows();
         return Collection::fromMap(fn($item) => $this->model::of($item, $this->paths, $this->withBuilder->clauses), $rows);
