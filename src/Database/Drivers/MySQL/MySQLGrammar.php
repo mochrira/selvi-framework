@@ -54,8 +54,8 @@ class MySQLGrammar implements IGrammar {
             $select,
             $from,
             $join,
-            $group,
             $where, 
+            $group,
             $order, 
             $limit
         ], function ($part) {
