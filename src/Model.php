@@ -331,6 +331,10 @@ class Model extends Base implements Arrayable {
 
             if($property->aggregate() != null) {
                 $aggregate = $property->aggregate();
+
+                $withKeys = array_keys($withClauses);
+                if(!in_array($aggregate->getPropertyName(), $withKeys)) continue;
+
                 $obj->{$aggregate->getPropertyName()} = static::converter()->get(
                     type: $aggregate->getPropertyType(), 
                     value: $item->{"{$prefix}__{$aggregate->column}"},
@@ -459,6 +463,14 @@ class Model extends Base implements Arrayable {
         /** @var static|null $model */
         $model = $builder->first(fn($query) => $query->where([[$keyColumn->name, '=', $id]]));
         return $model;
+    }
+
+    static function limit(?int $limit): ModelQuery {
+        return static::query()->limit($limit);
+    }
+
+    static function offset(?int $limit): ModelQuery {
+        return static::query()->offset($limit);
     }
 
     /**

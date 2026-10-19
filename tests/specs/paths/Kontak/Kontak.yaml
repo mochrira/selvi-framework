@@ -3,7 +3,7 @@ get:
   summary: Mengambil semua data kontak
   parameters:
     - in: query
-      name: idGrup
+      name: idDepartemen
       schema:
         type: integer
     - in: query
