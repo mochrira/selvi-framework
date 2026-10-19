@@ -18,18 +18,14 @@ class Departemen extends Model {
     #[Column('nm_departemen')]
     public ?string $nmDepartemen = null;
 
-    // #[Aggregate('summary', key: 'id_departemen', column: 'jml_kontak')]
-    // public ?int $jmlKontak = null;
+    #[Aggregate('summary', key: 'id_departemen', column: 'jml_kontak')]
+    public ?int $jmlKontak = null;
 
-    // #[Aggregate('summary', key: 'id_departemen', column: 'total_sales')]
-    // public ?int $totalSales = null;
-
-    static function summary(): QueryBuilder {
-        return DB::table('kontak')->select([
+    public static function summary(): QueryBuilder {
+        return DB::table('kontak')->select(
             'kontak.id_departemen',
-            'COUNT(kontak.id_kontak) AS jml_kontak',
-            'SUM(kontak.sales) AS total_sales'
-        ])
+            ['COUNT(kontak.id_kontak)', 'jml_kontak']
+        )
         ->group(
             'kontak.id_departemen'
         );

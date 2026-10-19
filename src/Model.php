@@ -13,6 +13,7 @@ use Selvi\Database\Builder\DML\QueryBuilder;
 use Selvi\Database\Builder\DML\WithBuilder;
 use Selvi\Database\Casting\Converter;
 use Selvi\Model\Attributes\Column;
+use Selvi\Model\Interfaces\IAggregateAttribute;
 use Selvi\Model\Interfaces\IPropertyAttribute;
 use Selvi\Model\Interfaces\IRelationAttribute;
 use Selvi\Model\RawProperty;
@@ -237,6 +238,30 @@ class Model extends Base implements Arrayable {
         return $relations[$name];
     }
 
+    /**
+     * @return array<string, IAggregateAttribute>
+     */
+    public static function aggregates(): array {
+        $key = static::class;
+        if(isset(static::$relations_cache[$key]) && static::$relations_cache[$key] != null) 
+            return static::$relations_cache[$key];
+
+        $result = [];
+        foreach(static::properties() as $property) {
+            $relation = $property->aggregate();
+            if($relation == null) continue;
+            $result[$property->name()] = $relation;
+        }
+        return static::$relations_cache[$key] = $result;
+    }
+    
+    public static function aggregate(string $name): ?IAggregateAttribute {
+        $relations = static::aggregates();
+        if(!isset($relations[$name])) return null;
+        return $relations[$name];
+    }
+    
+
     public static function getTable(): string {
         /**
          * @var Table
@@ -295,6 +320,15 @@ class Model extends Base implements Arrayable {
                 if($withClauses[$name] != null) $withClauses[$name]($withBuilder);
                 $obj->{$name} = $relation->model::of($item, [...$paths, $name], $withBuilder->clauses);
                 continue;
+            }
+
+            if($property->aggregate() != null) {
+                $aggregate = $property->aggregate();
+                $obj->{$aggregate->getPropertyName()} = static::converter()->get(
+                    type: $aggregate->getPropertyType(), 
+                    value: $item->{"{$prefix}__{$aggregate->column}"},
+                    cast: 
+                );
             }
         }
 
