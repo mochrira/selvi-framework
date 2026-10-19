@@ -2,13 +2,9 @@
 
 namespace Selvi\Tests\Controllers;
 
-use Selvi\Database\Builder\DML\QueryBuilder;
-use Selvi\Database\Builder\DML\WhereBuilder;
+use DateTime;
 use Selvi\Database\DB;
-use Selvi\Exception;
-use Selvi\Exception\DatabaseException;
 use Selvi\Input\Request;
-use Selvi\Tests\Models\Grup;
 
 class GrupController {
 
@@ -17,80 +13,121 @@ class GrupController {
     ) { }
 
     function result() {
-        $filter = function (QueryBuilder $query) {
-            $search = $this->request->get('search');
-            if ($search !== null && $search !== '') {
-                $query->where(function (WhereBuilder $builder) use ($search) {
-                    $builder->orWhere([
-                        ['grup.nmGrup', 'LIKE', '%'.$search.'%']
-                    ]);
-                });
+
+        $query = DB::connection('main')->table('grup');
+
+        $search = $this->request->get('search') ?? null;
+        if($search != null) {
+            $query->where([['grup.nm_grup', 'LIKE', "%{$search}%"]]);
+        }
+
+        $order = $this->request->get('order') ?? null;
+        if($order != null) {
+            foreach(explode(',', $order) as $str) {
+                $clause = explode(':', $str);
+                $query->order($clause[0], $clause[1]);
             }
-        };
+        }
+        
+        $limit = $this->request->get('limit') ?? 30;
+        $offset = $this->request->get('offset') ?? 0;
+        $query->limit($limit)->offset($offset);
 
-        $count = Grup::count($filter);
-        $data = Grup::all(function (QueryBuilder $query) use ($filter) {
+        $data = $query->get()->rows();
+        return jsonResponse($data);
 
-            $filter($query);
+        // $filter = function (QueryBuilder $query) {
+        //     $idGrup = $this->request->get('idGrup');
+        //     if ($idGrup !== null && $idGrup !== '') {
+        //         $query->where([
+        //             ['grup.id_grup', '=', (int)$idGrup]
+        //         ]);
+        //     }
 
-            $orderBy = $this->request->get('orderBy') ?? 'grup.id_grup';
-            $sortBy = $this->request->get('sortBy') ?? 'DESC';
-            $query->orderBy($orderBy, $sortBy);
+        //     $search = $this->request->get('search');
+        //     if ($search !== null && $search !== '') {
+        //         $query->where(function (WhereBuilder $builder) use ($search) {
+        //             $builder->orWhere([
+        //                 ['grup.nm_grup', 'LIKE', '%'.$search.'%']
+        //             ]);
+        //         });
+        //     }
+        // };
 
-            $limit = $this->request->get('limit');
-            if ($limit !== null && is_numeric($limit)) {
-                $query->limit((int)$limit);
-            }
+        // $count = Kontak::count($filter);
+        // $data = Kontak::with('departemen')
+        //     ->with('unit', fn($b) => $b
+        //         ->with('departemen'))
+        //     ->with('profesi', fn($b) => $b
+        //         ->with('unit', fn($b) => $b
+        //             ->with('departemen'))
+        //     )
+        // ->all(function (QueryBuilder $query) use ($filter) {
+        //     $filter($query);
 
-            $offset = $this->request->get('offset');
-            if ($offset !== null && is_numeric($offset)) {
-                $query->offset((int)$offset);
-            }
-        });
+        //     $limit = $this->request->get('limit') ?? 30;
+        //     if ($limit !== null && is_numeric($limit)) {
+        //         $query->limit((int)$limit);
+        //     }
 
-        return jsonResponse([
-            'count' => $count,
-            'data' => $data->toArray()
-        ]);
+        //     $offset = $this->request->get('offset') ?? 0;
+        //     if ($offset !== null && is_numeric($offset)) {
+        //         $query->offset((int)$offset);
+        //     }
+
+        //     echo $query->getSql();
+        //     echo "\n";
+        // });
+
+        // return jsonResponse([
+        //     'count' => $count,
+        //     'data' => $data->toArray()
+        // ]);
     }
 
     function row(string $idGrup) {
-        $data = Grup::find((int)$idGrup);
-        if($data == null) throw new Exception("Grup tidak ditemukan", "grup/not-found", 404);
-        return \jsonResponse($data->toArray(), 200);
+        // $data = Kontak::find((int)$idGrup);
+        // if($data == null) throw new Exception("Kontak tidak ditemukan", "grup/not-found", 404);
+        $data = DB::table('grup')->where([['id_grup', $idGrup]])->get()->row();
+        return \jsonResponse((array)$data, 200);
     }
 
     function insert() {
         $data = json_decode($this->request->raw() ?? '', true) ?? [];
-        $grup = Grup::create([
-            'nmGrup' => $data['nmGrup'],
+        $idGrup = DB::table('grup')->insert([
+            'nm_grup' => $data['nmKontak'],
+            'id_departemen' => $data['idDepartemen'],
+            'id_unit' => $data['idUnit'],
+            'id_profesi' => $data['idProfesi'],
+            'created_at' => new DateTime()
         ]);
-        return \jsonResponse(['idGrup' => $grup->idGrup], 201);
+        return \jsonResponse(['idGrup' => $idGrup], 201);
     }
 
     function update(string $idGrup) {
         $data = json_decode($this->request->raw() ?? '', true) ?? [];
-        $grup = Grup::find((int)$idGrup);
-        if ($grup === null) throw new Exception('Grup tidak ditemukan', 'grup/not-found', 404);
+        DB::table('grup')->where([['id_grup', $idGrup]])->update([
+            'nm_grup' => $data['nmKontak'],
+            'id_departemen' => $data['idDepartemen'],
+            'id_unit' => $data['idUnit'],
+            'id_profesi' => $data['idProfesi']
+        ]);
+        // $grup = Kontak::find((int)$idGrup);
+        // if ($grup === null) throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
 
-        $grup->nmGrup = $data['nmGrup'];
-        $grup->update();
+        // $grup->nmKontak = $data['nmKontak'];
+        // $grup->idDepartemen = $data['idDepartemen'];
+        // $grup->update();
         return \jsonResponse(null, 204);
     }
 
     function delete(string $idGrup) {
-        try {
-            $grup = Grup::find((int)$idGrup);
-            if ($grup === null) throw new Exception('Grup tidak ditemukan', 'grup/not-found', 404);
-            
-            $grup->delete();
-            return \jsonResponse(null, 204);
-        } catch(DatabaseException $e) {
-            if($e->getState() == '23000') {
-                throw new Exception('Grup sedang digunakan di data lain', 'grup/delete-fail', 409);
-            }
-            throw $e;
-        }
+        DB::table('grup')->where([['id_grup', $idGrup]])->delete();
+        // $grup = Kontak::find((int)$idGrup);
+        // if ($grup === null) throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
+
+        // $grup->delete();
+        return \jsonResponse(null, 204);
     }
 
 }

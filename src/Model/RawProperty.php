@@ -4,8 +4,8 @@ namespace Selvi\Model;
 
 use Selvi\Model\Attributes\Column;
 use Selvi\Model\Attributes\NotMapped;
-use Selvi\Model\Contracts\IPropertyAttribute;
-use Selvi\Model\Contracts\IRelationAttribute;
+use Selvi\Model\Interfaces\IPropertyAttribute;
+use Selvi\Model\Interfaces\IRelationAttribute;
 
 class RawProperty {
 

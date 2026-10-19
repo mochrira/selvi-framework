@@ -26,3 +26,8 @@ paths:
     $ref: './paths/Grup/Grup.yaml'
   /grup/{idGrup} :
     $ref: './paths/Grup/Grup-{idGrup}.yaml'
+
+  /departemen:
+    $ref: './paths/Departemen/departemen.yaml'
+  /departemen/{idDepartemen} :
+    $ref: './paths/Departemen/departemen-single.yaml'

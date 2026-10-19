@@ -13,12 +13,12 @@ class WhereBuilder {
      */
     protected array $clauses = [];
 
-    public function where($input): static
+    public function where(mixed $input): static
     {
         return $this->addConditions('AND', $input);
     }
 
-    public function orWhere($input): static
+    public function orWhere(mixed $input): static
     {
         return $this->addConditions('OR', $input);
     }
@@ -45,7 +45,7 @@ class WhereBuilder {
         return $nodes;
     }
 
-    protected function addConditions(string $boolean, $input): static
+    protected function addConditions(string $boolean, mixed $input): static
     {
         if ($input instanceof self) {
             foreach ($input->clauses as $clause) {

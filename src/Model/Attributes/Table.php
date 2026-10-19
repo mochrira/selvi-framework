@@ -2,27 +2,14 @@
 
 namespace Selvi\Model\Attributes;
 
-use Selvi\Model;
-use Selvi\Model\Contracts\IAttribute;
+use Selvi\Model\Base\Attribute;
 
 #[\Attribute]
-class Table implements IAttribute {
-
-    /** @var class-string<Model> */
-    private string $owner;
+class Table extends Attribute {
 
     public function __construct(
         public string $name,
         public string $schema
     ) { }
 
-    #[\Override]
-    public function setOwner(string $owner): void {
-        $this->owner = $owner;
-    }
-
-    #[\Override]
-    public function owner(): string {
-        return $this->owner;
-    }
 }

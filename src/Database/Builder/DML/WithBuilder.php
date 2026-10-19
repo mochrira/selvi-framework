@@ -1,27 +1,20 @@
-<?php
+<?php 
 
 namespace Selvi\Database\Builder\DML;
 
-use Selvi\Model\Contracts\IRelationAttribute;
+use Closure;
 
 class WithBuilder {
 
-    /** @var array<IRelationAttribute> */
-    private array $relations = [];
+    /** @var array<string, Closure> */
+    public array $clauses = [];
 
-    public function with(IRelationAttribute $relation) {
-        $this->relations[] = $relation;
+    public function with(string $name, ?Closure $closure = null) {
+        $this->clauses[$name] = $closure;
     }
 
-    /**
-     * @return array<IRelationAttribute>
-     */
-    public function relations(): array {
-        return $this->relations;
-    }
-
-    public function hasRelations() : bool {
-        return count($this->relations) > 0;
+    public function hasClauses() {
+        return count($this->clauses) > 0;
     }
 
 }

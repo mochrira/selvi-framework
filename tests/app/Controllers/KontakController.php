@@ -5,11 +5,10 @@ namespace Selvi\Tests\Controllers;
 use DateTime;
 use Selvi\Database\Builder\DML\QueryBuilder;
 use Selvi\Database\Builder\DML\WhereBuilder;
+use Selvi\Database\Builder\DML\WithBuilder;
 use Selvi\Database\DB;
 use Selvi\Exception;
 use Selvi\Input\Request;
-use Selvi\Model\Attributes\Table;
-use Selvi\Tests\Models\Grup;
 use Selvi\Tests\Models\Kontak;
 
 class KontakController {
@@ -19,35 +18,30 @@ class KontakController {
     ) { }
 
     function result() {
-        // $attributes = Kontak::attributes();
-        // var_dump($attributes);
+        /** Mode direct to driver */
+        // $query = DB::connection('main')->table('kontak');
 
-        // $attributes = Grup::attributes();
-        // var_dump($attributes);
+        // $search = $this->request->get('search') ?? null;
+        // if($search != null) {
+        //     $query->where([['kontak.nm_kontak', 'LIKE', "%{$search}%"]]);
+        // }
 
-        // $properties = Kontak::properties();
-        // var_dump($properties);
+        // $order = $this->request->get('order') ?? null;
+        // if($order != null) {
+        //     foreach(explode(',', $order) as $str) {
+        //         $clause = explode(':', $str);
+        //         $query->order($clause[0], $clause[1]);
+        //     }
+        // }
+        
+        // $limit = $this->request->get('limit') ?? 30;
+        // $offset = $this->request->get('offset') ?? 0;
+        // $query->limit($limit)->offset($offset);
 
-        // $properties = Grup::properties();
-        // var_dump($properties);
+        // $data = $query->get()->rows();
+        // return jsonResponse($data);
 
-        // $columns = Kontak::columns();
-        // var_dump($columns);
-
-        // $columns = Grup::columns();
-        // var_dump($columns);
-
-        // $relations = Kontak::relations();
-        // var_dump($relations);
-
-        // $property = Kontak::relation('grup');
-        // var_dump($property);
-
-        // $properties = Kontak::properties();
-        // var_dump($properties);
-
-        // die();
-
+        /** Mode pake model */
         $filter = function (QueryBuilder $query) {
             $idGrup = $this->request->get('idGrup');
             if ($idGrup !== null && $idGrup !== '') {
@@ -66,13 +60,14 @@ class KontakController {
             }
         };
 
-        $grup = DB::table('grup')->getSql();
-        $query = DB::table('kontak')->innerJoin("({$grup}) grupSql", "grupSql.id_grup = kontak.id_grup")->get()->rows();
-        var_dump($query);
-        die();
-
         $count = Kontak::count($filter);
-        $data = Kontak::with('grup')->all(function (QueryBuilder $query) use ($filter) {
+        $data = Kontak::with('departemen')
+            ->with('unit', fn(WithBuilder $builder) => $builder
+                ->with('departemen'))
+            ->with('profesi', fn(WithBuilder $builder) => $builder
+                ->with('unit', fn(WithBuilder $builder) => $builder
+                    ->with('departemen'))
+            )->all(function (QueryBuilder $query) use ($filter) {
             $filter($query);
 
             $limit = $this->request->get('limit') ?? 30;
@@ -85,7 +80,6 @@ class KontakController {
                 $query->offset((int)$offset);
             }
 
-            echo $query->getSql()."\n\n";
         });
 
         return jsonResponse([
@@ -97,34 +91,57 @@ class KontakController {
     function row(string $idKontak) {
         $data = Kontak::find((int)$idKontak);
         if($data == null) throw new Exception("Kontak tidak ditemukan", "kontak/not-found", 404);
+        // $data = DB::table('kontak')->where([['id_kontak', $idKontak]])->get()->row();
         return \jsonResponse($data->toArray(), 200);
     }
 
     function insert() {
         $data = json_decode($this->request->raw() ?? '', true) ?? [];
+        // $idKontak = DB::table('kontak')->insert([
+        //     'nm_kontak' => $data['nmKontak'],
+        //     'id_departemen' => $data['idDepartemen'],
+        //     'id_unit' => $data['idUnit'],
+        //     'id_profesi' => $data['idProfesi'],
+        //     'created_at' => new DateTime()
+        // ]);
+        // return \jsonResponse(['idKontak' => $idKontak], 201);
+
         $kontak = Kontak::create([
             'nm_kontak' => $data['nmKontak'],
-            'id_grup' => $data['idGrup'],
+            'id_departemen' => $data['idDepartemen'],
+            'id_unit' => $data['idUnit'],
+            'id_profesi' => $data['idProfesi'],
             'created_at' => new DateTime()
         ]);
-        return \jsonResponse(['id_kontak' => $kontak->idKontak], 201);
+        return \jsonResponse(['idKontak' => $kontak->idKontak], 201);
     }
 
     function update(string $idKontak) {
         $data = json_decode($this->request->raw() ?? '', true) ?? [];
+
+        // DB::table('kontak')->where([['id_kontak', $idKontak]])->update([
+        //     'nm_kontak' => $data['nmKontak'],
+        //     'id_departemen' => $data['idDepartemen'],
+        //     'id_unit' => $data['idUnit'],
+        //     'id_profesi' => $data['idProfesi']
+        // ]);
+        // return \jsonResponse(null, 204);
+        
         $kontak = Kontak::find((int)$idKontak);
         if ($kontak === null) throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
-
-        $kontak->nmKontak = $data['nmKontak'];
-        $kontak->idGrup = $data['idGrup'];
-        $kontak->update();
+        $kontak->update([
+            'nm_kontak' => $data['nmKontak'],
+            'id_departemen' => $data['idDepartemen'],
+            'id_unit' => $data['idUnit'],
+            'id_profesi' => $data['idProfesi']
+        ]);
         return \jsonResponse(null, 204);
     }
 
     function delete(string $idKontak) {
+        // DB::table('kontak')->where([['id_kontak', $idKontak]])->delete();
         $kontak = Kontak::find((int)$idKontak);
         if ($kontak === null) throw new Exception('Kontak tidak ditemukan', 'data/not-found', 404);
-
         $kontak->delete();
         return \jsonResponse(null, 204);
     }

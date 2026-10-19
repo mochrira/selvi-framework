@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Selvi\Database\Drivers\MySQL;
 
@@ -6,47 +6,64 @@ use InvalidArgumentException;
 use Selvi\Database\Builder\DDL\AlterBlueprint;
 use Selvi\Database\Builder\DDL\Clauses\ColumnClause;
 use Selvi\Database\Builder\DML\Clauses\WhereClause;
-use Selvi\Database\Contracts\AlterBlueprintInterface;
-use Selvi\Database\Contracts\BlueprintInterface;
-use Selvi\Database\Contracts\GrammarInterface;
-use Selvi\Database\Contracts\QueryBuilderInterface;
 use Selvi\Database\Contracts\SanitizerInterface;
+use Selvi\Database\Interfaces\IAlterBlueprint;
+use Selvi\Database\Interfaces\IBlueprint;
+use Selvi\Database\Interfaces\IGrammar;
+use Selvi\Database\Interfaces\IQueryBuilder;
 
-class MySQLGrammar implements GrammarInterface {
+class MySQLGrammar implements IGrammar {
 
-    private SanitizerInterface $sanitizer;
+    /**
+     * Start of Evaluated
+     */
 
-    function __construct(?SanitizerInterface $sanitizer = null) {
-        $this->sanitizer = $sanitizer ?? new MySQLSanitizer();
-    }
-
-    function compileSelect(QueryBuilderInterface $builder) : string {
+    function compileSelect(IQueryBuilder $builder): string {
         $from = "FROM {$builder->getTable()}";
 
-        $selects = $builder->selects();
-        $select = "SELECT " . (empty($selects) ? "*" : join(',', $selects));
+        $select = "SELECT ";
+        $columns = $builder->getSelectBuilder()->toArray();
+        if(empty($columns)) {
+            $select .= "*";
+        } else {
+            $select .= join(", ", array_map(function ($column) {
+                $col = $column['column'];
+                if(isset($column['table'])) $col = "{$column['table']}.{$col}";
+                if(isset($column['alias'])) $col .= " AS {$column['alias']}";
+                return $col;
+            }, $columns));
+        }
 
-        $joins = $builder->joins();
+        $joins = $builder->getJoinBuilder()->toArray();
         $join = empty($joins) ? "" : $this->compileJoins($joins);
 
-        $wheres = $builder->wheres();
+        $wheres = $builder->getWhereClauses();
         $where = empty($wheres) ? "" : "WHERE " . $this->compileWhere($wheres);
 
-        $groups = $builder->groups();
-        $group = empty($groups) ? "" : $this->compileGroups($groups);
-
-        $orders = $builder->orders();
-        $order = empty($orders) ? "" : $this->compileOrders($orders);
+        $orders = $builder->getOrderBuilder()->toArray();
+        $order = empty($orders) ? "" : $this->compileOrder($orders);
 
         $limit = $this->compileLimit($builder->getLimit(), $builder->getOffset());
-        
-        return join(" ", array_filter([$select, $from, $join, $where, $group, $order, $limit], function ($part) {
+
+
+        $groups = $builder->getGroupBuilder()->toArray();
+        $group = empty($groups) ? "" : $this->compileGroups($groups);
+
+
+        return join(" ", array_filter([
+            $select,
+            $from,
+            $join,
+            $group,
+            $where, 
+            $order, 
+            $limit
+        ], function ($part) {
             return $part !== '';
         }));
     }
 
-    public function compileInsert(string $table, array $columns, array $rows): string
-    {
+    public function compileInsert(string $table, array $columns, array $rows): string {
         $table = trim($table, '` ');
         if ($table === '') {
             throw new InvalidArgumentException('Nama tabel untuk insert tidak boleh kosong.');
@@ -77,8 +94,7 @@ class MySQLGrammar implements GrammarInterface {
         return "INSERT INTO `{$table}` ({$columnList}) VALUES {$valuesStr}";
     }
 
-    public function compileUpdate(string $table, array $values, array $wheres): string
-    {
+    public function compileUpdate(string $table, array $values, array $wheres): string {
         $table = trim($table, '` ');
         if ($table === '') {
             throw new InvalidArgumentException('Nama tabel untuk update tidak boleh kosong.');
@@ -104,8 +120,7 @@ class MySQLGrammar implements GrammarInterface {
         return "UPDATE `{$table}` SET {$setStr} WHERE {$whereStr}";
     }
 
-    public function compileDelete(string $table, array $wheres): string
-    {
+    public function compileDelete(string $table, array $wheres): string {
         $table = trim($table, '` ');
         if ($table === '') {
             throw new InvalidArgumentException('Nama tabel untuk delete tidak boleh kosong.');
@@ -120,33 +135,7 @@ class MySQLGrammar implements GrammarInterface {
         return "DELETE FROM `{$table}` WHERE {$whereStr}";
     }
 
-
-    /**
-     * Merender daftar JOIN menjadi SQL MySQL.
-     *
-     * Klausa ON sudah berupa string mentah dari JoinClause, jadi tidak ada
-     * sanitasi/normalisasi di sini.
-     */
-    protected function compileJoins(array $joins): string
-    {
-        $parts = [];
-
-        foreach ($joins as $j) {
-            $parts[] = "{$j['join']} JOIN {$j['table']} ON {$j['on']}";
-        }
-
-        return implode(' ', $parts);
-    }
-
-    /**
-     * Merender struktur kanonik (AST) where menjadi SQL MySQL.
-     *
-     * Method ini sengaja tidak menyentuh state builder: input sama selalu
-     * menghasilkan output yang sama (idempotent).
-     */
-    protected function compileWhere(array $wheres): string
-    {
-        // var_dump($wheres);
+    protected function compileWhere(array $wheres): string {
         if (empty($wheres)) {
             return '';
         }
@@ -154,23 +143,13 @@ class MySQLGrammar implements GrammarInterface {
         $parts = [];
         foreach ($wheres as $i => $w) {
             $clause = $this->compileWhereClause($w);
-
-            // Kondisi pertama tidak butuh prefix boolean
             $parts[] = ($i === 0) ? $clause : ($w['boolean'] . ' ' . $clause);
         }
 
         return implode(' ', $parts);
     }
 
-    /**
-     * Merender satu node AST menjadi SQL MySQL.
-     *
-     * Selama isi tiap arm masih satu ekspresi, semuanya ditulis inline di sini.
-     * Ekstrak ke method sendiri begitu satu tipe butuh percabangan (mis. saat
-     * value majemuk seperti IN (...) mulai didukung).
-     */
-    protected function compileWhereClause(array $w): string
-    {
+    protected function compileWhereClause(array $w): string {
         return match ($w['type']) {
             WhereClause::TYPE_RAW    => $w['sql'],
             WhereClause::TYPE_NULL   => $w['column'] . ' ' . $w['operator'],
@@ -182,26 +161,20 @@ class MySQLGrammar implements GrammarInterface {
         };
     }
 
-    /**
-     * Merender klausa GROUP BY menjadi SQL MySQL.
-     *
-     * @param string[] $groups
-     */
-    protected function compileGroups(array $groups): string
-    {
-        if (empty($groups)) {
+    protected function compileLimit(?int $limit, ?int $offset = null): string {
+        if ($limit === null || $limit < 0) {
             return '';
         }
-        return "GROUP BY " . join(', ', $groups);
+
+        $sql = "LIMIT " . $limit;
+        if ($offset !== null && $offset > 0) {
+            $sql .= " OFFSET " . $offset;
+        }
+
+        return $sql;
     }
 
-    /**
-     * Merender klausa ORDER BY menjadi SQL MySQL.
-     *
-     * @param array<int, array{column: string, direction: string}> $orders
-     */
-    protected function compileOrders(array $orders): string
-    {
+    protected function compileOrder(array $orders): string {
         if (empty($orders)) {
             return '';
         }
@@ -215,21 +188,56 @@ class MySQLGrammar implements GrammarInterface {
     }
 
     /**
-     * Merender klausa LIMIT dan OFFSET menjadi SQL MySQL.
+     * End of Evaluated
      */
-    protected function compileLimit(?int $limit, ?int $offset = null): string
-    {
-        if ($limit === null || $limit < 0) {
+
+    private SanitizerInterface $sanitizer;
+
+    function __construct(?SanitizerInterface $sanitizer = null) {
+        $this->sanitizer = $sanitizer ?? new MySQLSanitizer();
+    }
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Merender daftar JOIN menjadi SQL MySQL.
+     *
+     * Klausa ON sudah berupa string mentah dari JoinClause, jadi tidak ada
+     * sanitasi/normalisasi di sini.
+     */
+    protected function compileJoins(array $joins): string {
+        $parts = [];
+
+        foreach ($joins as $j) {
+            $parts[] = "{$j['join']} JOIN {$j['table']} ON {$j['on']}";
+        }
+
+        return implode(' ', $parts);
+    }
+
+
+    
+
+    /**
+     * Merender klausa GROUP BY menjadi SQL MySQL.
+     *
+     * @param string[] $groups
+     */
+    protected function compileGroups(array $groups): string {
+        if (empty($groups)) {
             return '';
         }
-
-        $sql = "LIMIT " . $limit;
-        if ($offset !== null && $offset > 0) {
-            $sql .= " OFFSET " . $offset;
-        }
-
-        return $sql;
+        return "GROUP BY " . join(', ', $groups);
     }
+
+    
 
     /**
      * Merender CREATE TABLE dari struktur kanonik Blueprint.
@@ -238,11 +246,10 @@ class MySQLGrammar implements GrammarInterface {
      * flag auto_increment menjadi AUTO_INCREMENT, dan seterusnya. Blueprint
      * sendiri tetap netral driver.
      */
-    public function compileCreateTable(BlueprintInterface $blueprint) : string
-    {
+    public function compileCreateTable(IBlueprint $blueprint): string {
         $columns = [];
 
-        foreach($blueprint->getColumns() as $column) {
+        foreach ($blueprint->getColumns() as $column) {
             $columns[] = $this->compileColumn($column);
         }
 
@@ -256,15 +263,14 @@ class MySQLGrammar implements GrammarInterface {
      *
      * @param array<string, mixed> $column Node kolom kanonik dari Blueprint.
      */
-    protected function compileColumn(array $column) : string
-    {
+    protected function compileColumn(array $column): string {
         $sql = "{$column['name']} " . $this->compileColumnType($column);
 
-        if(!$column['nullable']) $sql .= ' NOT NULL';
-        if($column['default'] !== null) $sql .= ' DEFAULT ' . $this->sanitizer->sanitize($column['default']);
-        if($column['auto_increment']) $sql .= ' AUTO_INCREMENT';
-        if($column['key']) $sql .= ' PRIMARY KEY';
-        if($column['unique']) $sql .= ' UNIQUE';
+        if (!$column['nullable']) $sql .= ' NOT NULL';
+        if ($column['default'] !== null) $sql .= ' DEFAULT ' . $this->sanitizer->sanitize($column['default']);
+        if ($column['auto_increment']) $sql .= ' AUTO_INCREMENT';
+        if ($column['key']) $sql .= ' PRIMARY KEY';
+        if ($column['unique']) $sql .= ' UNIQUE';
 
         return $sql;
     }
@@ -278,9 +284,8 @@ class MySQLGrammar implements GrammarInterface {
      *
      * @param array<string, mixed> $column Node kolom kanonik dari Blueprint.
      */
-    protected function compileColumnType(array $column) : string
-    {
-        return match($column['type']) {
+    protected function compileColumnType(array $column): string {
+        return match ($column['type']) {
             'integer'    => 'INT',
             'bigInteger' => 'BIGINT',
             'string'     => 'VARCHAR(' . ($column['length'] ?? 255) . ')',
@@ -303,8 +308,7 @@ class MySQLGrammar implements GrammarInterface {
      * yang berbeda antar driver (mis. SQL Server) akan ditangani implementasinya
      * masing-masing, bukan di Blueprint.
      */
-    public function compileDropTable(string $table, bool $ifExists) : string
-    {
+    public function compileDropTable(string $table, bool $ifExists): string {
         $ifExists = $ifExists ? 'IF EXISTS ' : '';
 
         return "DROP TABLE {$ifExists}{$table}";
@@ -317,16 +321,14 @@ class MySQLGrammar implements GrammarInterface {
      * supaya padanannya di driver lain terbaca lebih dekat (PostgreSQL sama,
      * SQL Server memakai sp_rename).
      */
-    public function compileRenameTable(string $from, string $to) : string
-    {
+    public function compileRenameTable(string $from, string $to): string {
         return "ALTER TABLE {$from} RENAME TO {$to}";
     }
 
     /**
      * Merender TRUNCATE TABLE.
      */
-    public function compileTruncateTable(string $table) : string
-    {
+    public function compileTruncateTable(string $table): string {
         return "TRUNCATE TABLE {$table}";
     }
 
@@ -337,11 +339,10 @@ class MySQLGrammar implements GrammarInterface {
      * hasilnya selalu string — perbedaan dengan driver yang butuh beberapa
      * statement berada di implementasi masing-masing, bukan di sini.
      */
-    public function compileAlterTable(AlterBlueprintInterface $blueprint) : string|array
-    {
+    public function compileAlterTable(IAlterBlueprint $blueprint): string|array {
         $clauses = [];
 
-        foreach($blueprint->getOperations() as $operation) {
+        foreach ($blueprint->getOperations() as $operation) {
             $clauses[] = $this->compileAlterOperation($operation);
         }
 
@@ -357,9 +358,8 @@ class MySQLGrammar implements GrammarInterface {
      *
      * @param array<string, mixed> $operation Node kanonik dari AlterBlueprintInterface.
      */
-    protected function compileAlterOperation(array $operation) : string
-    {
-        return match($operation['operation']) {
+    protected function compileAlterOperation(array $operation): string {
+        return match ($operation['operation']) {
             ColumnClause::OPERATION_ADD      => 'ADD COLUMN ' . $this->compileColumn($operation['column']) . $this->compileAlterPosition($operation['position']),
             ColumnClause::OPERATION_MODIFY   => 'MODIFY COLUMN ' . $this->compileColumn($operation['column']) . $this->compileAlterPosition($operation['position']),
             AlterBlueprint::OPERATION_DROP   => 'DROP COLUMN ' . $operation['name'],
@@ -384,8 +384,7 @@ class MySQLGrammar implements GrammarInterface {
      *
      * @param array<string, mixed> $operation Node kanonik dari AlterBlueprintInterface.
      */
-    protected function compileAlterPrimary(array $operation) : string
-    {
+    protected function compileAlterPrimary(array $operation): string {
         $constraint = $operation['name'] !== null ? "CONSTRAINT {$operation['name']} " : '';
 
         return 'ADD ' . $constraint . 'PRIMARY KEY (' . implode(', ', $operation['columns']) . ')';
@@ -399,13 +398,12 @@ class MySQLGrammar implements GrammarInterface {
      *
      * @param array<string, mixed> $operation Node kanonik dari AlterBlueprintInterface.
      */
-    protected function compileAlterForeignKey(array $operation) : string
-    {
+    protected function compileAlterForeignKey(array $operation): string {
         $sql = "ADD CONSTRAINT {$operation['name']} FOREIGN KEY (" . implode(', ', $operation['columns']) . ')';
         $sql .= " REFERENCES {$operation['table']} (" . implode(', ', $operation['references']) . ')';
 
-        if($operation['on_delete'] !== null) $sql .= " ON DELETE {$operation['on_delete']}";
-        if($operation['on_update'] !== null) $sql .= " ON UPDATE {$operation['on_update']}";
+        if ($operation['on_delete'] !== null) $sql .= " ON DELETE {$operation['on_delete']}";
+        if ($operation['on_update'] !== null) $sql .= " ON UPDATE {$operation['on_update']}";
 
         return $sql;
     }
@@ -419,13 +417,11 @@ class MySQLGrammar implements GrammarInterface {
      *
      * @param array<string, mixed>|null $position Node dari AlterBlueprintInterface.
      */
-    protected function compileAlterPosition(?array $position) : string
-    {
-        if($position === null) return '';
+    protected function compileAlterPosition(?array $position): string {
+        if ($position === null) return '';
 
-        if($position['first'] ?? false) return ' FIRST';
+        if ($position['first'] ?? false) return ' FIRST';
 
         return " AFTER {$position['after']}";
     }
-
 }

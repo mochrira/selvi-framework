@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Selvi\Database\Drivers\MySQL;
 
 use \mysqli_result;
-use Selvi\Database\Contracts\ResultInterface;
+use Selvi\Database\Interfaces\IResult;
 use stdClass;
 
-class MySQLResult implements ResultInterface {
+class MySQLResult implements IResult {
 
     private mixed $result;
 

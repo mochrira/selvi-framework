@@ -29,11 +29,17 @@ patch:
           properties:
             nmKontak:
               type: string
-            idGrup:
+            idDepartemen:
+              type: integer
+            idUnit:
+              type: integer
+            idProfesi:
               type: integer
           example:
             nmKontak: John Doe
-            idGrup: 1
+            idDepartemen: 1
+            idUnit: 1
+            idProfesi: 1
 
   responses:
     '200':
