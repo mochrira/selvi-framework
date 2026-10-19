@@ -21,6 +21,18 @@ class KontakController {
             $query->where([['kontak.nm_kontak', 'LIKE', "%{$search}%"]]);
         }
 
+        $order = $this->request->get('order') ?? null;
+        if($order != null) {
+            foreach(explode(',', $order) as $str) {
+                $clause = explode(':', $str);
+                $query->order($clause[0], $clause[1]);
+            }
+        }
+        
+        $limit = $this->request->get('limit') ?? 30;
+        $offset = $this->request->get('offset') ?? 0;
+        $query->limit($limit)->offset($offset);
+
         $data = $query->get()->rows();
         return jsonResponse($data);
 

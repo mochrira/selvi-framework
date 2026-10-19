@@ -1,0 +1,50 @@
+get:
+  summary: Mengambil Departemen berdasarkan ID
+  tags: [Departemen]
+  parameters:
+    - in: path
+      required: true
+      name: idDepartemen
+      schema: 
+        type: integer
+  responses:
+    '200':
+      description: Object Departemen terpilih
+
+patch:
+  summary: Mengubah Departemen berdasarkan ID
+  tags: [Departemen]
+  parameters:
+    - in: path
+      required: true
+      name: idDepartemen
+      schema: 
+        type: integer
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            nmDepartemen:
+              type: string
+          example:
+            nmDepartemen: Sales
+
+  responses:
+    '204':
+      description: Updated
+
+delete:
+  summary: Menghapus Departemen berdasarkan ID
+  tags: [Departemen]
+  parameters:
+    - in: path
+      required: true
+      name: idDepartemen
+      schema: 
+        type: integer
+  responses:
+    '204' :
+      description: Departemen berhasil dihapus

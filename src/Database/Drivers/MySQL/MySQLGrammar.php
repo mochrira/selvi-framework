@@ -23,25 +23,30 @@ class MySQLGrammar implements IGrammar {
 
         $select = $builder->getSelectBuilder()->build();
 
+        $joins = $builder->getJoinBuilder()->toArray();
+        $join = empty($joins) ? "" : $this->compileJoins($joins);
+
         $wheres = $builder->getWhereClauses();
         $where = empty($wheres) ? "" : "WHERE " . $this->compileWhere($wheres);
 
-        // $joins = $builder->joins();
-        // $join = empty($joins) ? "" : $this->compileJoins($joins);
+        $orders = $builder->getOrderBuilder()->toArray();
+        $order = empty($orders) ? "" : $this->compileOrder($orders);
 
-        // $groups = $builder->groups();
-        // $group = empty($groups) ? "" : $this->compileGroups($groups);
+        $limit = $this->compileLimit($builder->getLimit(), $builder->getOffset());
 
-        // $orders = $builder->orders();
-        // $order = empty($orders) ? "" : $this->compileOrders($orders);
 
-        // $limit = $this->compileLimit($builder->getLimit(), $builder->getOffset());
+        $groups = $builder->getGroupBuilder()->toArray();
+        $group = empty($groups) ? "" : $this->compileGroups($groups);
+
 
         return join(" ", array_filter([
             $select,
             $from,
+            $join,
+            $group,
             $where, 
-            // $join, $group, $order, $limit
+            $order, 
+            $limit
         ], function ($part) {
             return $part !== '';
         }));
@@ -119,6 +124,58 @@ class MySQLGrammar implements IGrammar {
         return "DELETE FROM `{$table}` WHERE {$whereStr}";
     }
 
+    protected function compileWhere(array $wheres): string {
+        if (empty($wheres)) {
+            return '';
+        }
+
+        $parts = [];
+        foreach ($wheres as $i => $w) {
+            $clause = $this->compileWhereClause($w);
+            $parts[] = ($i === 0) ? $clause : ($w['boolean'] . ' ' . $clause);
+        }
+
+        return implode(' ', $parts);
+    }
+
+    protected function compileWhereClause(array $w): string {
+        return match ($w['type']) {
+            WhereClause::TYPE_RAW    => $w['sql'],
+            WhereClause::TYPE_NULL   => $w['column'] . ' ' . $w['operator'],
+            WhereClause::TYPE_BASIC  => $w['column'] . ' ' . $w['operator'] . ' ' . $this->sanitizer->sanitize($w['value']),
+            WhereClause::TYPE_NESTED => '(' . $this->compileWhere($w['wheres']) . ')',
+            default => throw new InvalidArgumentException(
+                'Tipe kondisi tidak dikenal: ' . $w['type']
+            ),
+        };
+    }
+
+    protected function compileLimit(?int $limit, ?int $offset = null): string {
+        if ($limit === null || $limit < 0) {
+            return '';
+        }
+
+        $sql = "LIMIT " . $limit;
+        if ($offset !== null && $offset > 0) {
+            $sql .= " OFFSET " . $offset;
+        }
+
+        return $sql;
+    }
+
+    protected function compileOrder(array $orders): string {
+        if (empty($orders)) {
+            return '';
+        }
+
+        $parts = [];
+        foreach ($orders as $o) {
+            $parts[] = "{$o['column']} {$o['direction']}";
+        }
+
+        return "ORDER BY " . implode(', ', $parts);
+    }
+
     /**
      * End of Evaluated
      */
@@ -154,47 +211,8 @@ class MySQLGrammar implements IGrammar {
         return implode(' ', $parts);
     }
 
-    /**
-     * Merender struktur kanonik (AST) where menjadi SQL MySQL.
-     *
-     * Method ini sengaja tidak menyentuh state builder: input sama selalu
-     * menghasilkan output yang sama (idempotent).
-     */
-    protected function compileWhere(array $wheres): string {
-        // var_dump($wheres);
-        if (empty($wheres)) {
-            return '';
-        }
 
-        $parts = [];
-        foreach ($wheres as $i => $w) {
-            $clause = $this->compileWhereClause($w);
-
-            // Kondisi pertama tidak butuh prefix boolean
-            $parts[] = ($i === 0) ? $clause : ($w['boolean'] . ' ' . $clause);
-        }
-
-        return implode(' ', $parts);
-    }
-
-    /**
-     * Merender satu node AST menjadi SQL MySQL.
-     *
-     * Selama isi tiap arm masih satu ekspresi, semuanya ditulis inline di sini.
-     * Ekstrak ke method sendiri begitu satu tipe butuh percabangan (mis. saat
-     * value majemuk seperti IN (...) mulai didukung).
-     */
-    protected function compileWhereClause(array $w): string {
-        return match ($w['type']) {
-            WhereClause::TYPE_RAW    => $w['sql'],
-            WhereClause::TYPE_NULL   => $w['column'] . ' ' . $w['operator'],
-            WhereClause::TYPE_BASIC  => $w['column'] . ' ' . $w['operator'] . ' ' . $this->sanitizer->sanitize($w['value']),
-            WhereClause::TYPE_NESTED => '(' . $this->compileWhere($w['wheres']) . ')',
-            default => throw new InvalidArgumentException(
-                'Tipe kondisi tidak dikenal: ' . $w['type']
-            ),
-        };
-    }
+    
 
     /**
      * Merender klausa GROUP BY menjadi SQL MySQL.
@@ -208,39 +226,7 @@ class MySQLGrammar implements IGrammar {
         return "GROUP BY " . join(', ', $groups);
     }
 
-    /**
-     * Merender klausa ORDER BY menjadi SQL MySQL.
-     *
-     * @param array<int, array{column: string, direction: string}> $orders
-     */
-    protected function compileOrders(array $orders): string {
-        if (empty($orders)) {
-            return '';
-        }
-
-        $parts = [];
-        foreach ($orders as $o) {
-            $parts[] = "{$o['column']} {$o['direction']}";
-        }
-
-        return "ORDER BY " . implode(', ', $parts);
-    }
-
-    /**
-     * Merender klausa LIMIT dan OFFSET menjadi SQL MySQL.
-     */
-    protected function compileLimit(?int $limit, ?int $offset = null): string {
-        if ($limit === null || $limit < 0) {
-            return '';
-        }
-
-        $sql = "LIMIT " . $limit;
-        if ($offset !== null && $offset > 0) {
-            $sql .= " OFFSET " . $offset;
-        }
-
-        return $sql;
-    }
+    
 
     /**
      * Merender CREATE TABLE dari struktur kanonik Blueprint.

@@ -3,12 +3,12 @@
 namespace Selvi\Database\Interfaces;
 
 use Closure;
-use Selvi\Database\Builder\DML\InsertBuilder;
+use Selvi\Database\Builder\DML\GroupBuilder;
+use Selvi\Database\Builder\DML\JoinBuilder;
+use Selvi\Database\Builder\DML\OrderBuilder;
 use Selvi\Database\Builder\DML\SelectBuilder;
 
 interface IQueryBuilder {
-
-    /** == Start of Evaluated */
 
     public function connection(): IConnection;
     public function useConnection(string | IConnection $connection): static;
@@ -27,7 +27,23 @@ interface IQueryBuilder {
     public function getSql(): string;
     public function get(): IResult;
 
-    public function insert(array $values): int | string;
+    public function join(string $input, ?string $on = null): static;
+    public function joinUsing(Closure $input): static;
+    public function leftJoin(string $table, string $on): static;
+    public function innerJoin(string $table, string $on): static;
+    public function rightJoin(string $table, string $on): static;
+    public function getJoinBuilder(): JoinBuilder;
+
+    /**
+     * Contoh: 
+     * 
+     * group('a')
+     * group('a, b')
+     * group('a', 'b')
+     * group(['a', 'b'])
+     */
+    public function group(mixed ...$columns) : static;
+    public function getGroupBuilder(): GroupBuilder;
 
     /**
      * Contoh: 
@@ -56,13 +72,16 @@ interface IQueryBuilder {
     public function orWhere(mixed $input): static;
     public function getWhereClauses(): array;
 
+    public function limit(?int $limit): static;
+    public function getLimit(): ?int;
+    public function offset(?int $offset): static;
+    public function getOffset(): ?int;
+
+    public function order(string $column, string $direction = 'ASC'): static;
+    public function orderBy(string $column, string $direction = 'ASC'): static;
+    public function getOrderBuilder(): OrderBuilder;
+
+    public function insert(array $values): int | string;
     public function update(array $values): bool;
     public function delete(): bool;
-    /** == End of Evaluated */
-
-    public function joins(): array;
-    public function groups(): array;
-    public function getLimit(): ?int;
-    public function getOffset(): ?int;
-    public function orders(): array;
 }

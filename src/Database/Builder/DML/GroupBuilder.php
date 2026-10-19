@@ -4,13 +4,11 @@ namespace Selvi\Database\Builder\DML;
 
 use InvalidArgumentException;
 
-class GroupBuilder
-{
+class GroupBuilder {
     /** @var string[] */
     protected array $groups = [];
 
-    public function group(...$columns): static
-    {
+    public function group(...$columns): static {
         // Variadic: group('a', 'b')
         if (count($columns) > 1) {
             foreach ($columns as $col) {
@@ -40,8 +38,7 @@ class GroupBuilder
         throw new InvalidArgumentException('Format group tidak dikenali.');
     }
 
-    protected function addColumn($col): void
-    {
+    protected function addColumn($col): void {
         if (!is_string($col)) {
             throw new InvalidArgumentException('Kolom group harus string.');
         }
@@ -57,19 +54,16 @@ class GroupBuilder
         }
     }
 
-    public function hasGroups(): bool
-    {
+    public function hasGroups(): bool {
         return !empty($this->groups);
     }
 
-    public function toArray(): array
-    {
+    public function toArray(): array {
         return $this->groups;
     }
 
 
-    public function toSql(): string
-    {
+    public function toSql(): string {
         if (empty($this->groups)) {
             return '';
         }
@@ -77,8 +71,7 @@ class GroupBuilder
         return 'GROUP BY ' . implode(', ', $this->groups);
     }
 
-    public function __toString(): string
-    {
+    public function __toString(): string {
         return $this->toSql();
     }
 }

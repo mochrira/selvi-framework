@@ -1,0 +1,40 @@
+get:
+  tags: [Departemen]
+  summary: Mengambil semua data departemen
+  parameters:
+    - in: query
+      name: search
+      schema:
+        type: string
+    - in: query
+      name: sort
+      schema:
+        type: string
+    - in: query
+      name: offset
+      schema:
+        type: integer
+    - in: query
+      name: limit
+      schema:
+        type: integer
+  responses:
+    '200':
+      description: Semua data departemen dalam format JSON
+
+post:
+  tags: [Departemen]
+  summary: Menambahkan Departemen
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            nmDepartemen:
+              type: string
+          example:
+            nmDepartemen: Sales
+  responses:
+    '201':
+      description: Created

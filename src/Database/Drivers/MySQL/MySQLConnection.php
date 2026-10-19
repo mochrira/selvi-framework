@@ -13,10 +13,6 @@ use Selvi\Exception\DatabaseException;
 
 class MySQLConnection implements IConnection {
 
-    /**
-     * Start of Evaluated
-     */
-
     private array $config;
     private mysqli $instance;
 
@@ -76,10 +72,6 @@ class MySQLConnection implements IConnection {
         $row = $result->row();
         return is_object($row) ? (int) $row->lastid : 0;
     }
-
-    /**
-     * End of Evaluated
-     */
 
     public function startTransaction() : bool {
         return $this->query("START TRANSACTION");
