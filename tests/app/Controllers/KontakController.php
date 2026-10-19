@@ -89,7 +89,14 @@ class KontakController {
     }
 
     function row(string $idKontak) {
-        $data = Kontak::find((int)$idKontak);
+        $data = Kontak::with('unit', fn(WithBuilder $builder) => $builder
+                ->with('departemen'))
+            ->with('profesi', fn(WithBuilder $builder) => $builder
+                ->with('unit', fn(WithBuilder $builder) => $builder
+                    ->with('departemen'))
+            )->where([['kontak.id_kontak', $idKontak]])->first(function ($query) {
+                // echo $query->getSql();
+            });
         if($data == null) throw new Exception("Kontak tidak ditemukan", "kontak/not-found", 404);
         // $data = DB::table('kontak')->where([['id_kontak', $idKontak]])->get()->row();
         return \jsonResponse($data->toArray(), 200);

@@ -6,6 +6,7 @@ use Closure;
 use Selvi\Model;
 use Selvi\Collection;
 use Selvi\Database\DB;
+use Selvi\Database\Interfaces\IQueryBuilder;
 use Selvi\Model\Attributes\Column;
 use Selvi\Model\Interfaces\IRelationAttribute;
 
@@ -34,7 +35,7 @@ class ModelQuery {
         return $this;
     }
 
-    private function buildWith(QueryBuilder $builder) {
+    private function buildWith(IQueryBuilder $builder) {
         foreach($this->withBuilder->clauses as $name => $closure) {
             /** @var IRelationAttribute */
             $relation = $this->model::relation($name);
@@ -75,14 +76,14 @@ class ModelQuery {
         }
     }
 
-    public function builder(): QueryBuilder {
+    public function builder(): IQueryBuilder {
         $builder = DB::connection($this->model::getSchema())
             ->table($this->model::getTable());
         return $builder;
     }
 
-    /** @param callable(QueryBuilder): void $query */
-    public function build(?callable $query = null): QueryBuilder {
+    /** @param callable(IQueryBuilder): void $query */
+    public function build(?callable $query = null): IQueryBuilder {
         $builder = $this->builder();
 
         $table = $this->model::getTable();
@@ -109,7 +110,7 @@ class ModelQuery {
     }
 
     /**
-     * @param \Closure(QueryBuilder): void $query
+     * @param \Closure(IQueryBuilder): void $query
      * @return Collection<T>
      */
     public function all(\Closure $query): Collection {
@@ -119,17 +120,18 @@ class ModelQuery {
     }
 
     /**
-     * @param ?\Closure(QueryBuilder): void $query
+     * @param ?\Closure(IQueryBuilder): void $query
      * @return T|null
      */
     public function first(?\Closure $query = null): ?Model {
-        $builder = $this->build($query);
+        $builder = $this->build();
         $builder->limit(1);
+        if($query != null) $query($builder);
         $row = $builder->get()->row();
-        return $row != null ? $this->model::of($row, $this->paths) : null;
+        return $row != null ? $this->model::of($row, $this->paths, $this->withBuilder->clauses) : null;
     }
 
-    /** @param \Closure(QueryBuilder): void $query */
+    /** @param \Closure(IQueryBuilder): void $query */
     public function count(\Closure $query): int {
         $table = $this->model::getTable();
 
@@ -158,7 +160,7 @@ class ModelQuery {
         if(is_array($id)) {
             if(empty($id)) return new Collection();
 
-            return $this->all(function(QueryBuilder $query) use ($key, $id) {
+            return $this->all(function(IQueryBuilder $query) use ($key, $id) {
                 $query->where(function(WhereBuilder $builder) use ($key, $id) {
                     foreach($id as $value) {
                         $builder->orWhere([[$key->name, '=', $value]]);

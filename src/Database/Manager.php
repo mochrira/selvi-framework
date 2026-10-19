@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Selvi\Database;
 
 use InvalidArgumentException;
-use Selvi\Database\Contracts\ConnectionInterface;
 use Selvi\Database\Drivers\MySQL\MySQLConnection;
 use Selvi\Database\Interfaces\IConnection;
 
@@ -13,16 +12,16 @@ use Selvi\Database\Interfaces\IConnection;
  * Registry koneksi database.
  *
  * API-nya: add / get / default / has. Yang disimpan dan dikembalikan adalah
- * ConnectionInterface.
+ * IConnection.
  */
 class Manager {
 
     /**
-     * Driver yang sudah punya implementasi ConnectionInterface.
+     * Driver yang sudah punya implementasi IConnection.
      *
      * sqlsrv belum terdaftar karena belum ada SQLSrvConnection.
      *
-     * @var array<string, class-string<ConnectionInterface>>
+     * @var array<string, class-string<IConnection>>
      */
     private static array $drivers = [
         'mysql' => MySQLConnection::class
@@ -41,7 +40,7 @@ class Manager {
         $driver = $config['driver'] ?? 'mysql';
 
         if(!isset(self::$drivers[$driver])) {
-            throw new InvalidArgumentException("Driver '{$driver}' belum punya implementasi ConnectionInterface.");
+            throw new InvalidArgumentException("Driver '{$driver}' belum punya implementasi IConnection.");
         }
 
         $class = self::$drivers[$driver];

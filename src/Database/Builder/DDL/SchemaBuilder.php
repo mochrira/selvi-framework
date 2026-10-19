@@ -5,15 +5,15 @@ namespace Selvi\Database\Builder\DDL;
 use Closure;
 use InvalidArgumentException;
 use RuntimeException;
-use Selvi\Database\Contracts\ConnectionInterface;
 use Selvi\Database\Contracts\SchemaBuilderInterface;
+use Selvi\Database\Interfaces\IConnection;
 use Selvi\Database\Manager;
 
 /**
  * Entry point DDL.
  *
  * Menjalankan callback definisi, lalu meminta Grammar menyusun SQL dan
- * mengeksekusinya lewat ConnectionInterface:
+ * mengeksekusinya lewat IConnection:
  *
  *     (new Selvi\Database\Schema('main'))->create('kontak', function (Blueprint $table) {
  *         $table->integer('idKontak')->key()->autoIncrement();
@@ -30,14 +30,14 @@ class SchemaBuilder implements SchemaBuilderInterface {
 
     private string $connectionName = '';
 
-    private ?ConnectionInterface $injected = null;
+    private ?IConnection $injected = null;
 
     /**
      * Menentukan koneksi: nama yang terdaftar di Manager, atau objek
-     * ConnectionInterface langsung bila ingin disuntikkan.
+     * IConnection langsung bila ingin disuntikkan.
      */
-    public function useConnection(string|ConnectionInterface $connection): static {
-        if($connection instanceof ConnectionInterface) {
+    public function useConnection(string|IConnection $connection): static {
+        if($connection instanceof IConnection) {
             $this->injected = $connection;
         } else {
             $this->connectionName = $connection;
@@ -46,7 +46,7 @@ class SchemaBuilder implements SchemaBuilderInterface {
         return $this;
     }
 
-    public function connection(): ConnectionInterface {
+    public function connection(): IConnection {
         if($this->injected !== null) return $this->injected;
 
         $db = $this->connectionName !== '' ? Manager::get($this->connectionName) : Manager::default();

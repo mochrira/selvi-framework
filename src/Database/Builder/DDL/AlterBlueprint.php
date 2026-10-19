@@ -4,7 +4,7 @@ namespace Selvi\Database\Builder\DDL;
 
 use InvalidArgumentException;
 use Selvi\Database\Builder\DDL\Clauses\ColumnClause;
-use Selvi\Database\Contracts\AlterBlueprintInterface;
+use Selvi\Database\Interfaces\IAlterBlueprint;
 
 /**
  * Collector operasi untuk alter().
@@ -28,7 +28,7 @@ use Selvi\Database\Contracts\AlterBlueprintInterface;
  * Objek ini hanya menyimpan struktur; rendering SQL adalah tugas Grammar dan
  * eksekusinya tugas SchemaBuilder.
  */
-class AlterBlueprint implements AlterBlueprintInterface {
+class AlterBlueprint implements IAlterBlueprint {
 
     use HasColumnTypes;
 
