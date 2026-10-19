@@ -1,16 +1,14 @@
 <?php 
 
-namespace Selvi\Model\Interface;
+namespace Selvi\Model\Interfaces;
 
 use Selvi\Model;
 
 interface IRelationAttribute extends IPropertyAttribute {
 
-    public string $foreignKey { get; set; }
-    
     /** @var class-string<Model> */
-    public ?string $useModel { get; set; }
-    public ?string $useQuery { get; set; }
+    public string $model { get; set; }
+    public string $foreignKey { get; set; }
 
     public ?string $key { get; set; }
     public ?bool $includeIfNull { get; set; }

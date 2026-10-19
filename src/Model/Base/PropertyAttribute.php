@@ -3,7 +3,7 @@
 namespace Selvi\Model\Base;
 
 use Override;
-use Selvi\Model\Contracts\IPropertyAttribute;
+use Selvi\Model\Interfaces\IPropertyAttribute;
 
 class PropertyAttribute extends Attribute implements IPropertyAttribute {
 

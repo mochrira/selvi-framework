@@ -27,7 +27,7 @@ interface IQueryBuilder {
     public function getSql(): string;
     public function get(): IResult;
 
-    public function join(string $input, ?string $on = null): static;
+    public function join(mixed $input, ?string $on = null): static;
     public function joinUsing(Closure $input): static;
     public function leftJoin(string $table, string $on): static;
     public function innerJoin(string $table, string $on): static;

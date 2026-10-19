@@ -21,7 +21,18 @@ class MySQLGrammar implements IGrammar {
     function compileSelect(IQueryBuilder $builder): string {
         $from = "FROM {$builder->getTable()}";
 
-        $select = $builder->getSelectBuilder()->build();
+        $select = "SELECT ";
+        $columns = $builder->getSelectBuilder()->toArray();
+        if(empty($columns)) {
+            $select .= "*";
+        } else {
+            $select .= join(", ", array_map(function ($column) {
+                $col = $column['column'];
+                if(isset($column['table'])) $col = "{$column['table']}.{$col}";
+                if(isset($column['alias'])) $col .= " AS {$column['alias']}";
+                return $col;
+            }, $columns));
+        }
 
         $joins = $builder->getJoinBuilder()->toArray();
         $join = empty($joins) ? "" : $this->compileJoins($joins);

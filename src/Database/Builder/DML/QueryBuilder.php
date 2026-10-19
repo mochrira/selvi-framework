@@ -123,7 +123,7 @@ class QueryBuilder implements IQueryBuilder {
     }
 
     #[Override]
-    public function join(string $input, ?string $on = null): static {
+    public function join(mixed $input, ?string $on = null): static {
         $this->joinBuilder->join($input, $on);
         return $this;
     }

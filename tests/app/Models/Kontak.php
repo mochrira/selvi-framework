@@ -3,10 +3,10 @@
 namespace Selvi\Tests\Models;
 
 use DateTime;
+use Selvi\Model;
 use Selvi\Model\Attributes\BelongsTo;
 use Selvi\Model\Attributes\Column;
 use Selvi\Model\Attributes\Table;
-use Selvi\Model;
 
 #[Table('kontak', schema: 'main')]
 class Kontak extends Model {
@@ -29,13 +29,13 @@ class Kontak extends Model {
     #[Column('created_at')]
     public ?DateTime $createdAt = null;
 
-    #[BelongsTo(Departemen::class, 'id_departemen')]
+    #[BelongsTo(Departemen::class, foreignKey: 'id_departemen')]
     public ?Departemen $departemen = null;
 
-    #[BelongsTo(Unit::class, 'id_unit')]
+    #[BelongsTo(Unit::class, foreignKey: 'id_unit')]
     public ?Unit $unit = null;
 
-    #[BelongsTo(Profesi::class, 'id_profesi')]
+    #[BelongsTo(Profesi::class, foreignKey: 'id_profesi')]
     public ?Profesi $profesi = null;
     
 }

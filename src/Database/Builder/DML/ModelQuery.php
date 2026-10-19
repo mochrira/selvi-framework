@@ -7,7 +7,7 @@ use Selvi\Model;
 use Selvi\Collection;
 use Selvi\Database\DB;
 use Selvi\Model\Attributes\Column;
-use Selvi\Model\Contracts\IRelationAttribute;
+use Selvi\Model\Interfaces\IRelationAttribute;
 
 /**
  * @template T of \Selvi\Model
@@ -65,9 +65,12 @@ class ModelQuery {
 
             $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
 
-            $rightColumns = $childBuilder->selectBuilder->columns;
+            $rightColumns = $childBuilder->getSelectBuilder()->toArray();
             foreach($rightColumns as $rightColumn) {
-                $builder->select("{$rightTableAlias}", $rightColumn[ $subQueryMode ? 'alias' : 'column' ], $rightColumn['alias']);
+                $col = $rightColumn[ $subQueryMode ? 'alias' : 'column' ];
+                $builder->select(
+                    ["{$rightTableAlias}.{$col}", $rightColumn['alias']]
+                );
             }
         }
     }
@@ -86,7 +89,7 @@ class ModelQuery {
         /** @var Column $column */
         foreach($this->model::columns() as $column) {
             $prefix = join("_", $this->paths);
-            $builder->select("{$table}", "{$column->name}", "{$prefix}__{$column->name}");
+            $builder->select([$table, "{$column->name}", "{$prefix}__{$column->name}"]);
         }
 
         if($this->whereBuilder->hasWheres()) {
@@ -123,7 +126,7 @@ class ModelQuery {
         $builder = $this->build($query);
         $builder->limit(1);
         $row = $builder->get()->row();
-        return $row != null ? $this->model::of($row) : null;
+        return $row != null ? $this->model::of($row, $this->paths) : null;
     }
 
     /** @param \Closure(QueryBuilder): void $query */
@@ -133,7 +136,9 @@ class ModelQuery {
         /** @var Column */
         $key = $this->model::getKey();
 
-        $builder = $this->builder()->select(null, "COUNT({$table}.{$key->name})", "total");
+        $builder = $this->builder()->select(
+            ["COUNT({$table}.{$key->name})", "total"]
+        );
         if($query != null) $query($builder);
 
         $row = $builder->get()->row();

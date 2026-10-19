@@ -4,7 +4,7 @@ namespace Selvi\Model\Base;
 
 use Override;
 use Selvi\Model;
-use Selvi\Model\Contracts\IAttribute;
+use Selvi\Model\Interfaces\IAttribute;
 
 class Attribute implements IAttribute {
 

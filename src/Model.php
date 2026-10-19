@@ -13,9 +13,9 @@ use Selvi\Database\Builder\DML\QueryBuilder;
 use Selvi\Database\Builder\DML\WithBuilder;
 use Selvi\Database\Casting\Converter;
 use Selvi\Model\Attributes\Column;
-use Selvi\Model\Contracts\IAttribute;
-use Selvi\Model\Contracts\IPropertyAttribute;
-use Selvi\Model\Contracts\IRelationAttribute;
+use Selvi\Model\Base\PropertyAttribute;
+use Selvi\Model\Interfaces\IPropertyAttribute;
+use Selvi\Model\Interfaces\IRelationAttribute;
 use Selvi\Model\RawProperty;
 
 class Model extends Base implements Arrayable {
@@ -261,8 +261,8 @@ class Model extends Base implements Arrayable {
 
             if($property->column() != null) {
                 $column = $property->column();
-                $obj->{$column->propertyName()} = static::converter()->get(
-                    type: $column->propertyType(), 
+                $obj->{$column->getPropertyName()} = static::converter()->get(
+                    type: $column->getPropertyType(), 
                     value: $item->{"{$prefix}__{$column->name}"}, 
                     cast: $column->cast
                 );
@@ -271,7 +271,7 @@ class Model extends Base implements Arrayable {
 
             if($property->relation() != null) {
                 $relation = $property->relation();
-                if($item->{"{$prefix}_{$name}__{$relation->foreignKey}"} == null) continue;
+                if($item->{"{$prefix}__{$relation->foreignKey}"} == null) continue;
 
                 $withKeys = array_keys($withClauses);
                 if(!in_array($name, $withKeys)) continue;
@@ -372,7 +372,7 @@ class Model extends Base implements Arrayable {
      */
     function fresh(?\Closure $modifier = null) : ?static {
         $keyColumn = static::getKey();
-        $id = $this->{$keyColumn->propertyName()};
+        $id = $this->{$keyColumn->getPropertyName()};
         if($id === null) 
             throw new \RuntimeException(static::class . ' belum punya nilai key');
 
@@ -430,14 +430,14 @@ class Model extends Base implements Arrayable {
 
         foreach(static::columns() as $column) {
             if(array_key_exists($column->name, $data)) {
-                $model->{$column->propertyName()} = static::converter()->get(
-                    type: $column->propertyType(), 
+                $model->{$column->getPropertyName()} = static::converter()->get(
+                    type: $column->getPropertyType(), 
                     value: $data[$column->name], 
                     cast: $column->cast
                 );
-            } elseif($column->propertyName() === $key->propertyName()) {
-                $model->{$column->propertyName()} = static::converter()->get(
-                    type: $column->propertyType(), 
+            } elseif($column->getPropertyName() === $key->getPropertyName()) {
+                $model->{$column->getPropertyName()} = static::converter()->get(
+                    type: $column->getPropertyType(), 
                     value: $id, 
                     cast: $column->cast
                 );
@@ -456,10 +456,10 @@ class Model extends Base implements Arrayable {
          */
         $result = [];
         foreach(static::columns() as $column) {
-            if($column->nullable == true || ($column->nullable == false && isset($this->{$column->propertyName()}))) {
+            if($column->nullable == true || ($column->nullable == false && isset($this->{$column->getPropertyName()}))) {
                 $result[$column->name] = static::converter()->set(
-                    type: $column->propertyType(), 
-                    value: $this->{$column->propertyName()}, 
+                    type: $column->getPropertyType(), 
+                    value: $this->{$column->getPropertyName()}, 
                     cast: $column->cast
                 );
             }
@@ -472,15 +472,15 @@ class Model extends Base implements Arrayable {
      */
     public function update(?array $data = null): bool {
         $keyColumn = static::getKey();
-        $keyValue = $this->{$keyColumn->propertyName()} ?? null;
+        $keyValue = $this->{$keyColumn->getPropertyName()} ?? null;
         if ($keyValue === null) 
             throw new \LogicException("Model " . static::class . " tidak memiliki nilai primary key untuk di-update.");
 
         if ($data !== null) {
             foreach(static::columns() as $column) {
                 if(!array_key_exists($column->name, $data)) continue;
-                $this->{$column->propertyName()} = static::converter()->get(
-                    type: $column->propertyType(), 
+                $this->{$column->getPropertyName()} = static::converter()->get(
+                    type: $column->getPropertyType(), 
                     value: $data[$column->name], 
                     cast: $column->cast
                 );
@@ -500,7 +500,7 @@ class Model extends Base implements Arrayable {
      */
     public function delete(): bool {
         $keyColumn = static::getKey();
-        $keyValue = $this->{$keyColumn->name} ?? null;
+        $keyValue = $this->{$keyColumn->getPropertyName()} ?? null;
         if ($keyValue === null) 
             throw new \LogicException("Model " . static::class . " tidak memiliki nilai primary key untuk di-update.");
 
