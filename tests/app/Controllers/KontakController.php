@@ -30,7 +30,10 @@ class KontakController {
         ));
 
         $count = (clone $baseQuery)->count();
-        $data = (clone $baseQuery)->all();
+        $query = (clone $baseQuery);
+        $limit = $this->request->get('limit') ?? 30;
+        $offset = $this->request->get('offset') ?? 0;
+        $data = $query->limit($limit)->offset($offset)->all();
 
         return jsonResponse([
             'count' => $count,

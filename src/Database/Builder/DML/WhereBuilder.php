@@ -13,11 +13,17 @@ class WhereBuilder {
      */
     protected array $clauses = [];
 
+    /**
+     * @param Closure(WhereBuilder) | array<int, array | string> | string $input
+     */
     public function where(mixed $input): static
     {
         return $this->addConditions('AND', $input);
     }
 
+    /**
+     * @param Closure(WhereBuilder) | array<int, array | string> | string $input
+     */
     public function orWhere(mixed $input): static
     {
         return $this->addConditions('OR', $input);
