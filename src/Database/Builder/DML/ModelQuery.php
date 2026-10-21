@@ -29,6 +29,9 @@ class ModelQuery {
 
     private string $prefix;
 
+    private ?int $limit = null;
+    private ?int $offset = null;
+
     /** @param class-string<T> $model */
     function __construct(
         string $model,
@@ -49,6 +52,77 @@ class ModelQuery {
         $schema = $this->model::getSchema();
         $table = $this->model::getTable();
         return DB::connection($schema)->table($table);
+    }
+
+    public function buildWith(IQueryBuilder $builder) {
+        $table = $this->model::getTable();
+        $loadedAggregatesQuery = [];
+        $clauses = $this->withBuilder->clauses;
+        foreach($clauses as $name => $closure) {
+            // var_dump($name, $closure);
+            
+            $relation = $this->model::relation($name);
+            if($relation instanceof BelongsTo) {
+
+                /** @var ModelQuery */
+                $childQuery = $relation->model::query(
+                    prefix: $this->prefix.$name.'_',
+                    withClosure: $closure
+                );
+                $childBuilder = $childQuery->build();
+                
+                $rightTable = $relation->model::getTable();
+                $subQueryMode = !empty($relation->model::relations());
+                if($subQueryMode) {
+                    $rightTable = "({$childBuilder->getSql()})";
+                }
+
+                $rightTableAlias = "{$this->prefix}{$name}";
+
+                /** @var Column */
+                $rightKeyColumn = $relation->model::getKeyColumn();
+                $rightKey = $rightKeyColumn->name;
+                if($subQueryMode) {
+                    $rightKey = "{$rightTableAlias}__{$rightKey}";
+                }
+
+                $builder->join("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$table}.{$relation->foreignKey}");
+
+                $rightColumns = $childBuilder->getSelectBuilder()->toArray();
+                foreach($rightColumns as $rightColumn) {
+                    $col = $rightColumn[ $subQueryMode ? 'alias' : 'column' ];
+                    $builder->select(["{$rightTableAlias}", "{$col}", $rightColumn['alias']]);
+                }
+
+                continue;
+            }
+
+            if($relation instanceof Aggregate) {
+                $rightTableAlias = "{$this->prefix}{$name}";
+
+                if(!in_array($relation->query, $loadedAggregatesQuery)) {
+                    /** @var IQueryBuilder */
+                    $childBuilder = $this->model::{$relation->query}();
+                    $rightTable = "({$childBuilder->getSql()})";
+                    
+
+                    $rightKey = $relation->key;
+                    $leftTable = $this->model::getTable();
+
+                    /** @var Column */
+                    $leftKeyColumn = $this->model::getKeyColumn();
+                    $leftKey = $leftKeyColumn->name;
+
+                    $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
+                    $loadedAggregatesQuery[] = $relation->query;
+                }
+
+                $builder->select(
+                    ["{$rightTableAlias}.{$relation->column}", "{$this->prefix}_{$relation->column}"]
+                );
+                continue;
+            }
+        }
     }
 
     public function build(?Closure $query = null): IQueryBuilder {
@@ -74,80 +148,11 @@ class ModelQuery {
             $builder->where($this->whereBuilder);
         }
 
-        // var_dump($this->model, $this->withBuilder->hasClauses());
-
         if($this->withBuilder->hasClauses()) {
-            $loadedAggregatesQuery = [];
-            $clauses = $this->withBuilder->clauses;
-            foreach($clauses as $name => $closure) {
-                // var_dump($name, $closure);
-                
-                $relation = $this->model::relation($name);
-                if($relation instanceof BelongsTo) {
+            $this->buildWith($builder);
+        }   
 
-                    /** @var ModelQueryNext */
-                    $childQuery = $relation->model::query(
-                        prefix: $this->prefix.$name.'_',
-                        withClosure: $closure
-                    );
-                    $childBuilder = $childQuery->build();
-                    
-                    $rightTable = $relation->model::getTable();
-                    $subQueryMode = !empty($relation->model::relations());
-                    if($subQueryMode) {
-                        $rightTable = "({$childBuilder->getSql()})";
-                    }
-
-                    $rightTableAlias = "{$this->prefix}{$name}";
-
-                    /** @var Column */
-                    $rightKeyColumn = $relation->model::getKeyColumn();
-                    $rightKey = $rightKeyColumn->name;
-                    if($subQueryMode) {
-                        $rightKey = "{$rightTableAlias}__{$rightKey}";
-                    }
-
-                    $builder->join("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$table}.{$relation->foreignKey}");
-
-                    $rightColumns = $childBuilder->getSelectBuilder()->toArray();
-                    foreach($rightColumns as $rightColumn) {
-                        $col = $rightColumn[ $subQueryMode ? 'alias' : 'column' ];
-                        $builder->select(["{$rightTableAlias}", "{$col}", $rightColumn['alias']]);
-                    }
-
-                    continue;
-                }
-
-                if($relation instanceof Aggregate) {
-                    $rightTableAlias = "{$this->prefix}{$name}";
-
-                    if(!in_array($relation->query, $loadedAggregatesQuery)) {
-                        /** @var IQueryBuilder */
-                        $childBuilder = $this->model::{$relation->query}();
-                        $rightTable = "({$childBuilder->getSql()})";
-                        
-
-                        $rightKey = $relation->key;
-                        $leftTable = $this->model::getTable();
-
-                        /** @var Column */
-                        $leftKeyColumn = $this->model::getKeyColumn();
-                        $leftKey = $leftKeyColumn->name;
-
-                        $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
-                        $loadedAggregatesQuery[] = $relation->query;
-                    }
-
-                    $builder->select(
-                        ["{$rightTableAlias}.{$relation->column}", "{$this->prefix}_{$relation->column}"]
-                    );
-                    continue;
-                }
-            }
-        }
-
-        
-
+        $builder->limit($this->limit)->offset($this->offset);
         if($query) $query($builder);
         return $builder;
     }
@@ -160,8 +165,21 @@ class ModelQuery {
         return $this;
     }
 
+    /**
+     * @param Closure(WhereBuilder) | array<int, array | string> | string $input
+     */
     public function where(mixed $input): static {
         $this->whereBuilder->where($input);
+        return $this;
+    }
+
+    public function limit(?int $limit): static {
+        $this->limit = $limit;
+        return $this;
+    }
+
+    public function offset(?int $offset): static {
+        $this->offset = $offset;
         return $this;
     }
 

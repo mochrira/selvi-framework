@@ -7,6 +7,7 @@ use ReflectionAttribute;
 use Selvi\Collection;
 use Selvi\Data\DataObject;
 use Selvi\Database\Builder\DML\ModelQuery;
+use Selvi\Database\Builder\DML\WhereBuilder;
 use Selvi\Database\Builder\DML\WithBuilder;
 use Selvi\Database\Casting\Converter;
 use Selvi\Database\Interfaces\IQueryBuilder;
@@ -132,13 +133,32 @@ class Model extends DataObject {
 
     /**
      * @param ?Closure(WithBuilder) $closure
+     * @return ModelQuery<static>
      */
-    public static function with(string $name, ?Closure $closure = null) {
+    public static function with(string $name, ?Closure $closure = null): ModelQuery {
         return static::query()->with($name, $closure);
     }
 
+    /**
+     * @param Closure(WhereBuilder) | array<int, array | string> | string $input
+     * @return ModelQuery<static>
+     */
     public static function where(mixed $input): ModelQuery {
         return static::query()->where($input);
+    }
+
+    /**
+     * @return ModelQuery<static>
+     */
+    public static function limit(?int $limit): ModelQuery {
+        return static::query()->limit($limit);
+    }
+
+    /**
+     * @return ModelQuery<static>
+     */
+    public static function offset(?int $offset): ModelQuery {
+        return static::query()->limit($offset);
     }
 
     /**
