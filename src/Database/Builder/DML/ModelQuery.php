@@ -125,6 +125,9 @@ class ModelQuery {
         }
     }
 
+    /**
+     * @param ?Closure(IQueryBuilder): void $query
+     */
     public function build(?Closure $query = null): IQueryBuilder {
         $builder = $this->builder();
 
@@ -184,7 +187,7 @@ class ModelQuery {
     }
 
     /** 
-     * @param ?Closure(IQueryBuilder) $query 
+     * @param ?Closure(IQueryBuilder): void $query 
      * @return Collection | T | null 
      * */
     public function find(mixed $id, ?Closure $query = null): Collection | Model | null {
@@ -199,13 +202,17 @@ class ModelQuery {
         return $this->all($query);
     }
 
-    /** @return Collection<T> */
+    /** 
+     * @param ?Closure(IQueryBuilder): void $query
+     * @return Collection<T> */
     public function all(?Closure $query = null): Collection {
         $rows = $this->build($query)->get()->rows(); 
         return Collection::fromMap(fn($row) => $this->model::of($row, $this->prefix), $rows);
     }
 
-    /** @return T | null */
+    /** 
+     * @param ?Closure(IQueryBuilder): void $query
+     * @return T | null */
     public function first(?Closure $query = null): ?Model {
         $builder = $this->build();
         $builder->limit(1);
@@ -221,7 +228,7 @@ class ModelQuery {
         /** @var Column */
         $key = $this->model::getKeyColumn();
 
-        $builder = $this->build();
+        $builder = $this->build($query);
         $sql = $builder->getSql();
         
         $builder = DB::connection($this->model::getSchema())->table("({$sql}) count_{$table}")->select(

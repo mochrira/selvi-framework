@@ -20,6 +20,7 @@ class KontakController {
     ) { }
 
     function resultModel() {
+
         $baseQuery = Kontak::with('departemen', fn($b) => $b
             ->with('jmlKontak'))
         ->with('unit', fn($b) => $b
@@ -28,6 +29,8 @@ class KontakController {
             ->with('unit', fn($b) => $b
                 ->with('departemen')
         ));
+
+        
 
         $count = (clone $baseQuery)->count();
         $query = (clone $baseQuery);

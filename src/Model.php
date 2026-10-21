@@ -132,7 +132,7 @@ class Model extends DataObject {
     }
 
     /**
-     * @param ?Closure(WithBuilder) $closure
+     * @param Closure(WithBuilder): void $closure
      * @return ModelQuery<static>
      */
     public static function with(string $name, ?Closure $closure = null): ModelQuery {
@@ -140,7 +140,7 @@ class Model extends DataObject {
     }
 
     /**
-     * @param Closure(WhereBuilder) | array<int, array | string> | string $input
+     * @param Closure(WhereBuilder) : void | array<int, array | string> | string $input
      * @return ModelQuery<static>
      */
     public static function where(mixed $input): ModelQuery {
@@ -162,11 +162,17 @@ class Model extends DataObject {
     }
 
     /**
-     * @param ?Closure(IQueryBuilder) $query 
+     * @param ?Closure(IQueryBuilder): void $query 
      * @return Collection<static> | static | null 
      * */
     public static function find(int | string $id, ?Closure $query = null): Collection | static | null {
         return static::query()->find($id, $query);
+    }
+
+
+    /** @param ?Closure(IQueryBuilder): void $query */
+    public static function first(?Closure $query = null): static {
+        return static::query()->first($query);
     }
 
     /** @return Collection<static> */
@@ -174,7 +180,7 @@ class Model extends DataObject {
         return static::query()->all();
     }
     
-    /** @param \Closure(IQueryBuilder): void $query */
+    /** @param Closure(IQueryBuilder): void $query */
     public static function count(?Closure $query = null): int {
         return static::query()->count($query);
     }
