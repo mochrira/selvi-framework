@@ -17,15 +17,10 @@ tags:
 
 paths:
     
-  /kontak:
+  /kontak/{metode}:
     $ref: './paths/Kontak/Kontak.yaml'
-  /kontak/{idKontak}:
+  /kontak/{metode}/{idKontak}:
     $ref: './paths/Kontak/Kontak-{idKontak}.yaml'
-
-  /grup:
-    $ref: './paths/Grup/Grup.yaml'
-  /grup/{idGrup} :
-    $ref: './paths/Grup/Grup-{idGrup}.yaml'
 
   /departemen:
     $ref: './paths/Departemen/departemen.yaml'

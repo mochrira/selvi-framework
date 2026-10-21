@@ -4,6 +4,12 @@ get:
   parameters:
     - in: path
       required: true
+      name: metode
+      schema:
+        type: string
+        enum: [model, service]
+    - in: path
+      required: true
       name: idKontak
       schema: 
         type: integer
@@ -15,6 +21,12 @@ patch:
   summary: Mengubah Kontak berdasarkan ID
   tags: [Kontak]
   parameters:
+    - in: path
+      required: true
+      name: metode
+      schema:
+        type: string
+        enum: [model, service]
     - in: path
       required: true
       name: idKontak
@@ -49,6 +61,12 @@ delete:
   summary: Menghapus Kontak berdasarkan ID
   tags: [Kontak]
   parameters:
+    - in: path
+      required: true
+      name: metode
+      schema:
+        type: string
+        enum: [model, service]
     - in: path
       required: true
       name: idKontak

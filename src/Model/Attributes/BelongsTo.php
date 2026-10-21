@@ -2,21 +2,18 @@
 
 namespace Selvi\Model\Attributes;
 
-use Override;
-use Selvi\Model;
+use Attribute;
+use Selvi\Tests\ModelNext;
 use Selvi\Model\Base\PropertyAttribute;
-use Selvi\Model\Interfaces\IRelationAttribute;
 
-#[\Attribute]
-class BelongsTo extends PropertyAttribute implements IRelationAttribute {
+#[\Attribute(Attribute::TARGET_PROPERTY)]
+class BelongsTo extends PropertyAttribute {
 
-    /** @param class-string<Model> $model */
+    /** @param class-string<ModelNext> $model */
     public function __construct(
         public string $model,
         public string $foreignKey,
-        
-        public ?string $key = null,
-        public ?bool $includeIfNull = false
+        public ?string $ownerKey = null
     ) { }
 
 }

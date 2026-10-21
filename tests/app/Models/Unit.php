@@ -16,10 +16,10 @@ class Unit extends Model {
     #[Column('nm_unit')]
     public ?string $nmUnit;
 
-    #[Column('id_departemen', nullable: true)]
+    #[Column('id_departemen')]
     public ?int $idDepartemen = null;
 
-    #[BelongsTo(Departemen::class, 'id_departemen', includeIfNull: true)]
+    #[BelongsTo(Departemen::class, 'id_departemen')]
     public ?Departemen $departemen = null;
 
 }

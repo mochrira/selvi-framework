@@ -1,226 +1,162 @@
-<?php
+<?php 
 
 namespace Selvi\Database\Builder\DML;
 
 use Closure;
-use Selvi\Model;
+use InvalidArgumentException;
 use Selvi\Collection;
+use Selvi\Database\Builder\DML\JoinBuilder;
+use Selvi\Database\Builder\DML\WhereBuilder;
+use Selvi\Database\Builder\DML\WithBuilder;
 use Selvi\Database\DB;
 use Selvi\Database\Interfaces\IQueryBuilder;
+use Selvi\Model;
+use Selvi\Model\Attributes\Aggregate;
+use Selvi\Model\Attributes\BelongsTo;
 use Selvi\Model\Attributes\Column;
-use Selvi\Model\Interfaces\IAggregateAttribute;
-use Selvi\Model\Interfaces\IRelationAttribute;
 
 /**
  * @template T of \Selvi\Model
  */
 class ModelQuery {
 
+    /** @var class-string<T> */
+    private string $model;
+
     private WhereBuilder $whereBuilder;
     private JoinBuilder $joinBuilder;
     private WithBuilder $withBuilder;
 
-    private ?int $offset = null;
-    private ?int $limit = null;
+    private string $prefix;
 
     /** @param class-string<T> $model */
-    public function __construct(
-        private string $model, 
-        public array $paths = []
+    function __construct(
+        string $model,
+        ?string $prefix = "",
+        ?Closure $withClosure = null
     ) {
-        $this->paths = [...$paths, $model::getTable()];
-        $this->whereBuilder = new WhereBuilder();
+        $this->model = $model;
+        $this->prefix = $prefix;
+
         $this->joinBuilder = new JoinBuilder();
+        $this->whereBuilder = new WhereBuilder();
+
         $this->withBuilder = new WithBuilder();
+        if($withClosure != null) $withClosure($this->withBuilder);
     }
 
-    public function with(string $name, ?Closure $closure = null) {
-        $this->withBuilder->with($name, $closure);
-        return $this;
+    private function builder() {
+        $schema = $this->model::getSchema();
+        $table = $this->model::getTable();
+        return DB::connection($schema)->table($table);
     }
 
-    private function buildWith(IQueryBuilder $builder) {
-        $loadedAggregatesQuery = [];
-        foreach($this->withBuilder->clauses as $name => $closure) {
-            /** @var IRelationAttribute */
-            $relation = $this->model::relation($name);
-            if($relation != null) {
-                $leftTable = $this->model::getTable();
-                $leftKey = $relation->foreignKey;
-                
-                /** @var ModelQuery */
-                $childQuery = $relation->model::query($this->paths);
-                if($closure) $closure($childQuery->withBuilder);
-                $childBuilder = $childQuery->build();
-                
-                $rightTable = $relation->model::getTable();
-                $subQueryMode = !empty($relation->model::relations()) || !empty($relation->model::aggregates());
-                if($subQueryMode) {
-                    $rightTable = "({$childBuilder->getSql()})";
-                }
-
-                $childPaths = $childQuery->paths;
-                $rightTableAlias = join("_", $childPaths);
-                
-                /** @var Column */
-                $rightKeyColumn = $relation->model::getKey();
-                $rightKey = $rightKeyColumn->name;
-                if($subQueryMode) {
-                    $rightKey = "{$rightTableAlias}__{$rightKey}";
-                }
-
-                $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
-
-                $rightColumns = $childBuilder->getSelectBuilder()->toArray();
-                foreach($rightColumns as $rightColumn) {
-                    $col = $rightColumn[ $subQueryMode ? 'alias' : 'column' ];
-                    $builder->select(
-                        ["{$rightTableAlias}.{$col}", $rightColumn['alias']]
-                    );
-                }
-
-                continue;
-            }
-
-            /**
-             * @var IAggregateAttribute
-             */
-            $aggregate = $this->model::aggregate($name);
-            if($aggregate != null) {
-                $prefix = join("_", $this->paths);
-                $rightTableAlias = "{$prefix}_{$aggregate->query}";
-
-                if(!in_array($aggregate->query, $loadedAggregatesQuery)) {
-                    /** @var QueryBuilder */
-                    $childBuilder = $this->model::{$aggregate->query}();
-                    $rightTable = "({$childBuilder->getSql()})";
-
-                    $rightKey = $aggregate->key;
-                    $leftTable = $this->model::getTable();
-
-                    /** @var Column */
-                    $leftKeyColumn = $this->model::getKey();
-                    $leftKey = $leftKeyColumn->name;
-
-                    $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
-                    $loadedAggregatesQuery[] = $aggregate->query;
-                }
-                
-                $builder->select(
-                    ["{$rightTableAlias}.{$aggregate->column}", "{$prefix}__{$aggregate->column}"]
-                );
-                continue;
-            }
-
-            
-        }
-    }
-
-    public function builder(): IQueryBuilder {
-        $builder = DB::connection($this->model::getSchema())
-            ->table($this->model::getTable());
-        return $builder;
-    }
-
-    /** @param callable(IQueryBuilder): void $query */
-    public function build(?callable $query = null): IQueryBuilder {
+    public function build(?Closure $query = null): IQueryBuilder {
         $builder = $this->builder();
 
         $table = $this->model::getTable();
-        /** @var Column $column */
-        foreach($this->model::columns() as $column) {
-            $prefix = join("_", $this->paths);
-            $builder->select([$table, "{$column->name}", "{$prefix}__{$column->name}"]);
-        }
+        $columns = $this->model::columns();
 
-        if($this->whereBuilder->hasWheres()) {
-            $builder->where($this->whereBuilder);
+        $colPrefix = $this->prefix != "" ? "{$this->prefix}_" : "";
+        foreach($columns as $column) {
+            $builder->select([
+                $table, 
+                $column->name, 
+                $colPrefix.$column->name
+            ]);
         }
 
         if($this->joinBuilder->hasJoins()) {
             $builder->join($this->joinBuilder);
         }
 
-        if($this->withBuilder->hasClauses()) {
-            $this->buildWith($builder);
+        if($this->whereBuilder->hasWheres()) {
+            $builder->where($this->whereBuilder);
         }
 
-        $builder->limit($this->limit)->offset($this->offset);
-        if($query != null) $query($builder);
+        // var_dump($this->model, $this->withBuilder->hasClauses());
+
+        if($this->withBuilder->hasClauses()) {
+            $loadedAggregatesQuery = [];
+            $clauses = $this->withBuilder->clauses;
+            foreach($clauses as $name => $closure) {
+                // var_dump($name, $closure);
+                
+                $relation = $this->model::relation($name);
+                if($relation instanceof BelongsTo) {
+
+                    /** @var ModelQueryNext */
+                    $childQuery = $relation->model::query(
+                        prefix: $this->prefix.$name.'_',
+                        withClosure: $closure
+                    );
+                    $childBuilder = $childQuery->build();
+                    
+                    $rightTable = $relation->model::getTable();
+                    $subQueryMode = !empty($relation->model::relations());
+                    if($subQueryMode) {
+                        $rightTable = "({$childBuilder->getSql()})";
+                    }
+
+                    $rightTableAlias = "{$this->prefix}{$name}";
+
+                    /** @var Column */
+                    $rightKeyColumn = $relation->model::getKeyColumn();
+                    $rightKey = $rightKeyColumn->name;
+                    if($subQueryMode) {
+                        $rightKey = "{$rightTableAlias}__{$rightKey}";
+                    }
+
+                    $builder->join("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$table}.{$relation->foreignKey}");
+
+                    $rightColumns = $childBuilder->getSelectBuilder()->toArray();
+                    foreach($rightColumns as $rightColumn) {
+                        $col = $rightColumn[ $subQueryMode ? 'alias' : 'column' ];
+                        $builder->select(["{$rightTableAlias}", "{$col}", $rightColumn['alias']]);
+                    }
+
+                    continue;
+                }
+
+                if($relation instanceof Aggregate) {
+                    $rightTableAlias = "{$this->prefix}{$name}";
+
+                    if(!in_array($relation->query, $loadedAggregatesQuery)) {
+                        /** @var IQueryBuilder */
+                        $childBuilder = $this->model::{$relation->query}();
+                        $rightTable = "({$childBuilder->getSql()})";
+                        
+
+                        $rightKey = $relation->key;
+                        $leftTable = $this->model::getTable();
+
+                        /** @var Column */
+                        $leftKeyColumn = $this->model::getKeyColumn();
+                        $leftKey = $leftKeyColumn->name;
+
+                        $builder->leftJoin("{$rightTable} {$rightTableAlias}", "{$rightTableAlias}.{$rightKey} = {$leftTable}.{$leftKey}");
+                        $loadedAggregatesQuery[] = $relation->query;
+                    }
+
+                    $builder->select(
+                        ["{$rightTableAlias}.{$relation->column}", "{$this->prefix}_{$relation->column}"]
+                    );
+                    continue;
+                }
+            }
+        }
+
+        
+
+        if($query) $query($builder);
         return $builder;
     }
 
     /**
-     * @param \Closure(IQueryBuilder): void $query
-     * @return Collection<T>
+     * @param ?Closure(WithBuilder) $closure
      */
-    public function all(?\Closure $query = null): Collection {
-        $builder = $this->build($query);
-        $rows = $builder->get()->rows();
-        return Collection::fromMap(fn($item) => $this->model::of($item, $this->paths, $this->withBuilder->clauses), $rows);
-    }
-
-    /**
-     * @param ?\Closure(IQueryBuilder): void $query
-     * @return T|null
-     */
-    public function first(?\Closure $query = null): ?Model {
-        $builder = $this->build();
-        $builder->limit(1);
-        if($query != null) $query($builder);
-        $row = $builder->get()->row();
-        return $row != null ? $this->model::of($row, $this->paths, $this->withBuilder->clauses) : null;
-    }
-
-    /** @param \Closure(IQueryBuilder): void $query */
-    public function count(?\Closure $query = null): int {
-        $table = $this->model::getTable();
-
-        /** @var Column */
-        $key = $this->model::getKey();
-
-        $builder = $this->build($query);
-        $sql = $builder->getSql();
-        $builder = DB::table("({$sql}) count_{$table}")->select(
-            ["COUNT(count_{$table}.{$table}__{$key->name})", "total"]
-        );
-
-        $row = $builder->get()->row();
-        return $row != null ? (int)$row->total : 0;
-    }
-
-    /**
-     * @param mixed $id
-     * @return T|Collection<T>|null
-     * @phpstan-return ($id is array ? Collection<T> : T|null)
-     * @psalm-return ($id is array ? Collection<T> : T|null)
-     */
-    public function find(mixed $id) : Model | Collection | null {
-        /** @var Column */
-        $key = $this->model::getKey();
-
-        if(is_array($id)) {
-            if(empty($id)) return new Collection();
-
-            return $this->all(function(IQueryBuilder $query) use ($key, $id) {
-                $query->where(function(WhereBuilder $builder) use ($key, $id) {
-                    foreach($id as $value) {
-                        $builder->orWhere([[$key->name, '=', $value]]);
-                    }
-                });
-            });
-        }
-
-        return $this->where([[$key->name, '=', $id]])->first();
-    }
-
-    public function offset(?int $offset): static {
-        $this->offset = $offset;
-        return $this;
-    }
-
-    public function limit(?int $limit): static {
-        $this->limit = $limit;
+    public function with(string $name, ?Closure $closure = null) {
+        $this->withBuilder->with($name, $closure);
         return $this;
     }
 
@@ -229,56 +165,87 @@ class ModelQuery {
         return $this;
     }
 
-    public function orWhere(mixed $input): static {
-        $this->whereBuilder->orWhere($input);
-        return $this;
-    }
+    /** 
+     * @param ?Closure(IQueryBuilder) $query 
+     * @return Collection | T | null 
+     * */
+    public function find(mixed $id, ?Closure $query = null): Collection | Model | null {
+        $ids = is_array($id) ? $id : [$id];
 
-    public function join(string $table, string $on) {
-        $this->joinBuilder->join($table, $on);
-        return $this;
-    }
-
-    public function innerJoin(string $table, string $on) {
-        $this->joinBuilder->innerJoin($table, $on);
-        return $this;
-    }
-
-    public function leftJoin(string $table, string $on) {
-        $this->joinBuilder->leftJoin($table, $on);
-        return $this;
-    }
-
-    public function rightJoin(string $table, string $on) {
-        $this->joinBuilder->rightJoin($table, $on);
-        return $this;
-    }
-
-    /**
-     * @param array<string, mixed> $data Data berkunci nama kolom.
-     */
-    public function insert(array $data) : int | string {
-        $id = $this->builder()->insert($data);
         /** @var Column */
-        $key = $this->model::getKey();
-        return $data[$key->name] ?? $id;
+        $keyColumn = $this->model::getKeyColumn();
+        $key = $keyColumn->name;
+
+        $this->where(array_map(fn($id) => [$key, $id], $ids));
+        if(count($ids) == 1) return $this->first($query);
+        return $this->all($query);
     }
 
-    /**
-     * @param array<string, mixed> $data Data berkunci nama kolom.
-     */
+    /** @return Collection<T> */
+    public function all(?Closure $query = null): Collection {
+        $rows = $this->build($query)->get()->rows(); 
+        return Collection::fromMap(fn($row) => $this->model::of($row, $this->prefix), $rows);
+    }
+
+    /** @return T | null */
+    public function first(?Closure $query = null): ?Model {
+        $builder = $this->build();
+        $builder->limit(1);
+        if($query) $query($builder);
+        $row = $builder->get()->row();
+        return isset($row) ? $this->model::of($row) : null;
+    }
+
+    /** @param \Closure(IQueryBuilder): void $query */
+    public function count(?\Closure $query = null): int {
+        $table = $this->model::getTable();
+
+        /** @var Column */
+        $key = $this->model::getKeyColumn();
+
+        $builder = $this->build();
+        $sql = $builder->getSql();
+        
+        $builder = DB::connection($this->model::getSchema())->table("({$sql}) count_{$table}")->select(
+            ["COUNT(count_{$table}.{$key->name})", "total"]
+        );
+
+        $row = $builder->get()->row();
+        return $row != null ? (int)$row->total : 0;
+    }
+
+    /** 
+     * @param array<string, mixed> $data 
+     * */
+    public function insert(array $data): int | string {
+        $prepared_data = [];
+
+        /** @var list<Column> */
+        $columns = $this->model::columns();
+        foreach($columns as $column) {
+            $prepared_data[$column->name] = $data[$column->name];
+        }
+
+        $id = $this->builder()->insert($prepared_data);
+
+        /** @var Column */
+        $keyColumn = $this->model::getKeyColumn();
+        $key = $keyColumn->name;
+        return $data[$key] ?? $id;
+    }
+
     public function update(array $data): bool {
-        $builder = $this->builder();
-        if ($this->whereBuilder->hasWheres()) 
-            $builder->where($this->whereBuilder);
-        return $builder->update($data);
+        if(!$this->whereBuilder->hasWheres())
+            throw new InvalidArgumentException("Operasi UPDATE membutuhkan setidaknya 1 klausa where");
+        return $this->builder()->where($this->whereBuilder)
+            ->update($data);
     }
 
     public function delete(): bool {
-        $builder = $this->builder();
-        if ($this->whereBuilder->hasWheres())
-            $builder->where($this->whereBuilder);
-        return $builder->delete();
+        if(!$this->whereBuilder->hasWheres())
+            throw new InvalidArgumentException("Operasi UPDATE membutuhkan setidaknya 1 klausa where");
+        return $this->builder()->where($this->whereBuilder)
+            ->delete();
     }
 
 }

@@ -2,6 +2,11 @@ get:
   tags: [Kontak]
   summary: Mengambil semua data kontak
   parameters:
+    - in: path
+      name: metode
+      schema:
+        type: string
+        enum: [model, service]
     - in: query
       name: idDepartemen
       schema:
@@ -30,6 +35,14 @@ get:
 post:
   tags: [Kontak]
   summary: Menambahkan kontak
+
+  parameters:
+    - in: path
+      name: metode
+      schema:
+        type: string
+        enum: [model, service]
+
   requestBody:
     required: true
     content:

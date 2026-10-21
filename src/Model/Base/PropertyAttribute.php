@@ -7,8 +7,11 @@ use Selvi\Model\Interfaces\IPropertyAttribute;
 
 class PropertyAttribute extends Attribute implements IPropertyAttribute {
 
+    public string $name;    
+
     private string $propertyName;
     private string $propertyType;
+    private bool $allowsNull;
 
     #[Override]
     public function setPropertyName(string $name): void {
@@ -16,17 +19,26 @@ class PropertyAttribute extends Attribute implements IPropertyAttribute {
     }
 
     #[Override]
-    public function setPropertyType(string $type): void {
+    public function setPropertyType(string $type, bool $allowsNull): void {
         $this->propertyType = $type;
+        $this->allowsNull = $allowsNull;
     }
 
     #[Override]
-    public function getPropertyName(): string {
+    public function propertyName(): string
+    {
         return $this->propertyName;
     }
 
     #[Override]
-    public function getPropertyType(): string {
+    public function propertyType(): string
+    {
         return $this->propertyType;
+    }
+
+    #[Override]
+    public function allowsNull(): bool
+    {
+        return $this->allowsNull;
     }
 }

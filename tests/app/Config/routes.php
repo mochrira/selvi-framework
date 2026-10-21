@@ -2,11 +2,11 @@
 
 use Selvi\Routing\Route;
 
-Route::get('/kontak', 'Selvi\\Tests\\Controllers\\KontakController@result');
-Route::get('/kontak/{idKontak}', 'Selvi\\Tests\\Controllers\\KontakController@row');
-Route::post('/kontak', 'Selvi\\Tests\\Controllers\\KontakController@insert');
-Route::patch('/kontak/{idKontak}', 'Selvi\\Tests\\Controllers\\KontakController@update');
-Route::delete('/kontak/{idKontak}', 'Selvi\\Tests\\Controllers\\KontakController@delete');
+Route::get('/kontak/{metode}/{idKontak}', 'Selvi\\Tests\\Controllers\\KontakController@row');
+Route::get('/kontak/{metode}', 'Selvi\\Tests\\Controllers\\KontakController@result');
+Route::post('/kontak/{metode}', 'Selvi\\Tests\\Controllers\\KontakController@insert');
+Route::patch('/kontak/{metode}/{idKontak}', 'Selvi\\Tests\\Controllers\\KontakController@update');
+Route::delete('/kontak/{metode}/{idKontak}', 'Selvi\\Tests\\Controllers\\KontakController@delete');
 
 Route::get('/grup', 'Selvi\\Tests\\Controllers\\GrupController@result');
 Route::get('/grup/{idGrup}', 'Selvi\\Tests\\Controllers\\GrupController@row');

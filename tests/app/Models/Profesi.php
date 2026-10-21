@@ -16,10 +16,10 @@ class Profesi extends Model {
     #[Column('nm_profesi')]
     public ?string $nmProfesi;
 
-    #[Column('id_unit', nullable: true)]
+    #[Column('id_unit')]
     public ?int $idUnit = null;
 
-    #[BelongsTo(Unit::class, 'id_unit', includeIfNull: true)]
+    #[BelongsTo(Unit::class, 'id_unit')]
     public ?Unit $unit = null;
 
 }
