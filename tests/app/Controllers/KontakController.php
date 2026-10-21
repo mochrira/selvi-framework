@@ -30,10 +30,9 @@ class KontakController {
                 ->with('departemen')
         ));
 
-        
-
         $count = (clone $baseQuery)->count();
         $query = (clone $baseQuery);
+        $query->orderBy("kontak.id_kontak", "desc");
         $limit = $this->request->get('limit') ?? 30;
         $offset = $this->request->get('offset') ?? 0;
         $data = $query->limit($limit)->offset($offset)->all();

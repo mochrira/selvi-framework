@@ -175,16 +175,7 @@ class MySQLGrammar implements IGrammar {
     }
 
     protected function compileOrder(array $orders): string {
-        if (empty($orders)) {
-            return '';
-        }
-
-        $parts = [];
-        foreach ($orders as $o) {
-            $parts[] = "{$o['column']} {$o['direction']}";
-        }
-
-        return "ORDER BY " . implode(', ', $parts);
+        return "ORDER BY " . implode(', ', $orders);
     }
 
     /**
