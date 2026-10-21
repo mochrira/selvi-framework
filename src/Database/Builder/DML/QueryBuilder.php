@@ -192,13 +192,25 @@ class QueryBuilder implements IQueryBuilder {
 
     #[Override]
     public function order(mixed ...$args): static {
-        $this->orderBuilder->order(...$args);
+        if(count($args) == 1) {
+            if($args[0] instanceof OrderBuilder) {
+                $this->orderBuilder->using($args[0]);
+                return $this;
+            }
+        }
+        $this->orderBuilder->multi($args);
+        return $this;
+    }
+
+    #[Override]
+    public function orderUsing(Closure $input): static {
+        $input($this->orderBuilder);
         return $this;
     }
 
     #[Override]
     public function orderBy(string $column, string $direction = 'ASC'): static {
-        $this->orderBuilder->orderBy($column, $direction);
+        $this->orderBuilder->basic($column, $direction);
         return $this;
     }
 
@@ -219,7 +231,7 @@ class QueryBuilder implements IQueryBuilder {
         $db->query($sql);
         return $db->lastId();
     }
-    
+
     #[Override]
     public function update(array $values): bool {
         if (!$this->whereBuilder->hasWheres()) {

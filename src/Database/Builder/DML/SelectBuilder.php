@@ -4,11 +4,7 @@ namespace Selvi\Database\Builder\DML;
 
 class SelectBuilder {
 
-    /** @var list<array{
-     *      table: ?string,
-     *      column: string,
-     *      alias: ?string
-     * }> $columns */
+    /** @var list<array{table:?string,column:string,alias:?string}> $columns */
     private array $columns = [];
 
     public function basic(string $column, ?string $alias = null): static {

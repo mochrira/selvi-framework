@@ -77,7 +77,10 @@ interface IQueryBuilder {
     public function offset(?int $offset): static;
     public function getOffset(): ?int;
 
-    public function order(string $column, string $direction = 'ASC'): static;
+    public function order(mixed ...$args): static;
+    
+    /** @param Closure(OrderBuilder) : void $input */
+    public function orderUsing(Closure $input): static;
     public function orderBy(string $column, string $direction = 'ASC'): static;
     public function getOrderBuilder(): OrderBuilder;
 

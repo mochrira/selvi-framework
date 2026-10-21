@@ -25,6 +25,7 @@ class ModelQuery {
 
     private WhereBuilder $whereBuilder;
     private JoinBuilder $joinBuilder;
+    private OrderBuilder $orderBuilder;
     private WithBuilder $withBuilder;
 
     private string $prefix;
@@ -43,6 +44,7 @@ class ModelQuery {
 
         $this->joinBuilder = new JoinBuilder();
         $this->whereBuilder = new WhereBuilder();
+        $this->orderBuilder = new OrderBuilder();
 
         $this->withBuilder = new WithBuilder();
         if($withClosure != null) $withClosure($this->withBuilder);
@@ -59,8 +61,6 @@ class ModelQuery {
         $loadedAggregatesQuery = [];
         $clauses = $this->withBuilder->clauses;
         foreach($clauses as $name => $closure) {
-            // var_dump($name, $closure);
-            
             $relation = $this->model::relation($name);
             if($relation instanceof BelongsTo) {
 
@@ -151,9 +151,13 @@ class ModelQuery {
             $builder->where($this->whereBuilder);
         }
 
+        if($this->orderBuilder->hasOrders()) {
+            $builder->order($this->orderBuilder);
+        }
+
         if($this->withBuilder->hasClauses()) {
             $this->buildWith($builder);
-        }   
+        }
 
         $builder->limit($this->limit)->offset($this->offset);
         if($query) $query($builder);
@@ -183,6 +187,22 @@ class ModelQuery {
 
     public function offset(?int $offset): static {
         $this->offset = $offset;
+        return $this;
+    }
+
+    public function order(mixed ...$args): static {
+        $this->orderBuilder->multi($args);
+        return $this;
+    }
+
+    /** @param Closure(OrderBuilder): void $input */
+    public function orderUsing(Closure $input): static {
+        $input($this->orderBuilder);
+        return $this;
+    }
+
+    public function orderBy(string $column, string $direction = 'ASC'): static {
+        $this->orderBuilder->basic($column, $direction);
         return $this;
     }
 
