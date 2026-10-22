@@ -7,8 +7,8 @@ namespace Selvi\Database\Casting;
 use BackedEnum;
 use DateTimeInterface;
 use Selvi\Contracts\Arrayable;
-use Selvi\Database\Contracts\CastInterface;
-use Selvi\Database\Contracts\SerializesCastInterface;
+use Selvi\Database\Interfaces\ICast;
+use Selvi\Database\Interfaces\ISerializesCast;
 
 /**
  * Pusat konversi value: DB <-> model dan model -> output (toArray/JSON).
@@ -35,19 +35,19 @@ class Converter {
     /**
      * Cast yang didaftarkan aplikasi, menang atas cast bawaan.
      *
-     * @var array<string, CastInterface>
+     * @var array<string, ICast>
      */
     private array $registered = [];
 
     /**
      * Hasil resolusi per tipe (nama tipe atau nama kelas).
      *
-     * @var array<string, CastInterface|null>
+     * @var array<string, ICast|null>
      */
     private array $resolved = [];
 
     /**
-     * @var array<string, CastInterface>|null
+     * @var array<string, ICast>|null
      */
     private ?array $defaults = null;
 
@@ -69,7 +69,7 @@ class Converter {
      *
      * @param string $type Nama tipe property, mis. 'int' atau Money::class.
      */
-    public function register(string $type, CastInterface $cast): static {
+    public function register(string $type, ICast $cast): static {
         $this->registered[$type] = $cast;
         unset($this->resolved[$type]);
 
@@ -79,7 +79,7 @@ class Converter {
     /**
      * DB -> model.
      */
-    public function get(?string $type, mixed $value, ?CastInterface $cast = null): mixed {
+    public function get(?string $type, mixed $value, ?ICast $cast = null): mixed {
         $cast ??= $this->resolve($type);
 
         return $cast === null ? $value : $cast->get($value);
@@ -88,7 +88,7 @@ class Converter {
     /**
      * model -> DB.
      */
-    public function set(?string $type, mixed $value, ?CastInterface $cast = null): mixed {
+    public function set(?string $type, mixed $value, ?ICast $cast = null): mixed {
         $cast ??= $this->resolve($type);
 
         return $cast === null ? $value : $cast->set($value);
@@ -98,14 +98,14 @@ class Converter {
      * model -> output (toArray/JSON).
      *
      * Serializer dipilih dari $serialize, lalu cast yang bersangkutan bila ia
-     * mengimplementasikan SerializesCastInterface. Bila tidak ada, value
+     * mengimplementasikan ISerializesCast. Bila tidak ada, value
      * dikembalikan apa adanya - untuk tipe skalar itu memang bentuk yang benar.
      */
-    public function serialize(?string $type, mixed $value, ?CastInterface $cast = null, ?SerializesCastInterface $serialize = null): mixed {
+    public function serialize(?string $type, mixed $value, ?ICast $cast = null, ?ISerializesCast $serialize = null): mixed {
         if($serialize === null) {
             $resolved = $cast ?? $this->resolve($type);
 
-            if($resolved instanceof SerializesCastInterface) $serialize = $resolved;
+            if($resolved instanceof ISerializesCast) $serialize = $resolved;
         }
 
         if($serialize !== null) return $serialize->serialize($value);
@@ -116,7 +116,7 @@ class Converter {
     /**
      * Mencari cast untuk sebuah tipe property, atau null bila tidak ada.
      */
-    private function resolve(?string $type): ?CastInterface {
+    private function resolve(?string $type): ?ICast {
         if($type === null) return null;
         if(array_key_exists($type, $this->resolved)) return $this->resolved[$type];
 
@@ -134,7 +134,7 @@ class Converter {
     }
 
     /**
-     * @return array<string, CastInterface>
+     * @return array<string, ICast>
      */
     private function defaults(): array {
         return $this->defaults ??= [

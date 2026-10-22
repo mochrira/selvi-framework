@@ -6,8 +6,8 @@ namespace Selvi\Database\Casting;
 
 use BackedEnum;
 use ReflectionEnum;
-use Selvi\Database\Contracts\CastInterface;
-use Selvi\Database\Contracts\SerializesCastInterface;
+use Selvi\Database\Interfaces\ICast;
+use Selvi\Database\Interfaces\ISerializesCast;
 
 /**
  * Cast property bertipe BackedEnum.
@@ -18,7 +18,7 @@ use Selvi\Database\Contracts\SerializesCastInterface;
  * serialize() mengembalikan value enum (scalar), supaya hasil toArray() sama
  * dengan bentuk yang disimpan di database.
  */
-final class EnumCast implements CastInterface, SerializesCastInterface {
+final class EnumCast implements ICast, ISerializesCast {
 
     /**
      * @param class-string<BackedEnum> $enum

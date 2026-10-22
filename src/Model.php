@@ -171,7 +171,7 @@ class Model extends DataObject {
 
 
     /** @param ?Closure(IQueryBuilder): void $query */
-    public static function first(?Closure $query = null): static {
+    public static function first(?Closure $query = null): ?static {
         return static::query()->first($query);
     }
 

@@ -3,12 +3,8 @@
 namespace Selvi\Tests\Controllers;
 
 use DateTime;
-use Selvi\Database\Builder\DML\WithBuilder;
-use Selvi\Database\DB;
-use Selvi\Database\Interfaces\IQueryBuilder;
 use Selvi\Exception;
 use Selvi\Input\Request;
-use Selvi\Output\JsonResponse;
 use Selvi\Tests\Models\Kontak;
 use Selvi\Tests\Services\KontakService;
 
@@ -20,7 +16,6 @@ class KontakController {
     ) { }
 
     function resultModel() {
-
         $baseQuery = Kontak::with('departemen', fn($b) => $b
             ->with('jmlKontak'))
         ->with('unit', fn($b) => $b
@@ -89,6 +84,7 @@ class KontakController {
 
     function insertModel() {
         $data = json_decode($this->request->raw() ?? '', true) ?? [];
+
         $kontak = Kontak::create([
             'nm_kontak' => $data['nmKontak'],
             'id_departemen' => $data['idDepartemen'],

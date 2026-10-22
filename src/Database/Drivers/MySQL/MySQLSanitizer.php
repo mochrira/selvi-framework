@@ -7,7 +7,7 @@ namespace Selvi\Database\Drivers\MySQL;
 use BackedEnum;
 use DateTimeInterface;
 use InvalidArgumentException;
-use Selvi\Database\Contracts\SanitizerInterface;
+use Selvi\Database\Interfaces\ISanitizer;
 use Stringable;
 
 /**
@@ -17,7 +17,7 @@ use Stringable;
  * string dibungkus tanda kutip tunggal, backslash di-escape, dan tanda kutip
  * tunggal di-double sehingga tidak bisa keluar dari literal.
  */
-class MySQLSanitizer implements SanitizerInterface {
+class MySQLSanitizer implements ISanitizer {
 
     public function sanitize(mixed $value): string {
         if($value === null) return 'NULL';

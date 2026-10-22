@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Selvi\Database\Casting;
 
 use Selvi\Contracts\Arrayable;
-use Selvi\Database\Contracts\CastInterface;
-use Selvi\Database\Contracts\SerializesCastInterface;
+use Selvi\Database\Interfaces\ICast;
+use Selvi\Database\Interfaces\ISerializesCast;
 
 /**
  * Cast property bertipe array untuk kolom JSON.
@@ -23,7 +23,7 @@ use Selvi\Database\Contracts\SerializesCastInterface;
  * serialize() merapikan item yang Arrayable menjadi array, supaya isi kolom JSON
  * (mis. kumpulan value object) tetap rapi di toArray()/JSON.
  */
-final class ArrayCast implements CastInterface, SerializesCastInterface {
+final class ArrayCast implements ICast, ISerializesCast {
 
     public function get(mixed $value): mixed {
         if($value === null || is_array($value)) return $value;
