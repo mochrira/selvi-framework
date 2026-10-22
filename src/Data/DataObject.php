@@ -7,7 +7,6 @@ use ReflectionClass;
 use ReflectionProperty;
 use Selvi\Contracts\Arrayable;
 use Selvi\Database\Casting\Converter;
-use Selvi\Model\Attributes\Aggregate;
 use Selvi\Model\Attributes\BelongsTo;
 use Selvi\Model\Interfaces\IPropertyAttribute;
 
