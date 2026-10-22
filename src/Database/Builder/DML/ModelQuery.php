@@ -98,7 +98,7 @@ class ModelQuery {
             }
 
             if($relation instanceof Aggregate) {
-                $rightTableAlias = "{$this->prefix}{$name}";
+                $rightTableAlias = "{$this->prefix}{$relation->query}";
 
                 if(!in_array($relation->query, $loadedAggregatesQuery)) {
                     /** @var IQueryBuilder */
@@ -117,8 +117,9 @@ class ModelQuery {
                     $loadedAggregatesQuery[] = $relation->query;
                 }
 
+                $colPrefix = $this->prefix != "" ? "{$this->prefix}_" : "";
                 $builder->select(
-                    ["{$rightTableAlias}.{$relation->column}", "{$this->prefix}_{$relation->column}"]
+                    ["{$rightTableAlias}.{$relation->column}", "{$colPrefix}{$relation->column}"]
                 );
                 continue;
             }
