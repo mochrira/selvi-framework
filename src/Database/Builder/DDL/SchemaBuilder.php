@@ -5,8 +5,8 @@ namespace Selvi\Database\Builder\DDL;
 use Closure;
 use InvalidArgumentException;
 use RuntimeException;
-use Selvi\Database\Contracts\SchemaBuilderInterface;
 use Selvi\Database\Interfaces\IConnection;
+use Selvi\Database\Interfaces\ISchemaBuilder;
 use Selvi\Database\Manager;
 
 /**
@@ -26,7 +26,7 @@ use Selvi\Database\Manager;
  * Semua operasi bermuara pada satu jalur eksekusi — lihat execute() — sehingga
  * penanganan multi-statement hanya ada di satu tempat.
  */
-class SchemaBuilder implements SchemaBuilderInterface {
+class SchemaBuilder implements ISchemaBuilder {
 
     private string $connectionName = '';
 
