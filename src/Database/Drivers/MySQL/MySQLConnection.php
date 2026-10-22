@@ -6,6 +6,7 @@ namespace Selvi\Database\Drivers\MySQL;
 
 use mysqli;
 use mysqli_sql_exception;
+use Override;
 use Selvi\Database\Interfaces\IConnection;
 use Selvi\Database\Interfaces\IGrammar;
 use Selvi\Database\Interfaces\IResult;
@@ -71,6 +72,12 @@ class MySQLConnection implements IConnection {
 
         $row = $result->row();
         return is_object($row) ? (int) $row->lastid : 0;
+    }
+
+    #[Override]
+    public function createDatabase(string $name): bool
+    {
+        return $this->query("CREATE DATABASE IF NOT EXISTS `{$name}`");
     }
 
     public function startTransaction() : bool {

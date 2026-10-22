@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Selvi\Database\Casting;
 
-use Selvi\Database\Contracts\CastInterface;
+use Selvi\Database\Interfaces\ICast;
 
 /**
  * Cast property bertipe int.
@@ -12,7 +12,7 @@ use Selvi\Database\Contracts\CastInterface;
  * Tidak punya serialize(): value int sudah berbentuk akhir, jadi output-nya
  * memakai passthrough di Converter.
  */
-final class IntCast implements CastInterface {
+final class IntCast implements ICast {
 
     public function get(mixed $value): mixed {
         return $value === null ? null : (int) $value;

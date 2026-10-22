@@ -7,8 +7,8 @@ namespace Selvi\Database\Casting;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
-use Selvi\Database\Contracts\CastInterface;
-use Selvi\Database\Contracts\SerializesCastInterface;
+use Selvi\Database\Interfaces\ICast;
+use Selvi\Database\Interfaces\ISerializesCast;
 
 /**
  * Cast property bertipe DateTimeInterface.
@@ -22,7 +22,7 @@ use Selvi\Database\Contracts\SerializesCastInterface;
  * Catatan: DateTimeInterface adalah interface sehingga tidak bisa diinstansiasi;
  * bila property bertipe tepat DateTimeInterface, hasilnya DateTimeImmutable.
  */
-final class DateTimeCast implements CastInterface, SerializesCastInterface {
+final class DateTimeCast implements ICast, ISerializesCast {
 
     /**
      * @param class-string<DateTimeInterface> $class

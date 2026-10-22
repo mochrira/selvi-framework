@@ -13,6 +13,7 @@ interface IConnection {
     
     public function lastId(): int;
 
+    public function createDatabase(string $name): bool;
     public function startTransaction(): bool;
     public function commit(): bool;
     public function rollback(): bool;

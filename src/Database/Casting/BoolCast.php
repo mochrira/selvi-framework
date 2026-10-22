@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Selvi\Database\Casting;
 
-use Selvi\Database\Contracts\CastInterface;
+use Selvi\Database\Interfaces\ICast;
 
 /**
  * Cast property bertipe bool.
@@ -12,7 +12,7 @@ use Selvi\Database\Contracts\CastInterface;
  * Driver MySQL dan SQL Server mengirim kolom boolean sebagai '0' / '1', dan PHP
  * sudah menganggap string '0' sebagai false, jadi cast (bool) biasa cukup.
  */
-final class BoolCast implements CastInterface {
+final class BoolCast implements ICast {
 
     public function get(mixed $value): mixed {
         return $value === null ? null : (bool) $value;

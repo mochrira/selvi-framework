@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Selvi\Database\Casting;
 
-use Selvi\Database\Contracts\CastInterface;
+use Selvi\Database\Interfaces\ICast;
 
 /**
  * Cast property bertipe string.
@@ -15,7 +15,7 @@ use Selvi\Database\Contracts\CastInterface;
  *
  *     #[Column('total', cast: new StringCast())]
  */
-final class StringCast implements CastInterface {
+final class StringCast implements ICast {
 
     public function get(mixed $value): mixed {
         return $value === null ? null : (string) $value;

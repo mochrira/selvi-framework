@@ -6,11 +6,11 @@ use InvalidArgumentException;
 use Selvi\Database\Builder\DDL\AlterBlueprint;
 use Selvi\Database\Builder\DDL\Clauses\ColumnClause;
 use Selvi\Database\Builder\DML\Clauses\WhereClause;
-use Selvi\Database\Contracts\SanitizerInterface;
 use Selvi\Database\Interfaces\IAlterBlueprint;
 use Selvi\Database\Interfaces\IBlueprint;
 use Selvi\Database\Interfaces\IGrammar;
 use Selvi\Database\Interfaces\IQueryBuilder;
+use Selvi\Database\Interfaces\ISanitizer;
 
 class MySQLGrammar implements IGrammar {
 
@@ -182,9 +182,9 @@ class MySQLGrammar implements IGrammar {
      * End of Evaluated
      */
 
-    private SanitizerInterface $sanitizer;
+    private ISanitizer $sanitizer;
 
-    function __construct(?SanitizerInterface $sanitizer = null) {
+    function __construct(?ISanitizer $sanitizer = null) {
         $this->sanitizer = $sanitizer ?? new MySQLSanitizer();
     }
 

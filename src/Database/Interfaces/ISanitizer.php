@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Selvi\Database\Contracts;
+namespace Selvi\Database\Interfaces;
 
 /**
  * Mengubah value PHP menjadi literal SQL sesuai dialek driver.
@@ -10,7 +10,7 @@ namespace Selvi\Database\Contracts;
  * Implementasi bertanggung jawab penuh atas keamanan: setiap value harus
  * di-escape/dibungkus sesuai aturan driver, tidak boleh ditempel apa adanya.
  */
-interface SanitizerInterface {
+interface ISanitizer {
 
     /**
      * Konversi satu value PHP menjadi literal SQL.
