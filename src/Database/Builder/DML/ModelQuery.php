@@ -117,9 +117,9 @@ class ModelQuery {
                     $loadedAggregatesQuery[] = $relation->query;
                 }
 
-                $colPrefix = $this->prefix != "" ? "{$this->prefix}_" : "";
+                $colPrefix = ($this->prefix != "" ? "{$this->prefix}_" : "")."{$relation->query}_";
                 $builder->select(
-                    ["{$rightTableAlias}.{$relation->column}", "{$colPrefix}{$relation->column}"]
+                    ["{$rightTableAlias}", "{$relation->column}", "{$colPrefix}_{$relation->column}"]
                 );
                 continue;
             }

@@ -7,6 +7,7 @@ use ReflectionClass;
 use ReflectionProperty;
 use Selvi\Contracts\Arrayable;
 use Selvi\Database\Casting\Converter;
+use Selvi\Model\Attributes\Aggregate;
 use Selvi\Model\Attributes\BelongsTo;
 use Selvi\Model\Interfaces\IPropertyAttribute;
 
@@ -111,6 +112,14 @@ class DataObject implements Arrayable {
                 $hasPrefixedCol = static::hasPrefixedColumn($item, "{$prefix}{$property->propertyName()}_");
                 if($hasPrefixedCol) {
                     $obj->{$property->propertyName()} = $property->propertyType()::of($item, "{$prefix}{$property->propertyName()}_", false);
+                }
+                continue;
+            }
+
+            if($property instanceof Aggregate) {
+                $hasPrefixedCol = static::hasPrefixedColumn($item, "{$prefix}{$property->query}_");
+                if($hasPrefixedCol) {
+                    $obj->{$property->propertyName()} = $item->{"{$prefix}{$property->query}__{$property->column}"};
                 }
                 continue;
             }

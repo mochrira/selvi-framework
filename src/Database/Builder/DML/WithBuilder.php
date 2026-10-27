@@ -9,8 +9,9 @@ class WithBuilder {
     /** @var array<string, Closure> */
     public array $clauses = [];
 
-    public function with(string $name, ?Closure $closure = null) {
+    public function with(string $name, ?Closure $closure = null) : static {
         $this->clauses[$name] = $closure;
+        return $this;
     }
 
     public function hasClauses() {
