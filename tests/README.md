@@ -164,7 +164,37 @@ Hasil terverifikasi:
 | `/01.02-response/tanpa-isi` | `204` | tanpa body |
 | `/01.02-response/tanpa-return` | `500` | sengaja salah: `echo` tanpa `return` |
 
-## Langkah 5 — cek sintaks source
+## Langkah 5 — uji halaman request (`01.03-request/`)
+
+Folder ini menguji `docs/01-memulai/03-request.md`. Sama seperti folder uji
+lain, `index.php` memuat `vendor/` workspace. `.htaccess` di folder ini
+memuat aturan passthrough `Authorization`, karena halaman request menjelaskan
+aturan tersebut.
+
+```sh
+docker exec selvi_test_dev php -l /workspace/tests/01.03-request/index.php
+
+B=http://localhost:8089/01.03-request
+curl -s "$B/halo?nama=Budi"; echo
+curl -s "$B/halo"; echo
+curl -s -X POST -H 'Content-Type: application/json' -d '{"nama":"Budi"}' "$B/kontak"; echo
+curl -s -X POST -d 'nama=Budi' "$B/form"; echo
+curl -s -H 'X-Token: abc123' "$B/token"; echo
+curl -s "$B/metode"; echo
+```
+
+Hasil terverifikasi:
+
+| Request | Status | Hasil |
+|---|---|---|
+| `GET /01.03-request/halo?nama=Budi` | `200` | `Halo, Budi!` |
+| `GET /01.03-request/halo` | `200` | `Halo, Pengunjung!` |
+| `POST /01.03-request/kontak` (JSON) | `201` | JSON `diterima` |
+| `POST /01.03-request/form` | `200` | `Halo, Budi` |
+| `GET /01.03-request/token` + `X-Token` | `200` | `abc123` |
+| `GET /01.03-request/metode` | `200` | `GET` |
+
+## Langkah 6 — cek sintaks source
 
 ```sh
 docker exec selvi_test_dev sh -lc '
