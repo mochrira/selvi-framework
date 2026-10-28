@@ -9,6 +9,8 @@ services:
     networks:
       - environment
       - database
+    ports:
+      - 8089:80
 
 networks:
   environment:
