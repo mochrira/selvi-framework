@@ -27,6 +27,22 @@ Route::get('/token', function (Request $request) {
     return response($request->header('X-Token') ?? 'tidak ada');
 });
 
+Route::get('/semua-header', function (Request $request) {
+    return jsonResponse($request->header());
+});
+
+Route::get('/route-info', function (Request $request) {
+    return response($request->route()->getUri());
+});
+
+Route::post('/unggah', function (Request $request) {
+    $file = $request->file('berkas');
+    return jsonResponse([
+        'nama' => $file['name'] ?? null,
+        'ukuran' => $file['size'] ?? null
+    ]);
+});
+
 Route::get('/metode', function (Request $request) {
     return response($request->method());
 });

@@ -163,6 +163,13 @@ Hasil terverifikasi:
 | `/01.02-response/tidak-ditemukan` | `404` | body `Data tidak ditemukan` |
 | `/01.02-response/tanpa-isi` | `204` | tanpa body |
 | `/01.02-response/tanpa-return` | `500` | sengaja salah: `echo` tanpa `return` |
+| `/01.02-response/cookie-set` | `200` | header `Set-Cookie: demo=abc123` |
+| `/01.02-response/options` | `200` | JSON tanpa escape garis miring |
+| `/01.02-response/ubah-respons` | `201` | body `diubah` |
+
+Tiga endpoint terakhir dipakai untuk memverifikasi
+`docs/02-referensi/03-response.md` (cookie, `setContent`/`setCode`) dan
+`docs/02-referensi/04-json-response.md` (opsi JSON).
 
 ## Langkah 5 — uji halaman request (`01.03-request/`)
 
@@ -193,6 +200,12 @@ Hasil terverifikasi:
 | `POST /01.03-request/form` | `200` | `Halo, Budi` |
 | `GET /01.03-request/token` + `X-Token` | `200` | `abc123` |
 | `GET /01.03-request/metode` | `200` | `GET` |
+| `GET /01.03-request/semua-header` | `200` | array seluruh header |
+| `GET /01.03-request/route-info` | `200` | `/route-info` |
+| `POST /01.03-request/unggah` | `200` | `nama` dan `ukuran` file |
+
+Tiga endpoint terakhir dipakai untuk memverifikasi
+`docs/02-referensi/02-request.md`.
 
 ## Langkah 6 — cek sintaks source
 

@@ -35,6 +35,23 @@ Route::get('/halaman', function () {
     ])->render();
 });
 
+Route::get('/cookie-set', function () {
+    $res = response('ok');
+    $res->cookie('demo', 'abc123');
+    return $res;
+});
+
+Route::get('/options', function () {
+    return jsonResponse(['url' => 'http://contoh.test/a/b'], 200, JSON_UNESCAPED_SLASHES);
+});
+
+Route::get('/ubah-respons', function () {
+    $res = response('awal');
+    $res->setContent('diubah');
+    $res->setCode(201);
+    return $res;
+});
+
 Route::get('/halaman-hilang', function () {
     return view('tidak-ada')->render();
 });

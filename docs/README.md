@@ -14,16 +14,23 @@ Bagian `01-memulai/` ditulis bertahap dengan urutan:
 
 Halaman yang belum ditulis tidak ditautkan, agar tidak ada link mati.
 
+## Referensi API
+
+Rujukan per kelas, diringkas dari halaman-halaman `01-memulai/`:
+
+1. [`Framework::run()`](02-referensi/01-framework.md) — titik masuk aplikasi.
+2. [`Selvi\Input\Request`](02-referensi/02-request.md) — pembaca data request.
+3. [`Selvi\Output\Response`](02-referensi/03-response.md) — respons teks dan cookie.
+4. [`Selvi\Output\JsonResponse`](02-referensi/04-json-response.md) — respons JSON.
+5. [`Selvi\View`](02-referensi/05-view.md) — perender template HTML.
+
 ## Status penulisan
 
 | Folder | Status |
 |---|---|
 | `01-memulai/` | 3 dari 4 halaman |
-| `02-http/` | belum ditulis |
-| `03-data/` | belum ditulis |
-| `04-cli/` | belum ditulis |
-| `05-resep/` | belum ditulis |
-| `06-referensi/` | belum ditulis |
+| `02-referensi/` | selesai (5 halaman) |
+| bagian lain | belum ditulis |
 
 ## Cara membaca halaman
 
@@ -38,6 +45,14 @@ Setiap halaman memakai bagian berikut secara konsisten:
 - **Sumber** — file di repo yang menjadi acuan.
 - **Status verifikasi** — apakah isi halaman sudah dibuktikan dengan contoh
   yang berjalan, atau masih diturunkan dari membaca kode.
+
+Halaman di `02-referensi/` memakai format berbeda: satu file per kelas, dengan
+function dikelompokkan menjadi **Method statis**, **Method instance**, dan
+**Helper** (helper diletakkan di bagian bawah). Setiap function punya heading
+berisi nama parameter, tabel parameter (tipe, default, keterangan), dan nilai
+kembalian. Method tanpa parameter tidak memakai tabel. Bagian **Sumber** dan
+**Status verifikasi** tetap ada, sedangkan contoh tidak diulang karena sudah
+ada di `01-memulai/`.
 
 Halaman berstatus **BELUM DIVERIFIKASI** berarti perilakunya disimpulkan dari
 kode sumber dan belum pernah dijalankan. Jangan menganggapnya sebagai jaminan.
