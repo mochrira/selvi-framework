@@ -40,8 +40,12 @@ Konsekuensinya:
 - Jangan menjalankan `docker compose down` pada container yang tidak Anda
   nyalakan sendiri.
 - Uji HTTP dilakukan dari **host** ke `http://localhost:8089`. `docker exec`
-  hanya untuk perintah CLI (`composer`, `php -l`), karena PHP tidak tersedia
-  di host.
+  hanya untuk perintah CLI (`php -l`), karena PHP tidak tersedia di host.
+- **Jangan menjalankan `composer install`/`composer require` di folder uji**
+  selain `01.01-instalasi/`. Folder uji lain memuat `vendor/` workspace
+  dengan `require __DIR__.'/../../vendor/autoload.php';`, seperti
+  `tests/index.php`. Dengan begitu yang diuji adalah `src/` repo, bukan paket
+  terbit.
 
 ## Langkah 0 — cek container (wajib)
 
@@ -127,7 +131,40 @@ PHP 8.4.14):
 | `GET /01.01-instalasi/tidak-ada` | `500` | kosong (handler exception belum didaftarkan) |
 | `php -l index.php` | — | tanpa error |
 
-## Langkah 4 — cek sintaks source
+## Langkah 4 — uji halaman response (`01.02-response/`)
+
+Folder ini menguji `docs/01-memulai/02-response.md`. Tidak ada
+`composer install` di sini: `index.php` memuat
+`__DIR__.'/../../vendor/autoload.php'`, yaitu `vendor/` workspace, sama seperti
+`tests/index.php`. Jadi yang diuji adalah `src/` repo.
+
+```sh
+docker exec selvi_test_dev sh -lc '
+php -l /workspace/tests/01.02-response/index.php
+php -l /workspace/tests/01.02-response/views/home.php'
+
+for u in / /json /json-header /halaman /halaman-hilang /tidak-ditemukan /tanpa-isi /tanpa-return; do
+  printf '%-22s ' "/01.02-response$u"
+  curl -s -o /dev/null -w '%{http_code}\n' "http://localhost:8089/01.02-response$u"
+done
+
+curl -si http://localhost:8089/01.02-response/json-header | grep -i '^content-type'
+```
+
+Hasil terverifikasi:
+
+| Endpoint | Status | Catatan |
+|---|---|---|
+| `/01.02-response/` | `200` | teks biasa |
+| `/01.02-response/json` | `200` | JSON rapi, `Content-Type: text/html` |
+| `/01.02-response/json-header` | `200` | `Content-Type: application/json` |
+| `/01.02-response/halaman` | `200` | HTML utuh dari `views/home.php` |
+| `/01.02-response/halaman-hilang` | `500` | sengaja salah: template tidak ada |
+| `/01.02-response/tidak-ditemukan` | `404` | body `Data tidak ditemukan` |
+| `/01.02-response/tanpa-isi` | `204` | tanpa body |
+| `/01.02-response/tanpa-return` | `500` | sengaja salah: `echo` tanpa `return` |
+
+## Langkah 5 — cek sintaks source
 
 ```sh
 docker exec selvi_test_dev sh -lc '
@@ -140,13 +177,15 @@ Tidak ada output berarti semua file lolos.
 
 ## Catatan penting
 
-- Folder verifikasi panduan menguji **paket terbit di Packagist**, karena
-  itulah yang diterima user saat mengikuti panduan.
-- Perubahan di `src/` diuji lewat harness `tests/index.php`, yang memuat
-  `vendor/` repo (autoload root memetakan `Selvi\` ke `src/`).
-- Pola "route dipisah ke `app/Config/routes.php`" (dibahas di
-  `docs/01-memulai/02-struktur-proyek.md`) sudah dibuktikan oleh harness itu
-  sendiri: `tests/index.php` me-`require` `app/Config/routes.php`, lalu
+- Hanya `01.01-instalasi/` yang menguji **paket terbit di Packagist**, karena
+  halaman itu memang menjelaskan alur instalasi user.
+- Folder uji halaman lain (mis. `01.02-response/`) memuat `vendor/` workspace
+  lewat `require __DIR__.'/../../vendor/autoload.php';`, sehingga yang diuji
+  adalah `src/` lokal. Jangan menjalankan Composer di folder-folder itu.
+- Harness `tests/index.php` juga memuat `vendor/` repo (autoload root
+  memetakan `Selvi\` ke `src/`).
+- Pola "route dipisah ke `app/Config/routes.php`" sudah dibuktikan oleh harness
+  itu sendiri: `tests/index.php` me-`require` `app/Config/routes.php`, lalu
   `Framework::run()`.
 - `tests/private/.ENV` berisi kredensial database lokal dan diabaikan git.
 - Port `8090` tidak dipakai oleh compose saat ini; mapping-nya `8089:80`.

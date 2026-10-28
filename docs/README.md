@@ -5,17 +5,20 @@ Dokumentasi ini ditulis sebagai Markdown biasa, tanpa generator situs.
 
 ## Mulai di sini
 
-Urutan baca untuk orang maupun agent yang baru mengenal framework ini:
+Bagian `01-memulai/` ditulis bertahap dengan urutan:
 
-1. [Instalasi](01-memulai/01-instalasi.md) — memasang framework sampai route `/` bisa diakses.
-2. [Struktur proyek](01-memulai/02-struktur-proyek.md) — file mana yang wajib, mana yang opsional.
-3. [Siklus request](01-memulai/03-siklus-request.md) — kerangka yang menghubungkan semua fitur.
+1. [Instalasi](01-memulai/01-instalasi.md) — selesai.
+2. [Response](01-memulai/02-response.md) — selesai.
+3. `03-request.md` — belum ditulis.
+4. `04-controller.md` — belum ditulis.
+
+Halaman yang belum ditulis tidak ditautkan, agar tidak ada link mati.
 
 ## Status penulisan
 
 | Folder | Status |
 |---|---|
-| `01-memulai/` | selesai |
+| `01-memulai/` | 2 dari 4 halaman |
 | `02-http/` | belum ditulis |
 | `03-data/` | belum ditulis |
 | `04-cli/` | belum ditulis |

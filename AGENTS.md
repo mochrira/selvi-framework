@@ -125,6 +125,10 @@ Urutan verifikasi yang dipakai:
    - Uji HTTP dari host. `docker exec` hanya untuk perintah CLI (`composer`,
      `php -l`) karena PHP tidak tersedia di host.
    - Endpoint contoh ada di `tests/app/Config/routes.php`.
+   - **Jangan** menjalankan `composer install`/`composer require` di folder uji
+     selain `01.01-instalasi/`. Folder lain memuat `vendor/` workspace dengan
+     `require __DIR__.'/../../vendor/autoload.php';` seperti `tests/index.php`,
+     sehingga yang diuji adalah `src/` lokal.
    - `tests/01.01-instalasi/` adalah bukti uji halaman
      `docs/01-memulai/01-instalasi.md`. Jangan menghapusnya.
    - Migrasi: `php tests/console.php db:migrate main up` (nama perintah dari
@@ -137,9 +141,11 @@ Catatan pembagian peran:
 - Perubahan `src/` diuji lewat harness `tests/index.php` (memuat `vendor/`
   repo, sehingga `Selvi\` mengarah ke `src/` lokal).
 - Panduan `docs/` diuji lewat folder di `tests/` yang **namanya sama dengan
-  nama file halaman**: `docs/01-memulai/01-instalasi.md` → 
-  `tests/01.01-instalasi/`. Folder itu menginstal paket terbit dari Packagist,
-  karena itulah yang diterima user.
+  nama file halaman**: `docs/01-memulai/01-instalasi.md` →
+  `tests/01.01-instalasi/`.
+- Pengecualian: `01.01-instalasi/` sengaja menginstal paket terbit dari
+  Packagist karena halaman itu memang menguji alur instalasi user. Folder uji
+  halaman lain memakai `vendor/` workspace dan menguji `src/` lokal.
 
 Jika verifikasi tidak bisa dijalankan, sampaikan alasannya secara eksplisit.
 
