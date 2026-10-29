@@ -168,8 +168,8 @@ Hasil terverifikasi:
 | `/01.02-response/ubah-respons` | `201` | body `diubah` |
 
 Tiga endpoint terakhir dipakai untuk memverifikasi
-`docs/02-referensi/03-response.md` (cookie, `setContent`/`setCode`) dan
-`docs/02-referensi/04-json-response.md` (opsi JSON).
+`docs/99-referensi/04-response.md` (cookie, `setContent`/`setCode`) dan
+`docs/99-referensi/05-json-response.md` (opsi JSON).
 
 ## Langkah 5 — uji halaman request (`01.03-request/`)
 
@@ -205,7 +205,7 @@ Hasil terverifikasi:
 | `POST /01.03-request/unggah` | `200` | `nama` dan `ukuran` file |
 
 Tiga endpoint terakhir dipakai untuk memverifikasi
-`docs/02-referensi/02-request.md`.
+`docs/99-referensi/03-request.md`.
 
 ## Langkah 6 — uji halaman controller (`01.04-controller/`)
 
@@ -225,6 +225,11 @@ curl -s "$B/sapa/Budi"; echo
 curl -s "$B/cari?q=selvi"; echo
 curl -s "$B/urut/A/B"; echo
 curl -s "$B/angka/5"; echo
+curl -s "$B/grup"; echo
+curl -s "$B/middleware"; echo
+curl -s "$B/info-route/Budi"; echo
+curl -s "$B/param"; echo
+curl -s -X PATCH "$B/metode"; echo
 ```
 
 Hasil terverifikasi:
@@ -238,10 +243,22 @@ Hasil terverifikasi:
 | `GET /01.04-controller/urut/A/B` | `200` | `B\|A` |
 | `GET /01.04-controller/angka/5` | `200` | JSON `id` berisi `5` |
 | `GET /01.04-controller/angka/abc` | `400` | `ID harus angka` |
+| `PATCH /01.04-controller/metode` | `200` | `PATCH` |
+| `DELETE /01.04-controller/metode` | `200` | `DELETE` |
+| `OPTIONS /01.04-controller/metode` | `200` | `OPTIONS` |
+| `GET /01.04-controller/grup` | `200` | `Halo dari controller!` |
+| `GET /01.04-controller/middleware` | `200` | `Halo dari controller! + middleware` |
+| `GET /01.04-controller/middleware-route` | `200` | `Middleware route` |
+| `GET /01.04-controller/info-route/Budi` | `200` | JSON method, URI, callback, dan parameter route |
+| `GET /01.04-controller/param` | `200` | `Nilai Param` |
 | `GET /01.04-controller/tipe-angka/abc` | `500` | sengaja salah: type hint `int` menolak string non-angka |
 | `GET /01.04-controller/salah-nama/Budi` | `500` | sengaja salah: nama parameter tidak cocok |
 | `GET /01.04-controller/tanpa-return` | `500` | sengaja salah: tidak mengembalikan `Response` |
 | `GET /01.04-controller/kelas-salah` | `500` | sengaja salah: kelas controller tidak ada |
+
+Endpoint `PATCH`/`DELETE`/`OPTIONS`, grup, dan middleware dipakai untuk
+memverifikasi `docs/99-referensi/02-route.md`. `HaloController` mewarisi
+`Selvi\Controller` untuk memverifikasi `docs/99-referensi/07-controller.md`.
 
 ## Langkah 7 — cek sintaks source
 

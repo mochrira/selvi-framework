@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Services\SapaanService;
+use Selvi\Controller;
 use Selvi\Input\Request;
 
-class HaloController {
+class HaloController extends Controller {
 
     public function __construct(
         private Request $request,
@@ -25,6 +26,25 @@ class HaloController {
     public function cari() {
         $q = $this->request->get('q');
         return jsonResponse(['q' => $q]);
+    }
+
+    public function metode() {
+        return response($this->request->method());
+    }
+
+    public function infoRoute() {
+        $route = $this->request->route();
+        return jsonResponse([
+            'method' => $route->getMethod(),
+            'uri' => $route->getUri(),
+            'callback' => $route->getCallback(),
+            'params' => $route->params(),
+            'nama' => $route->getParam('nama')
+        ]);
+    }
+
+    public function param() {
+        return response($this->request->route()->getParam('nama') ?? 'tidak ada');
     }
 
     public function urut(string $pertama, string $kedua) {

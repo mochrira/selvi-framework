@@ -18,4 +18,29 @@ Route::get('/tipe-angka/{id}', 'App\Controllers\HaloController@angkaTypeHint');
 Route::get('/tanpa-return', 'App\Controllers\HaloController@tanpaReturn');
 Route::get('/kelas-salah', 'App\Controllers\TidakAda@index');
 
+Route::get('/info-route/{nama}', 'App\Controllers\HaloController@infoRoute');
+Route::get('/param', 'App\Controllers\HaloController@param')
+    ->setParam('nama', 'Nilai Param');
+
+Route::patch('/metode', 'App\Controllers\HaloController@metode');
+Route::delete('/metode', 'App\Controllers\HaloController@metode');
+Route::options('/metode', 'App\Controllers\HaloController@metode');
+
+Route::group(function () {
+    Route::get('/grup', 'App\Controllers\HaloController@index');
+});
+
+Route::withMiddleware(function ($next) {
+    $res = $next();
+    $res->setContent($res->getContent().' + middleware');
+    return $res;
+}, function () {
+    Route::get('/middleware', 'App\Controllers\HaloController@index');
+});
+
+Route::get('/middleware-route', 'App\Controllers\HaloController@index')
+    ->setMiddleware(function ($next) {
+        return response('Middleware route');
+    });
+
 \Selvi\Framework::run();

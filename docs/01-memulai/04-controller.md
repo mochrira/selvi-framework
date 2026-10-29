@@ -236,6 +236,11 @@ Semua method HTTP memakai pola yang sama: `Route::get()`, `Route::post()`,
 | `Factory::resolve()` | `resolve(string $className, array $knownParams = []): ?object` | Membuat instance kelas beserta constructor dependency-nya. |
 | `Selvi\Controller` | `class Controller extends Base {}` | Base class kosong; opsional. |
 
+Rincian method ada di [`Selvi\Routing\Route`](../99-referensi/02-route.md) dan
+[`Selvi\Controller`](../99-referensi/07-controller.md). `Injector` dan `Factory`
+dipakai internal; alurnya dijelaskan di
+[`Framework::run()`](../99-referensi/01-framework.md).
+
 ## Kesalahan umum
 
 | Gejala | Penyebab | Perbaikan |

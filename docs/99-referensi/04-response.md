@@ -2,7 +2,7 @@
 
 Respons teks. Instance dibuat lewat helper `response()` (lihat bagian Helper).
 Tidak ada method statis. Untuk JSON, lihat
-[`JsonResponse`](04-json-response.md).
+[`JsonResponse`](05-json-response.md).
 
 ## Method instance
 

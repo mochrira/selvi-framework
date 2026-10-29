@@ -16,20 +16,22 @@ Halaman yang belum ditulis tidak ditautkan, agar tidak ada link mati.
 
 ## Referensi API
 
-Rujukan per kelas, diringkas dari halaman-halaman `01-memulai/`:
+Rujukan per kelas yang dipakai di halaman-halaman `01-memulai/`:
 
-1. [`Framework::run()`](02-referensi/01-framework.md) — titik masuk aplikasi.
-2. [`Selvi\Input\Request`](02-referensi/02-request.md) — pembaca data request.
-3. [`Selvi\Output\Response`](02-referensi/03-response.md) — respons teks dan cookie.
-4. [`Selvi\Output\JsonResponse`](02-referensi/04-json-response.md) — respons JSON.
-5. [`Selvi\View`](02-referensi/05-view.md) — perender template HTML.
+1. [`Framework::run()`](99-referensi/01-framework.md) — titik masuk aplikasi.
+2. [`Selvi\Routing\Route`](99-referensi/02-route.md) — pendaftaran route, grup, dan middleware.
+3. [`Selvi\Input\Request`](99-referensi/03-request.md) — pembaca data request.
+4. [`Selvi\Output\Response`](99-referensi/04-response.md) — respons teks dan cookie.
+5. [`Selvi\Output\JsonResponse`](99-referensi/05-json-response.md) — respons JSON.
+6. [`Selvi\View`](99-referensi/06-view.md) — perender template HTML.
+7. [`Selvi\Controller`](99-referensi/07-controller.md) — base class controller opsional.
 
 ## Status penulisan
 
 | Folder | Status |
 |---|---|
 | `01-memulai/` | selesai (4 halaman) |
-| `02-referensi/` | selesai (5 halaman) |
+| `99-referensi/` | selesai (7 halaman) |
 | bagian lain | belum ditulis |
 
 ## Cara membaca halaman
@@ -46,7 +48,7 @@ Setiap halaman memakai bagian berikut secara konsisten:
 - **Status verifikasi** — apakah isi halaman sudah dibuktikan dengan contoh
   yang berjalan, atau masih diturunkan dari membaca kode.
 
-Halaman di `02-referensi/` memakai format berbeda: satu file per kelas, dengan
+Halaman di `99-referensi/` memakai format berbeda: satu file per kelas, dengan
 function dikelompokkan menjadi **Method statis**, **Method instance**, dan
 **Helper** (helper diletakkan di bagian bawah). Setiap function punya heading
 berisi nama parameter, tabel parameter (tipe, default, keterangan), dan nilai
