@@ -21,6 +21,8 @@ Tidak ada PHPUnit di repo ini. Semua verifikasi dilakukan lewat HTTP.
 | Mount | root repo → `/workspace` |
 | DocumentRoot Apache | `/workspace/tests` |
 | Port host | `8089` → container `80` |
+| Server database | container `db_mariadb` (`mariadb:10.7.8-focal`) di network `database`, port `3306` |
+| Client database | `mysql-client` di **host**, bukan di container |
 
 Konsekuensinya:
 
@@ -29,6 +31,31 @@ Konsekuensinya:
   `http://localhost:8089/{nama-folder}/`.
 - Port mengikuti `ports:` di `.docker/compose.yaml`. Nilai saat ini
   `8089:80`. Bila mapping diubah (misalnya ke `8090:80`), sesuaikan URL-nya.
+
+### Batasan akses database
+
+Pengujian fitur database menuntut akses langsung ke server, misalnya untuk
+memeriksa isi tabel setelah migrasi. Batasannya:
+
+- **`mysql-client` wajib terpasang di host.** Image `mochrira/dev` berbasis
+  Alpine dan tidak memuat client MySQL, jadi `docker exec selvi_test_dev mysql`
+  gagal (`not found`). Semua perintah database dari terminal dijalankan di
+  host. Di komputer ini sudah tersedia (`mysql Ver 8.4.11`).
+- **Server database sudah disediakan; jangan membuat yang baru.** Container
+  `db_mariadb` (image `mariadb:10.7.8-focal`) berjalan di network `database`
+  dan listening di port `3306`. Dari host aksesnya `127.0.0.1:3306`, dari
+  container uji `db_mariadb:3306`.
+- **Kredensial diambil dari `tests/private/.ENV`**, jangan ditulis di dokumen
+  atau dicetak ke terminal. Contoh tanpa menampilkan password:
+
+  ```sh
+  set -a; . tests/private/.ENV; set +a
+  MYSQL_PWD="$DB_PASS" mysql --protocol=TCP -h 127.0.0.1 -P 3306 \
+    -u"$DB_USER" -e 'SELECT 1 AS ok'
+  ```
+
+  `DB_HOST` di `.ENV` berisi nama host di dalam network Docker
+  (`mariadb.database`), sehingga dari host tetap memakai `127.0.0.1`.
 
 ## Aturan dasar
 

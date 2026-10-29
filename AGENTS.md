@@ -124,6 +124,13 @@ Urutan verifikasi yang dipakai:
      pada `.docker/compose.yaml`).
    - Uji HTTP dari host. `docker exec` hanya untuk perintah CLI (`composer`,
      `php -l`) karena PHP tidak tersedia di host.
+   - Verifikasi halaman database butuh **`mysql-client` di host**, bukan di
+     container: image `mochrira/dev` (Alpine) tidak memuat client MySQL. Server
+     yang dipakai adalah container `db_mariadb` (`mariadb:10.7.8-focal`) di
+     network `database`, listening di port `3306` — dari host
+     `127.0.0.1:3306`, dari container uji `db_mariadb:3306`. Jangan membuat
+     container database baru. Kredensial diambil dari `tests/private/.ENV` dan
+     tidak boleh dicetak.
    - Endpoint contoh ada di `tests/app/Config/routes.php`.
    - **Jangan** menjalankan `composer install`/`composer require` di folder uji
      selain `01.01-instalasi/`. Folder lain memuat `vendor/` workspace dengan
