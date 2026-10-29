@@ -1,3 +1,13 @@
+---
+id: database-koneksi
+title: Koneksi Database
+type: panduan
+tags: [database, koneksi, manager, env, transaksi, query-mentah, multi-koneksi, mysql]
+prerequisites: [instalasi]
+verified: 2026-10-29
+applies_to: Selvi 3.x
+---
+
 # Koneksi Database
 
 Selvi menyimpan koneksi database di satu registry statis: `Selvi\Database\Manager`.
@@ -72,7 +82,7 @@ require __DIR__.'/app/Config/routes.php';
 
 Hasil: aplikasi berjalan seperti biasa. Bila kredensial atau nama database
 salah, bootstrap langsung gagal dengan `DatabaseException` (bentuk responsnya di
-bagian 7).
+*Bentuk error database*).
 
 Hal yang perlu diketahui:
 
@@ -282,6 +292,9 @@ method yang dipanggil di dalamnya (`QueryBuilder` atau `SchemaBuilder`).
 
 ## Status verifikasi
 
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
+
 Diuji 29 Oktober 2026 dengan container `mochrira/dev` (PHP 8.4.14) lewat
 `http://localhost:8089/02.01-koneksi/`. Aplikasi uji memuat `vendor/` workspace,
 jadi yang diuji adalah `src/` repo ini. `php -l` pada `index.php` juga bersih.
@@ -296,7 +309,7 @@ jadi yang diuji adalah `src/` repo ini. `php -l` pada `index.php` juga bersih.
 | `GET /02.01-koneksi/error` | `500` | JSON `code: database/error`, `sql.state: 42S02`, `sql.query` terisi |
 
 Endpoint `/error` sengaja menanyakan tabel yang tidak ada, untuk membuktikan
-bentuk error di bagian 7. Tabel `kontak` tidak perlu ada karena `/sql` hanya
+bentuk error di *Bentuk error database*. Tabel `kontak` tidak perlu ada karena `/sql` hanya
 menyusun SQL.
 
 Satu hal yang belum diuji: kegagalan saat `Manager::add()` (kredensial salah).

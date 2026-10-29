@@ -1,3 +1,13 @@
+---
+id: database-skema-tabel
+title: Skema Tabel
+type: panduan
+tags: [database, ddl, create-table, alter-table, index, primary-key, foreign-key, mysql]
+prerequisites: [database-koneksi]
+verified: 2026-10-29
+applies_to: Selvi 3.x
+---
+
 # Skema Tabel
 
 Struktur tabel dibuat dan diubah lewat `SchemaBuilder`. Definisi ditulis sebagai
@@ -190,7 +200,7 @@ $schema->truncate('kontak_lama');         // TRUNCATE TABLE kontak_lama
 
 - **Index, primary key, dan foreign key hanya bisa dibuat lewat `alter()`**,
   belum inline di dalam `create()`. Polanya: `create()` lalu `alter()` dengan
-  operasi yang sama seperti contoh di bagian 5.
+  operasi yang sama seperti contoh di *Mengubah tabel*.
 - DDL tidak transaksional. MySQL melakukan commit implisit, jadi kegagalan di
   tengah rangkaian operasi meninggalkan struktur setengah jadi.
 - `ADD COLUMN ... NOT NULL` tanpa `default()` gagal pada tabel yang sudah berisi
@@ -234,7 +244,7 @@ $schema->truncate('kontak_lama');         // TRUNCATE TABLE kontak_lama
 | Gejala | Penyebab | Perbaikan |
 |---|---|---|
 | `InvalidArgumentException: Kolom 'x' didefinisikan lebih dari sekali pada tabel y.` | nama kolom duplikat di closure `create()` | pakai nama berbeda |
-| `InvalidArgumentException: Tipe kolom tidak dikenal: x` | tipe tidak ada di grammar driver | pakai tipe yang didukung (bagian 2) |
+| `InvalidArgumentException: Tipe kolom tidak dikenal: x` | tipe tidak ada di grammar driver | pakai tipe yang didukung (lihat *Tipe kolom*) |
 | `InvalidArgumentException: Definisi alter untuk tabel x tidak memiliki operasi apa pun.` | closure `alter()` kosong | tambahkan minimal satu operasi |
 | `InvalidArgumentException: Nama index tidak boleh kosong.` | `index()`/`dropIndex()` tanpa nama | sebutkan nama index |
 | `InvalidArgumentException: Nama foreign key tidak boleh kosong.` | `foreign()`/`dropForeign()` tanpa nama | sebutkan nama constraint |
@@ -256,6 +266,9 @@ $schema->truncate('kontak_lama');         // TRUNCATE TABLE kontak_lama
 
 ## Status verifikasi
 
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
+
 Diuji 29 Oktober 2026 dengan container `mochrira/dev` (PHP 8.4.14) dan server
 MariaDB 10.7.8 lewat `http://localhost:8089/02.02-skema-tabel/`. `php -l` pada
 `index.php` bersih.
@@ -266,7 +279,7 @@ dihasilkan sama dengan contoh di halaman ini.
 
 | Request | Status | Hasil |
 |---|---|---|
-| `GET /02.02-skema-tabel/` | `200` | empat statement SQL sesuai bagian 1 dan 5, termasuk `AFTER nomor` dan `ON DELETE SET NULL` |
+| `GET /02.02-skema-tabel/` | `200` | empat statement SQL sesuai *Membuat tabel* dan *Mengubah tabel*, termasuk `AFTER nomor` dan `ON DELETE SET NULL` |
 | `GET /02.02-skema-tabel/jalankan` | `200` | `drop_kontak`, `drop_grup`, `create_grup`, `create_kontak`, `alter_email`, `alter_grup` semuanya `true` |
 | `GET /02.02-skema-tabel/struktur` | `200` | kolom `demo_kontak` berurutan `id_kontak`, `nm_kontak`, `nomor`, `email`, `id_grup`; index `PRIMARY`, `uniq_demo_kontak_nomor`, `fk_demo_kontak_grup` |
 | `GET /02.02-skema-tabel/tipe` | `200` | sembilan tipe kolom terender benar, `length(30)` menggantikan panjang awal, `ifNotExists(false)` menghapus `IF NOT EXISTS` |
@@ -279,6 +292,6 @@ Urutan uji: `/` → `/jalankan` → `/struktur` → `/tipe` → `/sementara` →
 tabel milik harness (`_migration`, `kontak`, `departemen`, `profesi`,
 `transaksi`, `unit`) — tidak ada sisa tabel `demo_`.
 
-Yang belum diuji: kasus error di bagian 7 (mis. `DROP PRIMARY KEY` pada kolom
+Yang belum diuji: kasus error di *Batasan yang perlu diketahui* (mis. `DROP PRIMARY KEY` pada kolom
 `AUTO_INCREMENT`, `ADD COLUMN NOT NULL` pada tabel berisi data). Bagian itu
 disimpulkan dari aturan MySQL, bukan dari uji di repo ini.

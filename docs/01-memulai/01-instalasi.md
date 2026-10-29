@@ -1,3 +1,13 @@
+---
+id: instalasi
+title: Instalasi
+type: panduan
+tags: [instalasi, composer, apache, htaccess, autoload, index-php]
+prerequisites: []
+verified: 2026-10-28
+applies_to: Selvi 3.x
+---
+
 # Instalasi
 
 Memasang Selvi Framework dan membuat satu route `/` dengan function (closure)
@@ -113,6 +123,9 @@ Selesai. Sampai titik ini aplikasi sudah berjalan.
 - `tests/.htaccess` — aturan rewrite yang sama, tanpa bagian tambahan.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji pada 28 Oktober 2026 dengan container `mochrira/dev` (PHP 8.4.14,
 Apache + `.htaccess`) dan aplikasi `tests/01.01-instalasi/` yang isinya persis

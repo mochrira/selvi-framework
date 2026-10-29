@@ -1,3 +1,14 @@
+---
+id: ref-view
+title: Selvi\View
+type: referensi
+class: Selvi\View
+tags: [view, template, render, helper, output-buffering]
+prerequisites: [response]
+verified: 2026-10-28
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\View`
 
 Perender template PHP. Satu file template berisi halaman HTML utuh. Instance
@@ -15,7 +26,7 @@ Aturan yang berlaku untuk semua method:
 
 ## Method statis
 
-### `addPath($path)`
+### `View::addPath($path)`
 
 Menambah folder pencarian template.
 
@@ -27,7 +38,7 @@ Menambah folder pencarian template.
 
 ## Method instance
 
-### `setVar($name, $value)`
+### `View::setVar($name, $value)`
 
 Menyimpan satu variabel untuk template.
 
@@ -41,7 +52,7 @@ Menyimpan satu variabel untuk template.
 Catatan: penyimpanan bersifat statis (`View::$vars`), sehingga variabel tetap
 ada untuk pemanggilan view berikutnya dalam proses yang sama.
 
-### `render($code)`
+### `View::render($code)`
 
 Merender template dan mengubahnya menjadi respons.
 
@@ -54,7 +65,7 @@ Merender template dan mengubahnya menjadi respons.
 Output template ditangkap dengan output buffering, lalu dibungkus sebagai
 `Response`.
 
-### `include()`
+### `View::include()`
 
 Mencetak template langsung ke output.
 
@@ -85,6 +96,9 @@ Membuat instance `View` dan menyimpan variabel untuk template.
   `tests/01.02-response/index.php` — aplikasi uji.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 28 Oktober 2026 (PHP 8.4.14) lewat
 `http://localhost:8089/01.02-response/`:

@@ -1,3 +1,13 @@
+---
+id: controller
+title: Controller
+type: panduan
+tags: [controller, dependency-injection, route-callback, middleware, base-class]
+prerequisites: [response, request]
+verified: 2026-10-29
+applies_to: Selvi 3.x
+---
+
 # Controller
 
 Closure cukup untuk route sederhana. Saat route bertambah, pindahkan logika ke
@@ -265,6 +275,9 @@ dipakai internal; alurnya dijelaskan di
   ini.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 29 Oktober 2026 dengan PHP 8.4.14 lewat
 `http://localhost:8089/01.04-controller/`. Aplikasi uji memuat `vendor/`

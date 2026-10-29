@@ -1,3 +1,14 @@
+---
+id: ref-schema-builder
+title: Selvi\Database\Builder\DDL\SchemaBuilder
+type: referensi
+class: Selvi\Database\Builder\DDL\SchemaBuilder
+tags: [database, ddl, create-table, alter-table, drop-table, rename-table, truncate, compile]
+prerequisites: [database-skema-tabel]
+verified: 2026-10-29
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Database\Builder\DDL\SchemaBuilder`
 
 Penjalan operasi DDL. Instance dibuat lewat `DB::schema()`, atau lewat
@@ -16,7 +27,7 @@ Pemakaian ada di [skema tabel](../02-database/02-skema-tabel.md).
 
 ## Method instance
 
-### `useConnection($connection)`
+### `SchemaBuilder::useConnection($connection)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -24,7 +35,7 @@ Pemakaian ada di [skema tabel](../02-database/02-skema-tabel.md).
 
 **Kembalian:** instance `SchemaBuilder` (dapat dirangkai).
 
-### `connection()`
+### `SchemaBuilder::connection()`
 
 Tidak ada parameter.
 
@@ -33,7 +44,7 @@ Tidak ada parameter.
 Melempar `RuntimeException: Koneksi database belum diatur.` bila belum ada
 koneksi.
 
-### `create($table, $definition)`
+### `SchemaBuilder::create($table, $definition)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -42,13 +53,13 @@ koneksi.
 
 **Kembalian:** `bool`.
 
-### `compileCreate($table, $definition)`
+### `SchemaBuilder::compileCreate($table, $definition)`
 
 Parameter sama dengan `create()`.
 
 **Kembalian:** `string` — `CREATE TABLE [IF NOT EXISTS] ...`.
 
-### `drop($table, $ifExists)`
+### `SchemaBuilder::drop($table, $ifExists)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -57,13 +68,13 @@ Parameter sama dengan `create()`.
 
 **Kembalian:** `bool`.
 
-### `compileDrop($table, $ifExists)`
+### `SchemaBuilder::compileDrop($table, $ifExists)`
 
 Parameter sama dengan `drop()`.
 
 **Kembalian:** `string` — `DROP TABLE [IF EXISTS] ...`.
 
-### `rename($table, $newTable)`
+### `SchemaBuilder::rename($table, $newTable)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -72,13 +83,13 @@ Parameter sama dengan `drop()`.
 
 **Kembalian:** `bool`.
 
-### `compileRename($table, $newTable)`
+### `SchemaBuilder::compileRename($table, $newTable)`
 
 Parameter sama dengan `rename()`.
 
 **Kembalian:** `string` — `ALTER TABLE ... RENAME TO ...`.
 
-### `truncate($table)`
+### `SchemaBuilder::truncate($table)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -86,13 +97,13 @@ Parameter sama dengan `rename()`.
 
 **Kembalian:** `bool`.
 
-### `compileTruncate($table)`
+### `SchemaBuilder::compileTruncate($table)`
 
 Parameter sama dengan `truncate()`.
 
 **Kembalian:** `string` — `TRUNCATE TABLE ...`.
 
-### `alter($table, $definition)`
+### `SchemaBuilder::alter($table, $definition)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -101,7 +112,7 @@ Parameter sama dengan `truncate()`.
 
 **Kembalian:** `bool`.
 
-### `compileAlter($table, $definition)`
+### `SchemaBuilder::compileAlter($table, $definition)`
 
 Parameter sama dengan `alter()`.
 
@@ -118,6 +129,9 @@ operasi apa pun.` bila closure tidak mencatat operasi.
 - `tests/02.02-skema-tabel/index.php` — aplikasi uji
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 29 Oktober 2026 lewat `http://localhost:8089/02.02-skema-tabel/`:
 

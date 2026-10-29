@@ -1,3 +1,14 @@
+---
+id: ref-response
+title: Selvi\Output\Response
+type: referensi
+class: Selvi\Output\Response
+tags: [response, status-code, cookie, header, helper]
+prerequisites: []
+verified: 2026-10-28
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Output\Response`
 
 Respons teks. Instance dibuat lewat helper `response()` (lihat bagian Helper).
@@ -6,15 +17,15 @@ Tidak ada method statis. Untuk JSON, lihat
 
 ## Method instance
 
-### `getContent()`
+### `Response::getContent()`
 
 **Kembalian:** `?string` — isi body saat ini.
 
-### `getCode()`
+### `Response::getCode()`
 
 **Kembalian:** `int` — status HTTP saat ini.
 
-### `setContent($content)`
+### `Response::setContent($content)`
 
 Mengganti isi body setelah objek dibuat.
 
@@ -24,7 +35,7 @@ Mengganti isi body setelah objek dibuat.
 
 **Kembalian:** `void`.
 
-### `setCode($code)`
+### `Response::setCode($code)`
 
 Mengganti status HTTP setelah objek dibuat.
 
@@ -34,7 +45,7 @@ Mengganti status HTTP setelah objek dibuat.
 
 **Kembalian:** `void`.
 
-### `cookie($name, $value, $expire, $path, $domain, $secure, $httponly)`
+### `Response::cookie($name, $value, $expire, $path, $domain, $secure, $httponly)`
 
 Mengirim cookie saat itu juga lewat `setcookie()`.
 
@@ -50,7 +61,7 @@ Mengirim cookie saat itu juga lewat `setcookie()`.
 
 **Kembalian:** `void`.
 
-### `send()`
+### `Response::send()`
 
 Mengirim respons dan mengakhiri proses. Dipanggil framework; tidak perlu
 dipanggil sendiri. Urutannya: `http_response_code($code)` (dilewati saat CLI),
@@ -80,6 +91,9 @@ Helper ini tidak mengatur header apa pun, termasuk `Content-Type`.
 - `tests/01.02-response/index.php` — aplikasi uji.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 28 Oktober 2026 (PHP 8.4.14) lewat
 `http://localhost:8089/01.02-response/`:

@@ -1,3 +1,14 @@
+---
+id: ref-request
+title: Selvi\Input\Request
+type: referensi
+class: Selvi\Input\Request
+tags: [request, header, cookie, body, file, query-string]
+prerequisites: []
+verified: 2026-10-28
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Input\Request`
 
 Objek pembaca data request. Instance disuntikkan otomatis ke callback bila
@@ -6,13 +17,13 @@ parameter diberi type hint `Request`. Tidak ada method statis.
 
 ## Method instance
 
-### `method()`
+### `Request::method()`
 
 Mengambil method HTTP request.
 
 **Kembalian:** `string` — mis. `GET`, `POST`.
 
-### `get($name)`
+### `Request::get($name)`
 
 Membaca nilai dari query string.
 
@@ -22,7 +33,7 @@ Membaca nilai dari query string.
 
 **Kembalian:** `mixed` — nilai, atau `null` bila tidak dikirim.
 
-### `post($name)`
+### `Request::post($name)`
 
 Membaca nilai dari body form-urlencoded atau multipart.
 
@@ -33,13 +44,13 @@ Membaca nilai dari body form-urlencoded atau multipart.
 **Kembalian:** `mixed` — nilai, atau `null`. Body JSON **tidak** terbaca di
 sini; gunakan `raw()`.
 
-### `raw()`
+### `Request::raw()`
 
 Membaca body request mentah.
 
 **Kembalian:** `?string` — isi body, atau `null`.
 
-### `header($name)`
+### `Request::header($name)`
 
 Membaca header request.
 
@@ -56,7 +67,7 @@ Catatan:
 - Header `Authorization` dibuang Apache kecuali `.htaccess` menambahkan aturan
   passthrough.
 
-### `file($name)`
+### `Request::file($name)`
 
 Membaca entri file upload.
 
@@ -67,7 +78,7 @@ Membaca entri file upload.
 **Kembalian:** `?array` — entri `$_FILES` (`name`, `type`, `tmp_name`,
 `error`, `size`), atau `null`.
 
-### `cookie($name)`
+### `Request::cookie($name)`
 
 Membaca nilai cookie.
 
@@ -80,7 +91,7 @@ Membaca nilai cookie.
 Catatan: membaca `$_COOKIE` langsung tanpa `isset`, sehingga cookie yang tidak
 dikirim memunculkan `Warning: Undefined array key`.
 
-### `route()`
+### `Request::route()`
 
 Mengambil route yang sedang dipakai.
 
@@ -94,6 +105,9 @@ Mengambil route yang sedang dipakai.
 - `tests/01.03-request/index.php` — aplikasi uji.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 28 Oktober 2026 (PHP 8.4.14) lewat
 `http://localhost:8089/01.03-request/`:

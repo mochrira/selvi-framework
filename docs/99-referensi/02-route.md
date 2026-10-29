@@ -1,3 +1,14 @@
+---
+id: ref-route
+title: Selvi\Routing\Route
+type: referensi
+class: Selvi\Routing\Route
+tags: [route, http-method, route-group, middleware, parameter-uri]
+prerequisites: [controller]
+verified: 2026-10-29
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Routing\Route`
 
 Objek route. Instance dibuat lewat method statis `get()`, `post()`, `patch()`,
@@ -19,7 +30,7 @@ Aturan yang berlaku untuk semua route:
 
 ## Method statis
 
-### `get($uri, $callback)`
+### `Route::get($uri, $callback)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -28,31 +39,31 @@ Aturan yang berlaku untuk semua route:
 
 **Kembalian:** `Route`.
 
-### `post($uri, $callback)`
+### `Route::post($uri, $callback)`
 
 Sama seperti `get()`, tetapi hanya mencocokkan method `POST`.
 
 **Kembalian:** `Route`.
 
-### `patch($uri, $callback)`
+### `Route::patch($uri, $callback)`
 
 Sama seperti `get()`, tetapi hanya mencocokkan method `PATCH`.
 
 **Kembalian:** `Route`.
 
-### `delete($uri, $callback)`
+### `Route::delete($uri, $callback)`
 
 Sama seperti `get()`, tetapi hanya mencocokkan method `DELETE`.
 
 **Kembalian:** `Route`.
 
-### `options($uri, $callback)`
+### `Route::options($uri, $callback)`
 
 Sama seperti `get()`, tetapi hanya mencocokkan method `OPTIONS`.
 
 **Kembalian:** `Route`.
 
-### `group($callback)`
+### `Route::group($callback)`
 
 Mendaftarkan beberapa route sebagai satu grup.
 
@@ -69,7 +80,7 @@ Catatan:
 - Middleware dan parameter dapat ditambahkan pada grup lewat
   `setMiddleware()` dan `setParam()`.
 
-### `withMiddleware($middleware, $callback)`
+### `Route::withMiddleware($middleware, $callback)`
 
 Membuat grup dan langsung memasang middleware.
 
@@ -85,25 +96,25 @@ route berikutnya, atau kembalikan `Response` sendiri untuk menghentikan rantai.
 
 ## Method instance
 
-### `getMethod()`
+### `Route::getMethod()`
 
 **Kembalian:** `string` — method HTTP route, mis. `GET`.
 
-### `getUri()`
+### `Route::getUri()`
 
 **Kembalian:** `string` — pola URI yang didaftarkan.
 
-### `getCallback()`
+### `Route::getCallback()`
 
 **Kembalian:** `Closure|array|string` — callback asli route.
 
-### `params()`
+### `Route::params()`
 
 **Kembalian:** `array` — seluruh parameter route, termasuk parameter URI,
 parameter grup, dan parameter yang ditambahkan lewat `setParam()`. Nilai dari
 URI berupa `string`.
 
-### `getParam($name)`
+### `Route::getParam($name)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -111,7 +122,7 @@ URI berupa `string`.
 
 **Kembalian:** `mixed` — nilai parameter, atau `null` bila tidak ada.
 
-### `setParam($name, $value)`
+### `Route::setParam($name, $value)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -120,11 +131,11 @@ URI berupa `string`.
 
 **Kembalian:** `RouteInterface` — instance route sendiri.
 
-### `getMiddleware()`
+### `Route::getMiddleware()`
 
 **Kembalian:** `array` — daftar middleware route.
 
-### `setMiddleware($middleware)`
+### `Route::setMiddleware($middleware)`
 
 Menambahkan middleware ke daftar yang sudah ada.
 
@@ -134,7 +145,7 @@ Menambahkan middleware ke daftar yang sudah ada.
 
 **Kembalian:** `RouteInterface` — instance route sendiri.
 
-### `match($method, $uri, $parent)`
+### `Route::match($method, $uri, $parent)`
 
 Mencocokkan route dengan request. Dipakai internal oleh `Router`.
 
@@ -150,7 +161,7 @@ cocok.
 Catatan: pola URI tidak di-escape sebelum dijadikan regex, sehingga karakter
 khusus regex pada URI ikut berlaku. Gunakan URI sederhana.
 
-### `compile($parent)`
+### `Route::compile($parent)`
 
 Membuat salinan route dengan middleware dan parameter dari grup induk.
 
@@ -171,6 +182,9 @@ Membuat salinan route dengan middleware dan parameter dari grup induk.
 - `tests/01.03-request/index.php` — aplikasi uji `getUri()`.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 29 Oktober 2026 (PHP 8.4.14) lewat
 `http://localhost:8089/01.04-controller/` dan

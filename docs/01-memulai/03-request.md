@@ -1,3 +1,13 @@
+---
+id: request
+title: Request
+type: panduan
+tags: [request, query-string, body-json, form, header, cookie, uri]
+prerequisites: [instalasi]
+verified: 2026-10-28
+applies_to: Selvi 3.x
+---
+
 # Request
 
 Data request diambil lewat `Selvi\Input\Request`. Objek ini disuntikkan
@@ -121,6 +131,9 @@ RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 - `tests/01.03-request/index.php` — semua contoh di halaman ini.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 28 Oktober 2026 dengan PHP 8.4.14 lewat
 `http://localhost:8089/01.03-request/`. Aplikasi uji memuat `vendor/`

@@ -1,3 +1,14 @@
+---
+id: ref-json-response
+title: Selvi\Output\JsonResponse
+type: referensi
+class: Selvi\Output\JsonResponse
+tags: [json, json-encode, opsi-json, helper, pretty-print]
+prerequisites: [response]
+verified: 2026-10-28
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Output\JsonResponse`
 
 Respons JSON. Turunan `Response`, dibuat lewat helper `jsonResponse()` (lihat
@@ -5,15 +16,15 @@ bagian Helper). Tidak ada method statis.
 
 ## Method instance
 
-### `getData()`
+### `JsonResponse::getData()`
 
 **Kembalian:** `?array` — data sebelum di-encode.
 
-### `getOptions()`
+### `JsonResponse::getOptions()`
 
 **Kembalian:** `int` — flag `json_encode()` yang dipakai.
 
-### `setData($data)`
+### `JsonResponse::setData($data)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -21,7 +32,7 @@ bagian Helper). Tidak ada method statis.
 
 **Kembalian:** `void`.
 
-### `setOptions($options)`
+### `JsonResponse::setOptions($options)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -29,7 +40,7 @@ bagian Helper). Tidak ada method statis.
 
 **Kembalian:** `void`.
 
-### `send()`
+### `JsonResponse::send()`
 
 Mengisi body dari `json_encode($data, $options)` lalu memanggil `send()` milik
 kelas induk (`Response`). Bila data `null`, body kosong — berguna untuk `204`.
@@ -60,6 +71,9 @@ Helper ini tidak mengatur header `Content-Type`; set manual bila diperlukan.
 - `tests/01.02-response/index.php` — aplikasi uji.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 28 Oktober 2026 (PHP 8.4.14) lewat
 `http://localhost:8089/01.02-response/`:

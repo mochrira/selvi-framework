@@ -1,3 +1,14 @@
+---
+id: ref-blueprint
+title: Selvi\Database\Builder\DDL\Blueprint
+type: referensi
+class: Selvi\Database\Builder\DDL\Blueprint
+tags: [database, ddl, kolom, tipe-kolom, create-table, if-not-exists]
+prerequisites: [database-skema-tabel]
+verified: 2026-10-29
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Database\Builder\DDL\Blueprint`
 
 Kolektor definisi tabel untuk `SchemaBuilder::create()`. Instance dibuat oleh
@@ -19,7 +30,7 @@ Pemakaian ada di [skema tabel](../02-database/02-skema-tabel.md).
 
 ## Method instance
 
-### `__construct($table, $ifNotExists)`
+### `Blueprint::__construct($table, $ifNotExists)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -30,7 +41,7 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** instance `Blueprint`.
 
-### `ifNotExists($flag)`
+### `Blueprint::ifNotExists($flag)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -38,7 +49,7 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** instance `Blueprint`.
 
-### `integer($name, $nullable)`
+### `Blueprint::integer($name, $nullable)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -47,7 +58,7 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** `ColumnClause`. MySQL: `INT`.
 
-### `bigInteger($name, $nullable)`
+### `Blueprint::bigInteger($name, $nullable)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -56,7 +67,7 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** `ColumnClause`. MySQL: `BIGINT`.
 
-### `string($name, $length, $nullable)`
+### `Blueprint::string($name, $length, $nullable)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -66,7 +77,7 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** `ColumnClause`. MySQL: `VARCHAR(n)`.
 
-### `text($name, $nullable)`
+### `Blueprint::text($name, $nullable)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -75,7 +86,7 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** `ColumnClause`. MySQL: `TEXT`.
 
-### `boolean($name, $nullable)`
+### `Blueprint::boolean($name, $nullable)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -84,7 +95,7 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** `ColumnClause`. MySQL: `TINYINT(1)`.
 
-### `decimal($name, $precision, $scale, $nullable)`
+### `Blueprint::decimal($name, $precision, $scale, $nullable)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -95,7 +106,7 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** `ColumnClause`. MySQL: `DECIMAL(p, s)`.
 
-### `float($name, $nullable)`
+### `Blueprint::float($name, $nullable)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -104,7 +115,7 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** `ColumnClause`. MySQL: `DOUBLE`.
 
-### `date($name, $nullable)`
+### `Blueprint::date($name, $nullable)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -113,7 +124,7 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** `ColumnClause`. MySQL: `DATE`.
 
-### `datetime($name, $nullable)`
+### `Blueprint::datetime($name, $nullable)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -122,19 +133,19 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** `ColumnClause`. MySQL: `DATETIME`.
 
-### `getTable()`
+### `Blueprint::getTable()`
 
 Tidak ada parameter.
 
 **Kembalian:** `string` — nama tabel. Dipakai Grammar, bukan kode aplikasi.
 
-### `hasIfNotExists()`
+### `Blueprint::hasIfNotExists()`
 
 Tidak ada parameter.
 
 **Kembalian:** `bool`. Dipakai Grammar.
 
-### `getColumns()`
+### `Blueprint::getColumns()`
 
 Tidak ada parameter.
 
@@ -150,6 +161,9 @@ kolom hasil `ColumnClause::toArray()`. Dipakai Grammar.
 - `tests/02.02-skema-tabel/index.php` — aplikasi uji
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 29 Oktober 2026 lewat `GET /02.02-skema-tabel/tipe` dan `/jalankan`:
 

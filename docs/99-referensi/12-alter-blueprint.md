@@ -1,3 +1,14 @@
+---
+id: ref-alter-blueprint
+title: Selvi\Database\Builder\DDL\AlterBlueprint
+type: referensi
+class: Selvi\Database\Builder\DDL\AlterBlueprint
+tags: [database, ddl, alter-table, index, foreign-key, primary-key, kolom]
+prerequisites: [database-skema-tabel]
+verified: 2026-10-29
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Database\Builder\DDL\AlterBlueprint`
 
 Kolektor operasi untuk `SchemaBuilder::alter()`. Instance dibuat oleh
@@ -21,7 +32,7 @@ Pemakaian ada di [skema tabel](../02-database/02-skema-tabel.md).
 
 ## Method instance
 
-### `__construct($table)`
+### `AlterBlueprint::__construct($table)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -31,7 +42,7 @@ Dipakai internal oleh `SchemaBuilder::alter()`.
 
 **Kembalian:** instance `AlterBlueprint`.
 
-### `dropColumn($name)`
+### `AlterBlueprint::dropColumn($name)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -39,7 +50,7 @@ Dipakai internal oleh `SchemaBuilder::alter()`.
 
 **Kembalian:** instance `AlterBlueprint`. SQL: `DROP COLUMN x`.
 
-### `renameColumn($from, $to)`
+### `AlterBlueprint::renameColumn($from, $to)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -51,7 +62,7 @@ MySQL 8.0+ / MariaDB 10.5.2+).
 
 Tipe dan atribut kolom tidak berubah; hanya namanya.
 
-### `index($columns, $name)`
+### `AlterBlueprint::index($columns, $name)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -60,7 +71,7 @@ Tipe dan atribut kolom tidak berubah; hanya namanya.
 
 **Kembalian:** instance `AlterBlueprint`. SQL: `ADD INDEX nama (a, b)`.
 
-### `unique($columns, $name)`
+### `AlterBlueprint::unique($columns, $name)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -69,7 +80,7 @@ Tipe dan atribut kolom tidak berubah; hanya namanya.
 
 **Kembalian:** instance `AlterBlueprint`. SQL: `ADD UNIQUE INDEX nama (a, b)`.
 
-### `dropIndex($name)`
+### `AlterBlueprint::dropIndex($name)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -77,7 +88,7 @@ Tipe dan atribut kolom tidak berubah; hanya namanya.
 
 **Kembalian:** instance `AlterBlueprint`. SQL: `DROP INDEX nama`.
 
-### `primary($columns, $name)`
+### `AlterBlueprint::primary($columns, $name)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -86,7 +97,7 @@ Tipe dan atribut kolom tidak berubah; hanya namanya.
 
 **Kembalian:** instance `AlterBlueprint`. SQL: `ADD [CONSTRAINT n] PRIMARY KEY (a, b)`.
 
-### `dropPrimary($name)`
+### `AlterBlueprint::dropPrimary($name)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -96,7 +107,7 @@ Tipe dan atribut kolom tidak berubah; hanya namanya.
 
 Gagal di MySQL bila kolom primary key masih `AUTO_INCREMENT` (error 1075).
 
-### `foreign($columns, $foreignTable, $references, $name, $onDelete, $onUpdate)`
+### `AlterBlueprint::foreign($columns, $foreignTable, $references, $name, $onDelete, $onUpdate)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -110,7 +121,7 @@ Gagal di MySQL bila kolom primary key masih `AUTO_INCREMENT` (error 1075).
 **Kembalian:** instance `AlterBlueprint`. SQL:
 `ADD CONSTRAINT nama FOREIGN KEY (a) REFERENCES t (b) [ON DELETE x] [ON UPDATE y]`.
 
-### `dropForeign($name)`
+### `AlterBlueprint::dropForeign($name)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -118,11 +129,11 @@ Gagal di MySQL bila kolom primary key masih `AUTO_INCREMENT` (error 1075).
 
 **Kembalian:** instance `AlterBlueprint`. SQL: `DROP FOREIGN KEY nama`.
 
-### `getTable()`
+### `AlterBlueprint::getTable()`
 
 **Kembalian:** `string` — nama tabel. Dipakai Grammar.
 
-### `getOperations()`
+### `AlterBlueprint::getOperations()`
 
 **Kembalian:** `array<int, array<string, mixed>>` — daftar node operasi kanonik
 sesuai urutan pemanggilan. Dipakai Grammar.
@@ -150,6 +161,9 @@ pencatatan operasi:
 - `tests/02.02-skema-tabel/index.php` — aplikasi uji
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 29 Oktober 2026 lewat `http://localhost:8089/02.02-skema-tabel/`:
 

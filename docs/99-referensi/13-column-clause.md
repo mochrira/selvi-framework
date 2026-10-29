@@ -1,3 +1,14 @@
+---
+id: ref-column-clause
+title: Selvi\Database\Builder\DDL\Clauses\ColumnClause
+type: referensi
+class: Selvi\Database\Builder\DDL\Clauses\ColumnClause
+tags: [database, ddl, kolom, modifier, default, nullable, auto-increment]
+prerequisites: [database-skema-tabel]
+verified: 2026-10-29
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Database\Builder\DDL\Clauses\ColumnClause`
 
 Nilai satu kolom. Instance dikembalikan oleh method tipe
@@ -30,7 +41,7 @@ Pemakaian ada di [skema tabel](../02-database/02-skema-tabel.md).
 
 ## Method statis
 
-### `make($name, $type, $options)`
+### `ColumnClause::make($name, $type, $options)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -44,11 +55,11 @@ Dipakai internal oleh `Blueprint::add()` dan `AlterBlueprint::add()`.
 
 ## Method instance
 
-### `name()`
+### `ColumnClause::name()`
 
 **Kembalian:** `string` — nama kolom.
 
-### `key($flag)`
+### `ColumnClause::key($flag)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -56,7 +67,7 @@ Dipakai internal oleh `Blueprint::add()` dan `AlterBlueprint::add()`.
 
 **Kembalian:** instance `ColumnClause`.
 
-### `autoIncrement($flag)`
+### `ColumnClause::autoIncrement($flag)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -64,7 +75,7 @@ Dipakai internal oleh `Blueprint::add()` dan `AlterBlueprint::add()`.
 
 **Kembalian:** instance `ColumnClause`.
 
-### `nullable($flag)`
+### `ColumnClause::nullable($flag)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -72,7 +83,7 @@ Dipakai internal oleh `Blueprint::add()` dan `AlterBlueprint::add()`.
 
 **Kembalian:** instance `ColumnClause`.
 
-### `default($value)`
+### `ColumnClause::default($value)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -80,7 +91,7 @@ Dipakai internal oleh `Blueprint::add()` dan `AlterBlueprint::add()`.
 
 **Kembalian:** instance `ColumnClause`.
 
-### `unique($flag)`
+### `ColumnClause::unique($flag)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -88,7 +99,7 @@ Dipakai internal oleh `Blueprint::add()` dan `AlterBlueprint::add()`.
 
 **Kembalian:** instance `ColumnClause`.
 
-### `length($length)`
+### `ColumnClause::length($length)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -96,7 +107,7 @@ Dipakai internal oleh `Blueprint::add()` dan `AlterBlueprint::add()`.
 
 **Kembalian:** instance `ColumnClause`.
 
-### `change($flag)`
+### `ColumnClause::change($flag)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -107,11 +118,11 @@ Dipakai internal oleh `Blueprint::add()` dan `AlterBlueprint::add()`.
 Hanya bermakna di dalam `alter()`. MySQL menulis ulang definisi kolom, jadi
 semua atribut harus disebut lagi; yang tidak disebut akan hilang.
 
-### `operation()`
+### `ColumnClause::operation()`
 
 **Kembalian:** `string` — `add` atau `modify`.
 
-### `after($column)`
+### `ColumnClause::after($column)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -121,18 +132,18 @@ semua atribut harus disebut lagi; yang tidak disebut akan hilang.
 
 Hanya berpengaruh di `alter()`. Memanggilnya membatalkan `first()`.
 
-### `first()`
+### `ColumnClause::first()`
 
 **Kembalian:** instance `ColumnClause`.
 
 Hanya berpengaruh di `alter()`. Memanggilnya membatalkan `after()`.
 
-### `position()`
+### `ColumnClause::position()`
 
 **Kembalian:** `array|null` — `['first' => true]`, `['after' => 'x']`, atau
 `null` bila posisi tidak diminta.
 
-### `toArray()`
+### `ColumnClause::toArray()`
 
 **Kembalian:** `array<string, mixed>` — struktur kanonik kolom tanpa
 `operation` dan `position`.
@@ -145,6 +156,9 @@ Hanya berpengaruh di `alter()`. Memanggilnya membatalkan `after()`.
 - `tests/02.02-skema-tabel/index.php` — aplikasi uji
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 29 Oktober 2026 lewat `http://localhost:8089/02.02-skema-tabel/`:
 

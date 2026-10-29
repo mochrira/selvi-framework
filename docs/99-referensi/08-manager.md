@@ -1,3 +1,14 @@
+---
+id: ref-manager
+title: Selvi\Database\Manager
+type: referensi
+class: Selvi\Database\Manager
+tags: [database, koneksi, registry, manager, mysql]
+prerequisites: [database-koneksi]
+verified: 2026-10-29
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Database\Manager`
 
 Registry koneksi database. Seluruh state berupa properti statis, jadi koneksi
@@ -17,7 +28,7 @@ Aturan yang berlaku:
 
 ## Method statis
 
-### `add($name, $config)`
+### `Manager::add($name, $config)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -29,7 +40,7 @@ Aturan yang berlaku:
 Melempar `InvalidArgumentException` bila driver belum punya implementasi, dan
 `Selvi\Exception\DatabaseException` bila koneksi gagal dibuka.
 
-### `get($name)`
+### `Manager::get($name)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -40,14 +51,14 @@ Melempar `InvalidArgumentException` bila driver belum punya implementasi, dan
 Melempar `InvalidArgumentException: Koneksi 'x' tidak terdaftar.` bila nama belum
 didaftarkan.
 
-### `default()`
+### `Manager::default()`
 
 Tidak ada parameter.
 
 **Kembalian:** `IConnection|null` — koneksi pertama yang terdaftar, atau `null`
 bila belum ada koneksi.
 
-### `has($name)`
+### `Manager::has($name)`
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
@@ -62,6 +73,9 @@ bila belum ada koneksi.
 - `tests/02.01-koneksi/index.php` — aplikasi uji
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 29 Oktober 2026 lewat `http://localhost:8089/02.01-koneksi/`:
 

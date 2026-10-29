@@ -1,3 +1,14 @@
+---
+id: ref-framework
+title: Selvi\Framework
+type: referensi
+class: Selvi\Framework
+tags: [framework, entry-point, routing, cli, dispatcher]
+prerequisites: []
+verified: partial
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Framework`
 
 Kelas statis. Tidak ada instance; seluruh pemakaian lewat method statis.
@@ -5,7 +16,7 @@ Contoh pemakaian ada di [instalasi](../01-memulai/01-instalasi.md).
 
 ## Method statis
 
-### `run()`
+### `Framework::run()`
 
 Menjalankan siklus request dari pencocokan route sampai pengiriman respons.
 
@@ -49,6 +60,9 @@ Menjalankan siklus request dari pencocokan route sampai pengiriman respons.
   `tests/01.03-request/index.php` — aplikasi uji.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Jalur web (tahap 2–7) terverifikasi lewat tiga aplikasi uji di atas: route
 closure, teks, JSON, view, status code, serta pembacaan query, body, header,

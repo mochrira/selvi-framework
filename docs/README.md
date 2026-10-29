@@ -1,3 +1,11 @@
+---
+id: docs-index
+title: Dokumentasi Selvi Framework
+type: indeks
+tags: [selvi, dokumentasi, indeks, peta-dokumentasi]
+applies_to: Selvi 3.x
+---
+
 # Dokumentasi Selvi Framework
 
 Knowledge base untuk developer dan agent AI yang bekerja dengan Selvi Framework.
@@ -80,6 +88,39 @@ ada di `01-memulai/`.
 
 Halaman berstatus **BELUM DIVERIFIKASI** berarti perilakunya disimpulkan dari
 kode sumber dan belum pernah dijalankan. Jangan menganggapnya sebagai jaminan.
+
+## Sebagai knowledge base AI
+
+Dokumentasi ini juga dipakai sebagai sumber untuk agen AI, jadi setiap halaman
+memuat YAML front matter:
+
+```yaml
+---
+id: database-skema-tabel          # unik, dipakai sebagai kunci dokumen
+title: Skema Tabel
+type: panduan                     # panduan | referensi | indeks
+class: Selvi\Database\Builder\DDL\SchemaBuilder  # hanya di 99-referensi/
+tags: [database, ddl, create-table, alter-table]
+prerequisites: [database-koneksi] # id halaman yang perlu dibaca dulu
+verified: 2026-10-29              # tanggal, partial, atau false
+applies_to: Selvi 3.x
+---
+```
+
+Aturan pengindeksan yang disarankan:
+
+- Potong `01-memulai/` dan `02-database/` per heading `##` (satu bagian satu
+  chunk), dan `99-referensi/` per heading `###` (satu method satu chunk).
+- Pertahankan hierarki heading sebagai metadata chunk. Heading method referensi
+  sudah memuat nama kelas (mis. `AlterBlueprint::dropForeign($name)`), sehingga
+  chunk tetap jelas walau dipisah dari halamannya.
+- Jangan memakai isi **Status verifikasi** sebagai spesifikasi. Bagian itu
+  catatan pengujian pada lingkungan tertentu; statusnya dirangkum di field
+  `verified`.
+- Signature kanonik ada di `99-referensi/`. Halaman bab hanya menampilkan
+  contoh; bila keduanya berbeda, referensi yang benar.
+- Indeks ringkas seluruh halaman beserta `id`-nya ada di
+  [llms.txt](llms.txt).
 
 ## Sumber kebenaran
 

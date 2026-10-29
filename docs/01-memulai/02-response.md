@@ -1,3 +1,13 @@
+---
+id: response
+title: Response
+type: panduan
+tags: [response, jsonresponse, view, status-code, cookie, content-type]
+prerequisites: [instalasi]
+verified: 2026-10-28
+applies_to: Selvi 3.x
+---
+
 # Response
 
 Setiap route harus mengembalikan `Response`. Ada dua helper: `response()`
@@ -166,6 +176,9 @@ Unix timestamp.
   semua contoh di halaman ini.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 28 Oktober 2026 dengan PHP 8.4.14 lewat
 `http://localhost:8089/01.02-response/`. Aplikasi uji memuat `vendor/`

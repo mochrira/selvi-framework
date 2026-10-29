@@ -1,0 +1,74 @@
+# Selvi Framework — Indeks Dokumentasi untuk Agen AI
+
+> Selvi adalah micro-framework PHP (>= 8.1) untuk membangun API: routing,
+> dependency injection, response/JSON, view, model berbasis attribute, dan
+> lapisan database MySQL/MariaDB (query builder, DDL, migrasi, seeder).
+> Semua halaman berbahasa Indonesia, sementara identifier dan pesan error
+> mengikuti source code.
+
+- Versi yang berlaku: **Selvi 3.x** (`mochrira/selvi-framework`, PHP >= 8.1).
+- Setiap halaman punya YAML front matter: `id`, `title`, `type`, `class`
+  (khusus referensi), `tags`, `prerequisites`, `verified`, `applies_to`.
+- Signature kanonik ada di `99-referensi/`; halaman bab hanya contoh.
+- Bagian **Status verifikasi** adalah catatan pengujian, bukan spesifikasi API.
+- Peta dokumentasi lengkap: [README.md](README.md).
+
+## Cara memotong (chunking)
+
+- `01-memulai/` dan `02-database/`: potong per heading `##`.
+- `99-referensi/`: potong per heading `###` — satu method satu chunk.
+- Sertakan hierarki heading (`H1` → `H2` → `H3`) sebagai metadata chunk.
+- Heading method referensi sudah memuat nama kelas
+  (mis. `AlterBlueprint::dropForeign($name)`), jadi tetap jelas tanpa halaman
+  induk.
+
+## Panduan
+
+- [Instalasi](01-memulai/01-instalasi.md) — `id: instalasi`. Composer,
+  `index.php`, `.htaccess`, autoload, uji pertama.
+- [Response](01-memulai/02-response.md) — `id: response`. `response()`,
+  `jsonResponse()`, view, status code, header `Content-Type`.
+- [Request](01-memulai/03-request.md) — `id: request`. Query string, body JSON,
+  form, header, cookie.
+- [Controller](01-memulai/04-controller.md) — `id: controller`. Callback
+  `Kelas@method`, parameter route, dependency injection, middleware.
+- [Koneksi Database](02-database/01-koneksi.md) — `id: database-koneksi`.
+  `Manager::add()`, `.ENV`, `DB` facade, query mentah, transaksi, multi-koneksi,
+  bentuk `DatabaseException`.
+- [Skema Tabel](02-database/02-skema-tabel.md) — `id: database-skema-tabel`.
+  `create()`, tipe kolom, modifier, `alter()` (index, primary key, foreign key),
+  `drop()`, `rename()`, `truncate()`.
+
+## Referensi
+
+- [`Selvi\Framework`](99-referensi/01-framework.md) — `id: ref-framework`.
+  `Framework::run()`.
+- [`Selvi\Routing\Route`](99-referensi/02-route.md) — `id: ref-route`.
+  Pendaftaran route, grup, middleware, `match()`.
+- [`Selvi\Input\Request`](99-referensi/03-request.md) — `id: ref-request`.
+  Pembaca method, get, post, raw, header, file, cookie, route.
+- [`Selvi\Output\Response`](99-referensi/04-response.md) — `id: ref-response`.
+  Status code, cookie, `send()`, helper `response()`.
+- [`Selvi\Output\JsonResponse`](99-referensi/05-json-response.md) —
+  `id: ref-json-response`. Data, opsi JSON, helper `jsonResponse()`.
+- [`Selvi\View`](99-referensi/06-view.md) — `id: ref-view`. `addPath()`,
+  `setVar()`, `render()`, `include()`, helper `view()`.
+- [`Selvi\Controller`](99-referensi/07-controller.md) — `id: ref-controller`.
+  Base class opsional.
+- [`Selvi\Database\Manager`](99-referensi/08-manager.md) — `id: ref-manager`.
+  Registry koneksi: `add()`, `get()`, `default()`, `has()`.
+- [`Selvi\Database\DB`](99-referensi/09-db.md) — `id: ref-db`.
+  Facade `connection()`, `table()`, `schema()`.
+- [`Selvi\Database\Builder\DDL\SchemaBuilder`](99-referensi/10-schema-builder.md)
+  — `id: ref-schema-builder`. Eksekusi DDL dan pasangan `compile*()`.
+- [`Selvi\Database\Builder\DDL\Blueprint`](99-referensi/11-blueprint.md) —
+  `id: ref-blueprint`. Definisi kolom `create()`.
+- [`Selvi\Database\Builder\DDL\AlterBlueprint`](99-referensi/12-alter-blueprint.md)
+  — `id: ref-alter-blueprint`. Operasi `alter()`.
+- [`Selvi\Database\Builder\DDL\Clauses\ColumnClause`](99-referensi/13-column-clause.md)
+  — `id: ref-column-clause`. Modifier kolom.
+
+## Belum ditulis
+
+Migrasi, seeder, membaca data, menulis data, model, relasi, dan konversi value
+(bab `02-database/`). Halaman yang belum ada sengaja tidak ditautkan di sini.

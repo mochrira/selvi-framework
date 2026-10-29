@@ -1,3 +1,14 @@
+---
+id: ref-controller
+title: Selvi\Controller
+type: referensi
+class: Selvi\Controller
+tags: [controller, base-class, opsional]
+prerequisites: [controller]
+verified: 2026-10-29
+applies_to: Selvi 3.x
+---
+
 # Referensi: `Selvi\Controller`
 
 Base class opsional untuk controller. Isinya hanya pewarisan dari
@@ -44,6 +55,9 @@ method dipanggil sebagai bagian dari alur
   mewarisi `Selvi\Controller`.
 
 ## Status verifikasi
+
+> Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
+> yang mengikat ada di bagian sebelumnya.
 
 Diuji 29 Oktober 2026 (PHP 8.4.14) lewat
 `http://localhost:8089/01.04-controller/`. `HaloController` mewarisi
