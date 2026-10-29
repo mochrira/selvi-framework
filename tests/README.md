@@ -207,7 +207,43 @@ Hasil terverifikasi:
 Tiga endpoint terakhir dipakai untuk memverifikasi
 `docs/02-referensi/02-request.md`.
 
-## Langkah 6 — cek sintaks source
+## Langkah 6 — uji halaman controller (`01.04-controller/`)
+
+Folder ini menguji `docs/01-memulai/04-controller.md`. `index.php` memuat
+`vendor/` workspace dan memuat kelas `App\` secara manual, karena autoload repo
+tidak memetakan namespace `App\`.
+
+```sh
+docker exec selvi_test_dev sh -lc '
+php -l /workspace/tests/01.04-controller/index.php
+php -l /workspace/tests/01.04-controller/Controllers/HaloController.php
+php -l /workspace/tests/01.04-controller/Services/SapaanService.php'
+
+B=http://localhost:8089/01.04-controller
+curl -s "$B/"; echo
+curl -s "$B/sapa/Budi"; echo
+curl -s "$B/cari?q=selvi"; echo
+curl -s "$B/urut/A/B"; echo
+curl -s "$B/angka/5"; echo
+```
+
+Hasil terverifikasi:
+
+| Endpoint | Status | Hasil |
+|---|---|---|
+| `GET /01.04-controller/` | `200` | `Halo dari controller!` |
+| `GET /01.04-controller/sapa/Budi` | `200` | `Halo, Budi!` |
+| `GET /01.04-controller/cari?q=selvi` | `200` | JSON `q` berisi `selvi` |
+| `GET /01.04-controller/cari` | `200` | JSON `q` berisi `null` |
+| `GET /01.04-controller/urut/A/B` | `200` | `B\|A` |
+| `GET /01.04-controller/angka/5` | `200` | JSON `id` berisi `5` |
+| `GET /01.04-controller/angka/abc` | `400` | `ID harus angka` |
+| `GET /01.04-controller/tipe-angka/abc` | `500` | sengaja salah: type hint `int` menolak string non-angka |
+| `GET /01.04-controller/salah-nama/Budi` | `500` | sengaja salah: nama parameter tidak cocok |
+| `GET /01.04-controller/tanpa-return` | `500` | sengaja salah: tidak mengembalikan `Response` |
+| `GET /01.04-controller/kelas-salah` | `500` | sengaja salah: kelas controller tidak ada |
+
+## Langkah 7 — cek sintaks source
 
 ```sh
 docker exec selvi_test_dev sh -lc '

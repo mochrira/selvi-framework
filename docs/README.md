@@ -10,7 +10,7 @@ Bagian `01-memulai/` ditulis bertahap dengan urutan:
 1. [Instalasi](01-memulai/01-instalasi.md) — selesai.
 2. [Response](01-memulai/02-response.md) — selesai.
 3. [Request](01-memulai/03-request.md) — selesai.
-4. `04-controller.md` — belum ditulis.
+4. [Controller](01-memulai/04-controller.md) — selesai.
 
 Halaman yang belum ditulis tidak ditautkan, agar tidak ada link mati.
 
@@ -28,7 +28,7 @@ Rujukan per kelas, diringkas dari halaman-halaman `01-memulai/`:
 
 | Folder | Status |
 |---|---|
-| `01-memulai/` | 3 dari 4 halaman |
+| `01-memulai/` | selesai (4 halaman) |
 | `02-referensi/` | selesai (5 halaman) |
 | bagian lain | belum ditulis |
 
