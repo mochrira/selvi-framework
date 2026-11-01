@@ -59,20 +59,6 @@ mengimplementasikan `assign()` sendiri. `DataRow` menyediakan pembacaan kunci
 dan prefix yang sama untuk semua attribute. Attribute model mewarisi
 `assign()` dari `DataProperty` melalui `PropertyAttribute`.
 
-### `DataObject::assignValue($target, $name, $value)`
-
-Method internal untuk menulis nilai ke properti target dari scope
-`DataObject`. Dipakai oleh `assign()` pada attribute agar properti
-`protected` tetap dapat diisi.
-
-| Parameter | Tipe | Keterangan |
-|---|---|---|
-| `$target` | `object` | objek yang diisi |
-| `$name` | `string` | nama properti |
-| `$value` | `mixed` | nilai |
-
-**Kembalian:** `void`. Tidak perlu dipanggil manual.
-
 ## Method instance
 
 ### `DataObject::toArray()`

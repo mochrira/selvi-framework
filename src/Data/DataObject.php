@@ -41,15 +41,6 @@ class DataObject implements IArrayable, IDataObject {
         return self::$cache_properties[static::class] = $result;
     }
 
-    /**
-     * Menulis nilai ke properti target dari scope DataObject.
-     *
-     * @internal
-     */
-    public static function assignValue(object $target, string $name, mixed $value): void {
-        $target->{$name} = $value;
-    }
-
     public static function of(object $item, ?string $prefix = ""): static {
         $obj = new static();
         $row = new DataRow($item, $prefix ?? "");

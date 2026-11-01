@@ -5,7 +5,6 @@ namespace Selvi\Model\Attributes;
 use Attribute;
 use Override;
 use InvalidArgumentException;
-use Selvi\Data\DataObject;
 use Selvi\Data\DataRow;
 use Selvi\Database\Builder\DML\Clauses\SelectNode;
 use Selvi\Database\Interfaces\ICast;
@@ -54,10 +53,8 @@ class Aggregate extends PropertyAttribute {
     public function assign(object $target, DataRow $row): void {
         if(!$row->hasAny($row->append("{$this->query}_"))) return;
 
-        DataObject::assignValue(
-            $target,
-            $this->propertyName(),
-            $row->getAppended("{$this->query}__{$this->column}")
+        $target->{$this->propertyName()} = $row->getAppended(
+            "{$this->query}__{$this->column}"
         );
     }
 

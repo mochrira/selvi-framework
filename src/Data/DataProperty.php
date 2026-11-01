@@ -80,17 +80,16 @@ class DataProperty implements IDataProperty {
             ) {
                 $child = $row->child($nestedPrefix);
                 if($child->hasAny($child->prefix())) {
-                    DataObject::assignValue(
-                        $target,
-                        $this->propertyName(),
-                        $this->propertyType()::of($child->item(), $child->prefix())
+                    $target->{$this->propertyName()} = $this->propertyType()::of(
+                        $child->item(),
+                        $child->prefix()
                     );
                     return;
                 }
             }
 
             if($this->allowsNull()) {
-                DataObject::assignValue($target, $this->propertyName(), null);
+                $target->{$this->propertyName()} = null;
             }
             return;
         }
@@ -109,7 +108,7 @@ class DataProperty implements IDataProperty {
             );
         }
 
-        DataObject::assignValue($target, $this->propertyName(), $value);
+        $target->{$this->propertyName()} = $value;
     }
 
 }

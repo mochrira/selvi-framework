@@ -4,7 +4,6 @@ namespace Selvi\Model\Attributes;
 
 use Attribute;
 use Override;
-use Selvi\Data\DataObject;
 use Selvi\Data\DataRow;
 use Selvi\Model;
 use Selvi\Model\PropertyAttribute;
@@ -24,10 +23,9 @@ class BelongsTo extends PropertyAttribute {
         $child = $row->child($this->propertyName());
         if(!$child->hasAny($child->prefix())) return;
 
-        DataObject::assignValue(
-            $target,
-            $this->propertyName(),
-            $this->propertyType()::of($child->item(), $child->prefix())
+        $target->{$this->propertyName()} = $this->propertyType()::of(
+            $child->item(),
+            $child->prefix()
         );
     }
 
