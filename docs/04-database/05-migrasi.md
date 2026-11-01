@@ -210,8 +210,8 @@ Keduanya menerima `?callable $logger` dengan signature
   logger
 - `src/Database/MigrationLog.php` — tabel `_migration`
 - `src/Database/Schema.php` — handle koneksi untuk file migrasi
-- `tests/03.05-migrasi/console.php`, `tests/03.05-migrasi/migrations/`, dan
-  `tests/03.05-migrasi/index.php` — aplikasi uji halaman ini
+- `tests/04.05-migrasi/console.php`, `tests/04.05-migrasi/migrations/`, dan
+  `tests/04.05-migrasi/index.php` — aplikasi uji halaman ini
 
 ## Status verifikasi
 

@@ -144,8 +144,8 @@ $seeder->up('main');
 - `src/Database/Seeder.php` — perintah `db:seed`, pemilihan file, skip, logger
 - `src/Database/MigrationLog.php` — tabel `_migration` bersama
 - `src/Database/Schema.php` — handle koneksi untuk file seed
-- `tests/03.06-seeder/console.php`, `tests/03.06-seeder/seeds/`, dan
-  `tests/03.06-seeder/index.php` — aplikasi uji halaman ini
+- `tests/04.06-seeder/console.php`, `tests/04.06-seeder/seeds/`, dan
+  `tests/04.06-seeder/index.php` — aplikasi uji halaman ini
 
 ## Status verifikasi
 
@@ -157,7 +157,7 @@ koneksi uji `demo_seed`:
 
 | Kasus | Hasil |
 |---|---|
-| `GET /03.06-seeder/siapkan` | `200`, tabel `demo_seed` dibuat dan log lama dihapus |
+| `GET /04.06-seeder/siapkan` | `200`, tabel `demo_seed` dibuat dan log lama dihapus |
 | `db:seed demo_seed --no-interaction` | `[success:seed]`, dua baris masuk |
 | `db:seed demo_seed --no-interaction` kedua | `[skipped:seed]`, jumlah tetap `2` |
 | `db:seed main --no-interaction` tanpa path | `Belum ada path seeder yang didaftarkan...` |

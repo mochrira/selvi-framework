@@ -24,7 +24,7 @@ Aturan yang berlaku:
   `num_rows()`, `rows()`, dan `row()` mengembalikan `bool` tersebut.
 - Baris selalu `stdClass`; nilai kolom mengikuti driver (`string` untuk MySQL).
 
-Pemakaian ada di [membaca data](../03-database/03-membaca-data.md).
+Pemakaian ada di [membaca data](../04-database/03-membaca-data.md).
 
 ## Method instance
 
@@ -61,7 +61,7 @@ Dipakai internal oleh `MySQLConnection::query()`.
 - `src/Database/Interfaces/IResult.php`
 - `src/Database/Drivers/MySQL/MySQLResult.php`
 - `src/Database/Drivers/MySQL/MySQLConnection.php` — pembuatan result
-- `tests/03.03-membaca-data/index.php` — aplikasi uji
+- `tests/04.03-membaca-data/index.php` — aplikasi uji
 
 ## Status verifikasi
 
@@ -72,10 +72,10 @@ Diuji 1 November 2026 (PHP 8.4.14, MariaDB 10.7.8):
 
 | Kasus | Hasil |
 |---|---|
-| `GET /03.03-membaca-data/row` | `num_rows()` `1`; `row()` satu `stdClass` |
-| `GET /03.03-membaca-data/row-kosong` | `num_rows()` `0`; `row()` `null` |
-| `GET /03.03-membaca-data/` | `rows()` tiga `stdClass` |
-| `GET /03.03-membaca-data/hasil-bool` | `query('SET ...')` mengembalikan `bool` `true` |
+| `GET /04.03-membaca-data/row` | `num_rows()` `1`; `row()` satu `stdClass` |
+| `GET /04.03-membaca-data/row-kosong` | `num_rows()` `0`; `row()` `null` |
+| `GET /04.03-membaca-data/` | `rows()` tiga `stdClass` |
+| `GET /04.03-membaca-data/hasil-bool` | `query('SET ...')` mengembalikan `bool` `true` |
 
 Belum diuji: `rows()`/`row()` pada hasil `false` (query non-SELECT yang gagal)
 dan `result()` (deprecated).

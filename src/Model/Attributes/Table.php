@@ -2,7 +2,7 @@
 
 namespace Selvi\Model\Attributes;
 
-use Selvi\Model\Base\Attribute;
+use Selvi\Model\Attribute;
 
 #[\Attribute]
 class Table extends Attribute {

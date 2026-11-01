@@ -28,7 +28,7 @@ Aturan yang berlaku:
   [`Blueprint`](11-blueprint.md), tetapi dicatat sebagai operasi `add`.
   `change()` mengubahnya menjadi `modify`.
 
-Pemakaian ada di [skema tabel](../03-database/02-skema-tabel.md).
+Pemakaian ada di [skema tabel](../04-database/02-skema-tabel.md).
 
 ## Method instance
 
@@ -158,14 +158,14 @@ pencatatan operasi:
 - `src/Database/Builder/DDL/HasColumnTypes.php` — method tipe kolom
 - `src/Database/Interfaces/IAlterBlueprint.php` — kontrak untuk Grammar
 - `src/Database/Drivers/MySQL/MySQLGrammar.php` — `compileAlterTable()`
-- `tests/03.02-skema-tabel/index.php` — aplikasi uji
+- `tests/04.02-skema-tabel/index.php` — aplikasi uji
 
 ## Status verifikasi
 
 > Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
 > yang mengikat ada di bagian sebelumnya.
 
-Diuji 29 Oktober 2026 lewat `http://localhost:8089/03.02-skema-tabel/`:
+Diuji 29 Oktober 2026 lewat `http://localhost:8089/04.02-skema-tabel/`:
 
 | Method | Hasil |
 |---|---|

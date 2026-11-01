@@ -4,7 +4,9 @@ namespace Selvi\Database\Builder\DML;
 
 use Closure;
 use InvalidArgumentException;
+use ReflectionMethod;
 use Selvi\Collection;
+use Selvi\Database\Builder\DML\Clauses\SelectNode;
 use Selvi\Database\Builder\DML\JoinBuilder;
 use Selvi\Database\Builder\DML\WhereBuilder;
 use Selvi\Database\Builder\DML\WithBuilder;
@@ -72,7 +74,8 @@ class ModelQuery {
                 $childBuilder = $childQuery->build();
                 
                 $rightTable = $relation->model::getTable();
-                $subQueryMode = !empty($relation->model::relations());
+                $subQueryMode = !empty($relation->model::relations())
+                    || $this->hasExpressionColumns($relation->model);
                 if($subQueryMode) {
                     $rightTable = "({$childBuilder->getSql()})";
                 }
@@ -117,9 +120,23 @@ class ModelQuery {
                     $loadedAggregatesQuery[] = $relation->query;
                 }
 
-                $colPrefix = ($this->prefix != "" ? "{$this->prefix}_" : "")."{$relation->query}_";
+                $colPrefix = "{$this->prefix}{$relation->query}_";
+                $alias = "{$colPrefix}_{$relation->column}";
+
+                if($relation->expression !== null) {
+                    $node = $this->resolveExpression($relation->expression, [
+                        'alias' => $alias,
+                        'column' => $relation->column,
+                        'source' => $rightTableAlias,
+                        'prefix' => $this->prefix,
+                        'model' => $this->model,
+                    ]);
+                    $builder->select($this->withAlias($node, $alias));
+                    continue;
+                }
+
                 $builder->select(
-                    ["{$rightTableAlias}", "{$relation->column}", "{$colPrefix}_{$relation->column}"]
+                    ["{$rightTableAlias}", "{$relation->column}", $alias]
                 );
                 continue;
             }
@@ -137,10 +154,24 @@ class ModelQuery {
 
         $colPrefix = $this->prefix != "" ? "{$this->prefix}_" : "";
         foreach($columns as $column) {
+            $alias = $colPrefix.$column->name;
+
+            if($column->expression !== null) {
+                $node = $this->resolveExpression($column->expression, [
+                    'alias' => $alias,
+                    'column' => $column->name,
+                    'source' => $table,
+                    'prefix' => $this->prefix,
+                    'model' => $this->model,
+                ]);
+                $builder->select($this->withAlias($node, $alias));
+                continue;
+            }
+
             $builder->select([
                 $table, 
                 $column->name, 
-                $colPrefix.$column->name
+                $alias
             ]);
         }
 
@@ -289,9 +320,106 @@ class ModelQuery {
 
     public function delete(): bool {
         if(!$this->whereBuilder->hasWheres())
-            throw new InvalidArgumentException("Operasi UPDATE membutuhkan setidaknya 1 klausa where");
+            throw new InvalidArgumentException("Operasi DELETE membutuhkan setidaknya 1 klausa where");
         return $this->builder()->where($this->whereBuilder)
             ->delete();
+    }
+
+
+    /**
+     * Mengubah expression attribute menjadi node SELECT.
+     *
+     * String adalah nama static method resolver pada model. Array adalah node
+     * SelectNode canonical. Node hasil resolver maupun array sama-sama
+     * dikualifikasi dengan source.
+     *
+     * @param array{alias: string, column: string, source: string, prefix: string, model: class-string<Model>} $context
+     */
+    private function resolveExpression(array|string $expression, array $context): array {
+        if(is_string($expression)) {
+            $model = $context['model'];
+            $method = $expression;
+
+            if(!method_exists($model, $method)) {
+                throw new InvalidArgumentException(
+                    "Resolver '{$method}' tidak ditemukan pada {$model}."
+                );
+            }
+
+            $reflection = new ReflectionMethod($model, $method);
+            if(!$reflection->isStatic() || !$reflection->isPublic()) {
+                throw new InvalidArgumentException(
+                    "Resolver '{$method}' pada {$model} harus static dan public."
+                );
+            }
+
+            $node = $model::$method($context);
+            if(!is_array($node) || !isset($node['type'])) {
+                throw new InvalidArgumentException(
+                    "Resolver '{$method}' harus mengembalikan node SelectNode."
+                );
+            }
+
+            $type = $node['type'];
+            if(!is_string($type) || !in_array($type, [
+                SelectNode::TYPE_COLUMN,
+                SelectNode::TYPE_FUNCTION,
+                SelectNode::TYPE_LITERAL,
+                SelectNode::TYPE_RAW,
+            ], true)) {
+                throw new InvalidArgumentException(
+                    "Resolver '{$method}' mengembalikan tipe node yang tidak dikenali."
+                );
+            }
+
+            return $this->qualifyNode($node, $context['source']);
+        }
+
+        return $this->qualifyNode($expression, $context['source']);
+    }
+
+    /**
+     * Mengisi tabel pada node kolom yang belum punya tabel.
+     */
+    private function qualifyNode(array $node, string $table): array {
+        $type = $node['type'] ?? SelectNode::TYPE_COLUMN;
+
+        if($type === SelectNode::TYPE_COLUMN) {
+            if(empty($node['table'])) {
+                $node['table'] = $table;
+            }
+            return $node;
+        }
+
+        if($type === SelectNode::TYPE_FUNCTION) {
+            $arguments = [];
+            foreach($node['arguments'] ?? [] as $argument) {
+                if(!is_array($argument)) {
+                    throw new InvalidArgumentException(
+                        'Argumen expression harus berupa node SelectNode.'
+                    );
+                }
+                $arguments[] = $this->qualifyNode($argument, $table);
+            }
+            $node['arguments'] = $arguments;
+        }
+
+        return $node;
+    }
+
+    private function withAlias(array $node, string $alias): array {
+        $node['alias'] = $alias;
+        return $node;
+    }
+
+    /**
+     * @param class-string<Model> $model
+     */
+    private function hasExpressionColumns(string $model): bool {
+        foreach($model::columns() as $column) {
+            if($column->expression !== null) return true;
+        }
+        return false;
     }
 
 }

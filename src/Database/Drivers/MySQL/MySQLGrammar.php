@@ -5,6 +5,7 @@ namespace Selvi\Database\Drivers\MySQL;
 use InvalidArgumentException;
 use Selvi\Database\Builder\DDL\AlterBlueprint;
 use Selvi\Database\Builder\DDL\Clauses\ColumnClause;
+use Selvi\Database\Builder\DML\Clauses\SelectNode;
 use Selvi\Database\Builder\DML\Clauses\WhereClause;
 use Selvi\Database\Interfaces\IAlterBlueprint;
 use Selvi\Database\Interfaces\IBlueprint;
@@ -26,12 +27,10 @@ class MySQLGrammar implements IGrammar {
         if(empty($columns)) {
             $select .= "*";
         } else {
-            $select .= join(", ", array_map(function ($column) {
-                $col = $column['column'];
-                if(isset($column['table'])) $col = "{$column['table']}.{$col}";
-                if(isset($column['alias'])) $col .= " AS {$column['alias']}";
-                return $col;
-            }, $columns));
+            $select .= join(", ", array_map(
+                fn($column) => $this->compileSelectNode($column),
+                $columns
+            ));
         }
 
         $joins = $builder->getJoinBuilder()->toArray();
@@ -61,6 +60,74 @@ class MySQLGrammar implements IGrammar {
         ], function ($part) {
             return $part !== '';
         }));
+    }
+
+    /**
+     * Merender satu node SELECT (kolom, literal, fungsi, atau raw).
+     */
+    private function compileSelectNode(array $node, bool $withAlias = true): string {
+        $type = $node['type'] ?? SelectNode::TYPE_COLUMN;
+
+        $sql = match ($type) {
+            SelectNode::TYPE_COLUMN => $this->compileColumnNode($node),
+            SelectNode::TYPE_LITERAL => $this->sanitizer->sanitize($node['value'] ?? null),
+            SelectNode::TYPE_FUNCTION => $this->compileFunctionNode($node),
+            SelectNode::TYPE_RAW => $this->compileRawNode($node),
+            default => throw new InvalidArgumentException(
+                "Tipe select node '{$type}' tidak dikenali."
+            ),
+        };
+
+        if($withAlias && isset($node['alias']) && $node['alias'] !== null) {
+            $sql .= " AS {$node['alias']}";
+        }
+
+        return $sql;
+    }
+
+    private function compileColumnNode(array $node): string {
+        $column = trim((string) ($node['column'] ?? ''));
+        if($column === '') {
+            throw new InvalidArgumentException('Nama kolom select tidak boleh kosong.');
+        }
+
+        $table = $node['table'] ?? null;
+        if($table !== null && trim((string) $table) !== '') {
+            return trim((string) $table) . ".{$column}";
+        }
+
+        return $column;
+    }
+
+    private function compileFunctionNode(array $node): string {
+        $name = trim((string) ($node['name'] ?? ''));
+        if(!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $name)) {
+            throw new InvalidArgumentException("Nama fungsi SQL '{$name}' tidak valid.");
+        }
+
+        $arguments = $node['arguments'] ?? [];
+        if(!is_array($arguments)) {
+            throw new InvalidArgumentException('Argumen fungsi SQL harus berupa array node.');
+        }
+
+        $compiled = [];
+        foreach($arguments as $argument) {
+            if(!is_array($argument)) {
+                throw new InvalidArgumentException('Argumen fungsi SQL harus berupa node select.');
+            }
+            $compiled[] = $this->compileSelectNode($argument, false);
+        }
+
+        return strtoupper($name) . '(' . implode(', ', $compiled) . ')';
+    }
+
+    private function compileRawNode(array $node): string {
+        $sql = trim((string) ($node['sql'] ?? ''));
+        if($sql === '') {
+            throw new InvalidArgumentException('Raw select tidak boleh kosong.');
+        }
+
+        return $sql;
     }
 
     public function compileInsert(string $table, array $columns, array $rows): string {

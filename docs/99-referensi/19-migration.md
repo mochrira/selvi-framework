@@ -14,7 +14,7 @@ applies_to: Selvi 3.x
 Perintah migrasi dan registry path migrasi. Nama perintah berasal dari
 `#[AsCommand('db:migrate')]`; nama lain bisa diberikan lewat konstruktor.
 
-Pemakaian ada di [migrasi](../03-database/05-migrasi.md).
+Pemakaian ada di [migrasi](../04-database/05-migrasi.md).
 
 ## Method statis
 
@@ -99,7 +99,7 @@ Pesan penting:
 - `src/Database/Migration.php`
 - `src/Database/MigrationLog.php`
 - `src/Database/Schema.php`
-- `tests/03.05-migrasi/console.php` dan `tests/03.05-migrasi/migrations/` —
+- `tests/04.05-migrasi/console.php` dan `tests/04.05-migrasi/migrations/` —
   aplikasi uji
 
 ## Status verifikasi

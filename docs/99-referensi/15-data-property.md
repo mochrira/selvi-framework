@@ -11,9 +11,10 @@ applies_to: Selvi 3.x
 
 # Referensi: `Selvi\Data\DataProperty`
 
-Attribute penanda properti DTO. Kelas ini turunan
-`Selvi\Model\Base\PropertyAttribute`, sehingga boleh dipakai di
-`Selvi\Data\DataObject` maupun `Selvi\Model`.
+Attribute penanda properti DTO. Kelas ini mengimplementasikan
+`Selvi\Data\Interfaces\IDataProperty`. `Selvi\Model\PropertyAttribute`
+memperluas kelas ini, sehingga attribute model seperti `Column`, `BelongsTo`,
+`Aggregate`, dan `NotMapped` mewarisi metadata serta `assign()` yang sama.
 
 Aturan yang berlaku:
 
@@ -68,6 +69,14 @@ Diisi otomatis oleh `DataObject`.
 
 **Kembalian:** `bool` — `true` bila properti bertipe nullable.
 
+### `DataProperty::assign($target, $row)`
+
+Method internal yang dipanggil `DataObject::of()`. Menerima objek target dan
+`Selvi\Data\DataRow`; implementasi generiknya berada langsung di
+`DataProperty` dan mendukung `prefix` milik properti bersarang.
+
+Method ini tidak perlu dipanggil manual.
+
 ### `DataProperty::setPropertyName($name)`
 
 | Parameter | Tipe | Default | Keterangan |
@@ -85,23 +94,13 @@ Diisi otomatis oleh `DataObject`.
 
 **Kembalian:** `void`. Dipanggil internal oleh `DataObject`.
 
-### `DataProperty::getOwner()` / `DataProperty::setOwner($owner)`
-
-Warisan dari `Selvi\Model\Base\Attribute`. `setOwner()` diisi otomatis saat
-attribute dipakai `Selvi\Model`; `getOwner()` mengembalikan nama kelas pemilik.
-
-| Parameter | Tipe | Default | Keterangan |
-|---|---|---|---|
-| `$owner` | `string` | wajib | nama kelas pemilik |
-
-**Kembalian `getOwner()`:** `string` — `class-string<Selvi\Model>`.
-
 ## Sumber
 
 - `src/Data/DataProperty.php`
-- `src/Model/Base/PropertyAttribute.php` — method yang diwarisi
-- `src/Model/Base/Attribute.php` — `getOwner()` dan `setOwner()`
-- `src/Interfaces/IPropertyAttribute.php` — kontrak attribute properti
+- `src/Model/PropertyAttribute.php` — attribute dasar model yang memperluas
+  `DataProperty`
+- `src/Data/DataRow.php` — sumber data dan prefix
+- `src/Data/Interfaces/IDataProperty.php` — kontrak attribute properti
 - `src/Database/Interfaces/ICast.php` dan
   `src/Database/Interfaces/ISerializesCast.php` — tipe `cast` dan `serialize`
 - `tests/02.01-data-object/index.php`, `tests/02.02-properti-nested/index.php`,
@@ -121,5 +120,5 @@ Diuji 1 November 2026 lewat aplikasi uji bab DTO (PHP 8.4.14):
 | `optional: true` | kunci hilang dari `toArray()` saat properti tidak terinisialisasi |
 | `cast` dan `serialize` | nilai mengikuti cast/serializer |
 
-Method `getOwner()`/`setOwner()` tidak dipanggil langsung oleh DTO; perilakunya
-dibaca dari source dan dipakai `Selvi\Model`.
+`DataProperty` tidak memiliki `getOwner()`/`setOwner()`; ia hanya
+mengimplementasikan kontrak `IDataProperty`.

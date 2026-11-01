@@ -15,7 +15,8 @@
 
 ## Cara memotong (chunking)
 
-- `01-memulai/`, `02-dto/`, dan `03-database/`: potong per heading `##`.
+- `01-memulai/`, `02-dto/`, `03-model/`, dan `04-database/`: potong per
+  heading `##`.
 - `99-referensi/`: potong per heading `###` — satu method satu chunk.
 - Sertakan hierarki heading (`H1` → `H2` → `H3`) sebagai metadata chunk.
 - Heading method referensi sudah memuat nama kelas
@@ -41,22 +42,32 @@
 - [Cast dan Serialize](02-dto/03-cast-dan-serialize.md) —
   `id: data-object-cast-serialize`. Cast bawaan, `ArrayCast`, `DateTimeCast`,
   `cast`, `serialize`, nilai `null`.
-- [Koneksi Database](03-database/01-koneksi.md) — `id: database-koneksi`.
+- [Model](03-model/01-model.md) — `id: model`. `Table`/`Column`/`NotMapped`,
+  `find()`/`all()`/`first()`/`count()`, `create()`/`update()`/`delete()`,
+  `toArray()` vs `toArrayDb()`, kolom terhitung (`Column(expression:)`
+  dengan resolver atau node `SelectNode`).
+- [Relasi](03-model/02-relasi.md) — `id: model-relasi`. `BelongsTo`,
+  `Aggregate`, `Aggregate(expression:)` (resolver/node), `with()` bertingkat,
+  `relations()`/`relation()`.
+- [Konversi Value](03-model/03-konversi-value.md) —
+  `id: model-konversi-value`. `Converter`, cast bawaan, `ArrayCast`,
+  `DateTimeCast`, `EnumCast`, cast kustom.
+- [Koneksi Database](04-database/01-koneksi.md) — `id: database-koneksi`.
   `Manager::add()`, `.ENV`, `DB` facade, query mentah, transaksi, multi-koneksi,
   bentuk `DatabaseException`.
-- [Skema Tabel](03-database/02-skema-tabel.md) — `id: database-skema-tabel`.
+- [Skema Tabel](04-database/02-skema-tabel.md) — `id: database-skema-tabel`.
   `create()`, tipe kolom, modifier, `alter()` (index, primary key, foreign key),
   `drop()`, `rename()`, `truncate()`.
-- [Membaca Data](03-database/03-membaca-data.md) — `id: database-membaca-data`.
+- [Membaca Data](04-database/03-membaca-data.md) — `id: database-membaca-data`.
   `DB::table()`, `select()`, bentuk `where`, `join`, `group`, `order`,
   `limit`/`offset`, `getSql()`, `rows()`/`row()`/`num_rows()`.
-- [Menulis Data](03-database/04-menulis-data.md) — `id: database-menulis-data`.
+- [Menulis Data](04-database/04-menulis-data.md) — `id: database-menulis-data`.
   `insert()` single/multi, `update()`/`delete()` dengan pengaman `WHERE`,
   transaksi manual.
-- [Migrasi](03-database/05-migrasi.md) — `id: database-migrasi`.
+- [Migrasi](04-database/05-migrasi.md) — `id: database-migrasi`.
   `Migration::add()`, kontrak file, perintah `db:migrate`, `--step`/`--all`,
   tabel `_migration`, skip dan kegagalan.
-- [Seeder](03-database/06-seeder.md) — `id: database-seeder`.
+- [Seeder](04-database/06-seeder.md) — `id: database-seeder`.
   `Seeder::add()`, kontrak file tanpa arah, perintah `db:seed`, log `seed`,
   skip.
 
@@ -81,6 +92,23 @@
 - [`Selvi\Data\DataProperty`](99-referensi/15-data-property.md) —
   `id: ref-data-property`. Attribute properti: `name`, `prefix`, `optional`,
   `cast`, `serialize`.
+- [`Selvi\Model`](99-referensi/21-model.md) — `id: ref-model`. Metadata,
+  query statis, `create()`, `update()`, `delete()`, `toArrayDb()`.
+- [`Selvi\Database\Builder\DML\ModelQuery`](99-referensi/22-model-query.md) —
+  `id: ref-model-query`. Query fluent model dan eager loading.
+- [`Selvi\Collection`](99-referensi/23-collection.md) — `id: ref-collection`.
+  `map()`, `filter()`, `reduce()`, `toArray()`.
+- [`Selvi\Model\Attributes\Table`](99-referensi/24-table.md) — `id: ref-table`.
+- [`Selvi\Model\Attributes\Column`](99-referensi/25-column.md) —
+  `id: ref-column`. Pemetaan kolom, `key`, `cast`, `serialize`, `expression`.
+- [`Selvi\Model\Attributes\NotMapped`](99-referensi/26-not-mapped.md) —
+  `id: ref-not-mapped`. Properti non-kolom.
+- [`Selvi\Model\Attributes\BelongsTo`](99-referensi/27-belongs-to.md) —
+  `id: ref-belongs-to`. Relasi milik.
+- [`Selvi\Model\Attributes\Aggregate`](99-referensi/28-aggregate.md) —
+  `id: ref-aggregate`. Relasi agregat dan `expression`.
+- [`Selvi\Database\Casting\Converter`](99-referensi/29-converter.md) —
+  `id: ref-converter`. `get()`, `set()`, `serialize()`, `register()`.
 - [`Selvi\Database\Manager`](99-referensi/08-manager.md) — `id: ref-manager`.
   Registry koneksi: `add()`, `get()`, `default()`, `has()`.
 - [`Selvi\Database\DB`](99-referensi/09-db.md) — `id: ref-db`.
@@ -104,8 +132,10 @@
   `id: ref-migration`. Registry path, perintah `db:migrate`, aturan skip.
 - [`Selvi\Database\Seeder`](99-referensi/20-seeder.md) — `id: ref-seeder`.
   Registry path, perintah `db:seed`, aturan skip.
+- [`Selvi\Database\Builder\DML\Clauses\SelectNode`](99-referensi/30-select-node.md)
+  — `id: ref-select-node`. Node kolom, literal, fungsi, dan raw untuk SELECT.
 
 ## Belum ditulis
 
-Model, relasi, dan konversi value menunggu refactor attribute Model selesai.
-Halaman yang belum ada sengaja tidak ditautkan di sini.
+Halaman di luar bab `01`–`04` dan referensi kelas di atas belum ada. Halaman
+yang belum ada sengaja tidak ditautkan di sini.

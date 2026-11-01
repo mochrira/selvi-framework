@@ -186,9 +186,10 @@ dan [`DataObject`](../99-referensi/14-data-object.md).
 ## Sumber
 
 - `src/Data/DataObject.php` — `of()`, `toArray()`, pembacaan attribute
+- `src/Data/DataRow.php` — sumber data dan prefix
 - `src/Data/DataProperty.php` — definisi attribute
-- `src/Interfaces/IDataObject.php` dan `src/Interfaces/IArrayable.php` — kontrak
-  yang diimplementasikan
+- `src/Data/Interfaces/IDataObject.php` dan `src/Interfaces/IArrayable.php` —
+  kontrak yang diimplementasikan
 - `src/Database/Casting/Converter.php` — pemilihan cast dan serializer
 - `tests/02.01-data-object/index.php` — aplikasi uji halaman ini
 

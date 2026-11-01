@@ -288,7 +288,7 @@ method yang dipanggil di dalamnya (`QueryBuilder` atau `SchemaBuilder`).
 - `src/Env.php` — pembacaan `.ENV`.
 - `src/Exception/DatabaseException.php` dan `src/Exception/Handler.php` — bentuk
   error database.
-- `tests/03.01-koneksi/index.php` — semua contoh di halaman ini.
+- `tests/04.01-koneksi/index.php` — semua contoh di halaman ini.
 
 ## Status verifikasi
 
@@ -296,17 +296,17 @@ method yang dipanggil di dalamnya (`QueryBuilder` atau `SchemaBuilder`).
 > yang mengikat ada di bagian sebelumnya.
 
 Diuji 29 Oktober 2026 dengan container `mochrira/dev` (PHP 8.4.14) lewat
-`http://localhost:8089/03.01-koneksi/`. Aplikasi uji memuat `vendor/` workspace,
+`http://localhost:8089/04.01-koneksi/`. Aplikasi uji memuat `vendor/` workspace,
 jadi yang diuji adalah `src/` repo ini. `php -l` pada `index.php` juga bersih.
 
 | Request | Status | Hasil |
 |---|---|---|
-| `GET /03.01-koneksi/` | `200` | `terdaftar: true`, `driver: mysql`, `host` dan `database` sesuai `.ENV` harness (`mariadb.database`, `test`) |
-| `GET /03.01-koneksi/ping` | `200` | `{"ok": 1}` |
-| `GET /03.01-koneksi/sql` | `200` | `SELECT id_kontak, nm_kontak FROM kontak WHERE id_kontak = 1` |
-| `GET /03.01-koneksi/transaksi` | `200` | `{"start": true, "rollback": true}` |
-| `GET /03.01-koneksi/tidak-terdaftar` | `200` | `InvalidArgumentException: Koneksi 'lain' tidak terdaftar.` |
-| `GET /03.01-koneksi/error` | `500` | JSON `code: database/error`, `sql.state: 42S02`, `sql.query` terisi |
+| `GET /04.01-koneksi/` | `200` | `terdaftar: true`, `driver: mysql`, `host` dan `database` sesuai `.ENV` harness (`mariadb.database`, `test`) |
+| `GET /04.01-koneksi/ping` | `200` | `{"ok": 1}` |
+| `GET /04.01-koneksi/sql` | `200` | `SELECT id_kontak, nm_kontak FROM kontak WHERE id_kontak = 1` |
+| `GET /04.01-koneksi/transaksi` | `200` | `{"start": true, "rollback": true}` |
+| `GET /04.01-koneksi/tidak-terdaftar` | `200` | `InvalidArgumentException: Koneksi 'lain' tidak terdaftar.` |
+| `GET /04.01-koneksi/error` | `500` | JSON `code: database/error`, `sql.state: 42S02`, `sql.query` terisi |
 
 Endpoint `/error` sengaja menanyakan tabel yang tidak ada, untuk membuktikan
 bentuk error di *Bentuk error database*. Tabel `kontak` tidak perlu ada karena `/sql` hanya

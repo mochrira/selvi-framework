@@ -1,10 +1,10 @@
 <?php 
 
-namespace Selvi\Interfaces;
+namespace Selvi\Model\Interfaces;
 
 use Selvi\Model;
 
-interface IAttribute {
+interface IModelAttribute {
 
     public function setOwner(string $owner): void;
 

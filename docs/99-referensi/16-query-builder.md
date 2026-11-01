@@ -24,8 +24,8 @@ Aturan yang berlaku:
   (`where('...')`) tidak disanitasi.
 - `offset(0)` tidak dirender ke SQL (`LIMIT` tanpa `OFFSET`).
 
-Pemakaian ada di [membaca data](../03-database/03-membaca-data.md) dan
-[menulis data](../03-database/04-menulis-data.md).
+Pemakaian ada di [membaca data](../04-database/03-membaca-data.md) dan
+[menulis data](../04-database/04-menulis-data.md).
 
 ## Method instance — koneksi dan tabel
 
@@ -59,11 +59,57 @@ Pemakaian ada di [membaca data](../03-database/03-membaca-data.md) dan
 
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
-| `...$columns` | `mixed` | wajib | string, `['kolom', 'alias']`, atau `['tabel', 'kolom', 'alias']` |
+| `...$columns` | `mixed` | wajib | string, `['kolom', 'alias']`, `['tabel', 'kolom', 'alias']`, atau node dari [`SelectNode`](30-select-node.md) |
 
 **Kembalian:** instance builder.
 
+`select()` tetap variadic. Kolom, array alias, dan node fungsi boleh dicampur
+dalam satu pemanggilan:
+
+```php
+->select(
+    'id_kontak',
+    ['nm_kontak', 'nama'],
+    SelectNode::function('COALESCE', [
+        SelectNode::column('nm_kontak'),
+        SelectNode::literal('Tanpa Nama'),
+    ], 'nama_tampil')
+)
+```
+
 Bentuk tiga elemen `['tabel', 'kolom', 'alias']` dipakai untuk join.
+
+### `QueryBuilder::selectFunction($name, $arguments, $alias)`
+
+| Parameter | Tipe | Default | Keterangan |
+|---|---|---|---|
+| `$name` | `string` | wajib | nama fungsi SQL; divalidasi sebagai identifier |
+| `$arguments` | `array` | `[]` | list node `SelectNode` |
+| `$alias` | `?string` | `null` | alias hasil fungsi |
+
+**Kembalian:** instance builder.
+
+Menambahkan satu fungsi per pemanggilan, misalnya:
+
+```php
+->selectFunction('COALESCE', [
+    SelectNode::column('nm_kontak'),
+    SelectNode::literal('Tanpa Nama'),
+], 'nama')
+->selectFunction('COUNT', [SelectNode::star()], 'total')
+```
+
+### `QueryBuilder::selectRaw($sql, $alias)`
+
+| Parameter | Tipe | Default | Keterangan |
+|---|---|---|---|
+| `$sql` | `string` | wajib | SQL mentah; tidak disanitasi |
+| `$alias` | `?string` | `null` | alias |
+
+**Kembalian:** instance builder.
+
+Escape hatch eksplisit, misalnya `selectRaw('COUNT(*)', 'total')`. Jangan
+memasukkan input user ke sini.
 
 ### `QueryBuilder::selectColumns($columns)`
 
@@ -226,8 +272,8 @@ melempar `InvalidArgumentException: Data insert tidak boleh kosong.`
   `SelectBuilder.php`, `JoinBuilder.php`, `GroupBuilder.php`, `OrderBuilder.php`
 - `src/Database/Builder/DML/InsertBuilder.php`, `UpdateBuilder.php`
 - `src/Database/Interfaces/IQueryBuilder.php`
-- `tests/03.03-membaca-data/index.php` dan
-  `tests/03.04-menulis-data/index.php` — aplikasi uji
+- `tests/04.03-membaca-data/index.php` dan
+  `tests/04.04-menulis-data/index.php` — aplikasi uji
 
 ## Status verifikasi
 
@@ -242,6 +288,11 @@ Diuji 1 November 2026 lewat dua aplikasi uji DML (PHP 8.4.14):
 | `leftJoin()` + `group()` + agregat | SQL dan hasil sesuai |
 | `where()` operator/null/raw/nested | jumlah baris sesuai |
 | `getSql()` | SQL lengkap tanpa eksekusi |
+| `selectFunction` COALESCE/CONCAT/NOW | SQL dan nilai sesuai |
+| `selectFunction` COUNT/MAX | agregat sesuai |
+| `select` dengan node fungsi | tetap variadic dan campur kolom |
+| `selectRaw('COUNT(*)')` | `COUNT(*) AS total` |
+| nama fungsi tidak valid | `InvalidArgumentException` |
 | `insert()` single dan multi | id `1`, id batch `2` |
 | `update()`/`delete()` dengan WHERE | `true` |
 | `update()`/`delete()` tanpa WHERE | `LogicException` |

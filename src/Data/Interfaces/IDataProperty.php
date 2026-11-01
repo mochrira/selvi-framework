@@ -2,7 +2,9 @@
 
 namespace Selvi\Data\Interfaces;
 
-interface IPropertyAttribute {
+use Selvi\Data\DataRow;
+
+interface IDataProperty {
     
     public function setPropertyName(string $name): void;
     public function propertyName(): string;
@@ -10,5 +12,7 @@ interface IPropertyAttribute {
     public function setPropertyType(string $type, bool $allowsNull): void;
     public function propertyType(): string;
     public function allowsNull(): bool;
+
+    public function assign(object $target, DataRow $row): void;
 
 }

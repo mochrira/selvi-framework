@@ -30,20 +30,24 @@ Bab `02-dto/` menjelaskan pemetaan objek ke properti bertipe:
 2. [Properti bersarang](02-dto/02-properti-nested.md) — selesai.
 3. [Cast dan serialize](02-dto/03-cast-dan-serialize.md) — selesai.
 
+## Model
+
+Bab `03-model/` membahas model aktif-record di atas `DataObject`:
+
+1. [Model](03-model/01-model.md) — selesai.
+2. [Relasi](03-model/02-relasi.md) — selesai.
+3. [Konversi value](03-model/03-konversi-value.md) — selesai.
+
 ## Database
 
-Bab `03-database/` ditulis bertahap, dimulai dari menyiapkan koneksi:
+Bab `04-database/` ditulis bertahap, dimulai dari menyiapkan koneksi:
 
-1. [Koneksi](03-database/01-koneksi.md) — selesai.
-2. [Skema tabel](03-database/02-skema-tabel.md) — selesai.
-3. [Membaca data](03-database/03-membaca-data.md) — selesai.
-4. [Menulis data](03-database/04-menulis-data.md) — selesai.
-5. [Migrasi](03-database/05-migrasi.md) — selesai.
-6. [Seeder](03-database/06-seeder.md) — selesai.
-
-Bagian yang belum ditulis: model, relasi, dan konversi value. Ketiganya
-menunggu refactor attribute Model selesai. Dokumentasi ini sengaja tidak
-menautkan halaman yang belum ada.
+1. [Koneksi](04-database/01-koneksi.md) — selesai.
+2. [Skema tabel](04-database/02-skema-tabel.md) — selesai.
+3. [Membaca data](04-database/03-membaca-data.md) — selesai.
+4. [Menulis data](04-database/04-menulis-data.md) — selesai.
+5. [Migrasi](04-database/05-migrasi.md) — selesai.
+6. [Seeder](04-database/06-seeder.md) — selesai.
 
 ## Referensi API
 
@@ -64,19 +68,32 @@ Kelas yang dipakai di bab `02-dto/`:
 8. [`Selvi\Data\DataObject`](99-referensi/14-data-object.md) — basis DTO.
 9. [`Selvi\Data\DataProperty`](99-referensi/15-data-property.md) — attribute properti DTO.
 
-Kelas yang dipakai di bab `03-database/`:
+Kelas yang dipakai di bab `03-model/`:
 
-10. [`Selvi\Database\Manager`](99-referensi/08-manager.md) — registry koneksi.
-11. [`Selvi\Database\DB`](99-referensi/09-db.md) — facade pembuat builder.
-12. [`Selvi\Database\Builder\DDL\SchemaBuilder`](99-referensi/10-schema-builder.md) — operasi DDL.
-13. [`Selvi\Database\Builder\DDL\Blueprint`](99-referensi/11-blueprint.md) — definisi `CREATE TABLE`.
-14. [`Selvi\Database\Builder\DDL\AlterBlueprint`](99-referensi/12-alter-blueprint.md) — operasi `ALTER TABLE`.
-15. [`Selvi\Database\Builder\DDL\Clauses\ColumnClause`](99-referensi/13-column-clause.md) — modifier kolom.
-16. [`Selvi\Database\Builder\DML\QueryBuilder`](99-referensi/16-query-builder.md) — SELECT/INSERT/UPDATE/DELETE.
-17. [`Selvi\Database\Interfaces\IResult`](99-referensi/17-hasil-query.md) — hasil query.
-18. [`Selvi\Database\Schema`](99-referensi/18-schema.md) — handle DDL terikat koneksi.
-19. [`Selvi\Database\Migration`](99-referensi/19-migration.md) — perintah migrasi.
-20. [`Selvi\Database\Seeder`](99-referensi/20-seeder.md) — perintah seeder.
+10. [`Selvi\Model`](99-referensi/21-model.md) — basis model.
+11. [`Selvi\Database\Builder\DML\ModelQuery`](99-referensi/22-model-query.md) — query model.
+12. [`Selvi\Collection`](99-referensi/23-collection.md) — daftar hasil query.
+13. [`Selvi\Model\Attributes\Table`](99-referensi/24-table.md) — tabel dan koneksi model.
+14. [`Selvi\Model\Attributes\Column`](99-referensi/25-column.md) — pemetaan kolom dan expression SELECT.
+15. [`Selvi\Model\Attributes\NotMapped`](99-referensi/26-not-mapped.md) — properti non-kolom.
+16. [`Selvi\Model\Attributes\BelongsTo`](99-referensi/27-belongs-to.md) — relasi milik.
+17. [`Selvi\Model\Attributes\Aggregate`](99-referensi/28-aggregate.md) — relasi agregat dan expression.
+18. [`Selvi\Database\Casting\Converter`](99-referensi/29-converter.md) — cast dan serialisasi.
+
+Kelas yang dipakai di bab `04-database/`:
+
+19. [`Selvi\Database\Manager`](99-referensi/08-manager.md) — registry koneksi.
+20. [`Selvi\Database\DB`](99-referensi/09-db.md) — facade pembuat builder.
+21. [`Selvi\Database\Builder\DDL\SchemaBuilder`](99-referensi/10-schema-builder.md) — operasi DDL.
+22. [`Selvi\Database\Builder\DDL\Blueprint`](99-referensi/11-blueprint.md) — definisi `CREATE TABLE`.
+23. [`Selvi\Database\Builder\DDL\AlterBlueprint`](99-referensi/12-alter-blueprint.md) — operasi `ALTER TABLE`.
+24. [`Selvi\Database\Builder\DDL\Clauses\ColumnClause`](99-referensi/13-column-clause.md) — modifier kolom.
+25. [`Selvi\Database\Builder\DML\QueryBuilder`](99-referensi/16-query-builder.md) — SELECT/INSERT/UPDATE/DELETE.
+26. [`Selvi\Database\Interfaces\IResult`](99-referensi/17-hasil-query.md) — hasil query.
+27. [`Selvi\Database\Schema`](99-referensi/18-schema.md) — handle DDL terikat koneksi.
+28. [`Selvi\Database\Migration`](99-referensi/19-migration.md) — perintah migrasi.
+29. [`Selvi\Database\Seeder`](99-referensi/20-seeder.md) — perintah seeder.
+30. [`Selvi\Database\Builder\DML\Clauses\SelectNode`](99-referensi/30-select-node.md) — node AST untuk `SELECT`, literal, fungsi, dan raw.
 
 ## Status penulisan
 
@@ -84,8 +101,9 @@ Kelas yang dipakai di bab `03-database/`:
 |---|---|
 | `01-memulai/` | selesai (4 halaman) |
 | `02-dto/` | selesai (3 halaman) |
-| `03-database/` | selesai (6 halaman) |
-| `99-referensi/` | selesai (20 halaman) |
+| `03-model/` | selesai (3 halaman) |
+| `04-database/` | selesai (6 halaman) |
+| `99-referensi/` | selesai (30 halaman) |
 | bagian lain | belum ditulis |
 
 ## Cara membaca halaman
@@ -133,9 +151,9 @@ applies_to: Selvi 3.x
 
 Aturan pengindeksan yang disarankan:
 
-- Potong `01-memulai/`, `02-dto/`, dan `03-database/` per heading `##` (satu
-  bagian satu chunk), dan `99-referensi/` per heading `###` (satu method satu
-  chunk).
+- Potong `01-memulai/`, `02-dto/`, `03-model/`, dan `04-database/` per heading
+  `##` (satu bagian satu chunk), dan `99-referensi/` per heading `###` (satu
+  method satu chunk).
 - Pertahankan hierarki heading sebagai metadata chunk. Heading method referensi
   sudah memuat nama kelas (mis. `AlterBlueprint::dropForeign($name)`), sehingga
   chunk tetap jelas walau dipisah dari halamannya.

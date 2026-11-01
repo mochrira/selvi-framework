@@ -175,21 +175,21 @@ Detail transaksi ada di [koneksi](01-koneksi.md).
 - `src/Database/Builder/DML/UpdateBuilder.php`
 - `src/Database/Drivers/MySQL/MySQLGrammar.php` — kompilasi INSERT/UPDATE/DELETE
 - `src/Database/Drivers/MySQL/MySQLSanitizer.php` — literal value
-- `tests/03.04-menulis-data/index.php` — aplikasi uji halaman ini
+- `tests/04.04-menulis-data/index.php` — aplikasi uji halaman ini
 
 ## Status verifikasi
 
 > Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
 > yang mengikat ada di bagian sebelumnya.
 
-Diuji 1 November 2026 lewat `http://localhost:8089/03.04-menulis-data/`
+Diuji 1 November 2026 lewat `http://localhost:8089/04.04-menulis-data/`
 (MariaDB 10.7.8, PHP 8.4.14):
 
 | Endpoint | Hasil |
 |---|---|
-| `GET /03.04-menulis-data/` | `200`, insert id `1`, id batch `2`, update/delete `true`, tersisa dua baris |
-| `GET /03.04-menulis-data/tanpa-where` | `400`, `LogicException` pesan UPDATE |
-| `GET /03.04-menulis-data/tanpa-where-delete` | `400`, `LogicException` pesan DELETE |
+| `GET /04.04-menulis-data/` | `200`, insert id `1`, id batch `2`, update/delete `true`, tersisa dua baris |
+| `GET /04.04-menulis-data/tanpa-where` | `400`, `LogicException` pesan UPDATE |
+| `GET /04.04-menulis-data/tanpa-where-delete` | `400`, `LogicException` pesan DELETE |
 
 Pengujian memakai tabel sementara `demo_tulis` yang dibuat dan dihapus di
 endpoint `/`. Belum diuji: insert dengan kolom berbeda antar baris, dan

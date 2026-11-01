@@ -328,19 +328,31 @@ Hasil terverifikasi:
 | `GET /02.03-cast-dan-serialize/` | `200` | `opsi` array, `dibuat` `Y-m-d H:i:s`, `diperbarui` `DATE_ATOM` |
 | `GET /02.03-cast-dan-serialize/null` | `200` | nilai `null` dipertahankan |
 
-## Langkah 8 — uji halaman DML (`03.03`–`03.04`)
+## Langkah 8 — uji halaman model (`03.01`–`03.03`)
 
-Folder ini memakai koneksi `main` dari `tests/private/.ENV` dan data contoh di
-tabel `kontak`/`departemen`.
+Folder ini memakai model contoh di `tests/app/Models/` dan koneksi `main`.
 
 ```sh
-for u in /03.03-membaca-data/ /03.03-membaca-data/sql \
-         /03.03-membaca-data/row /03.03-membaca-data/row-kosong \
-         /03.03-membaca-data/where \
-         /03.03-membaca-data/join /03.03-membaca-data/order-limit \
-         /03.03-membaca-data/hasil-bool /03.04-menulis-data/ \
-         /03.04-menulis-data/tanpa-where \
-         /03.04-menulis-data/tanpa-where-delete; do
+for u in /03.01-model/ /03.01-model/find /03.01-model/first-count \
+         /03.01-model/where /03.01-model/offset /03.01-model/to-array-db \
+         /03.01-model/notmapped /03.01-model/create-update-delete \
+         /03.01-model/ekspresi /03.01-model/ekspresi-array \
+         /03.01-model/ekspresi-raw-model \
+         /03.01-model/ekspresi-resolver-missing \
+         /03.01-model/ekspresi-resolver-nonstatic \
+         /03.01-model/ekspresi-resolver-tipe \
+         /03.01-model/ekspresi-resolver-invalid \
+         /03.01-model/ekspresi-count /03.01-model/ekspresi-toarraydb \
+         /03.01-model/ekspresi-key \
+         /03.02-relasi/ /03.02-relasi/aggregate /03.02-relasi/nested \
+         /03.02-relasi/nested-aggregate /03.02-relasi/relations \
+         /03.02-relasi/aggregate-ekspresi /03.02-relasi/aggregate-resolver \
+         /03.02-relasi/nested-ekspresi /03.02-relasi/nested-resolver \
+         /03.02-relasi/nested-aggregate-resolver \
+         /03.02-relasi/tanpa-relasi /03.03-konversi-value/dasar \
+         /03.03-konversi-value/array /03.03-konversi-value/tanggal \
+         /03.03-konversi-value/enum /03.03-konversi-value/custom \
+         /03.03-konversi-value/model; do
   printf '%-44s ' "$u"
   curl -s -o /dev/null -w '%{http_code}\n' "http://localhost:8089$u"
 done
@@ -350,31 +362,100 @@ Hasil terverifikasi:
 
 | Endpoint | Status | Hasil |
 |---|---|---|
-| `GET /03.03-membaca-data/` | `200` | tiga baris `kontak` |
-| `GET /03.03-membaca-data/sql` | `200` | SQL dengan join, group, order, limit |
-| `GET /03.03-membaca-data/row` | `200` | `num_rows` `1` |
-| `GET /03.03-membaca-data/row-kosong` | `200` | `num_rows` `0`, `row` `null` |
-| `GET /03.03-membaca-data/where` | `200` | `operator` `3`, `null` `0`, `raw` `5`, `nested` `2` |
-| `GET /03.03-membaca-data/join` | `200` | satu grup `Programmer` |
-| `GET /03.03-membaca-data/order-limit` | `200` | `["8","7"]` |
-| `GET /03.03-membaca-data/hasil-bool` | `200` | `query('SET ...')` menghasilkan `bool` |
-| `GET /03.04-menulis-data/` | `200` | insert/update/delete berhasil, tabel sementara dihapus |
-| `GET /03.04-menulis-data/tanpa-where` | `400` | `LogicException` UPDATE |
-| `GET /03.04-menulis-data/tanpa-where-delete` | `400` | `LogicException` DELETE |
+| `GET /03.01-model/` | `200` | dua model terurut |
+| `GET /03.01-model/find` | `200` | satu model, relasi `null` |
+| `GET /03.01-model/first-count` | `200` | id `5`, count `5` |
+| `GET /03.01-model/where` | `200` | count `5` |
+| `GET /03.01-model/offset` | `200` | id `[6,7]` |
+| `GET /03.01-model/to-array-db` | `200` | kunci nama kolom |
+| `GET /03.01-model/notmapped` | `200` | `catatan` hanya di `toArray` |
+| `GET /03.01-model/create-update-delete` | `200` | update/delete `true` |
+| `GET /03.01-model/ekspresi` | `200` | resolver `COALESCE` |
+| `GET /03.01-model/ekspresi-array` | `200` | expression array, kualifikasi otomatis |
+| `GET /03.01-model/ekspresi-raw-model` | `200` | node `raw` dipakai apa adanya |
+| `GET /03.01-model/ekspresi-resolver-missing` | `400` | resolver tidak ditemukan |
+| `GET /03.01-model/ekspresi-resolver-nonstatic` | `400` | resolver tidak static |
+| `GET /03.01-model/ekspresi-resolver-tipe` | `400` | tipe node tidak dikenali |
+| `GET /03.01-model/ekspresi-resolver-invalid` | `400` | hasil resolver bukan node |
+| `GET /03.01-model/ekspresi-count` | `200` | `count` `5` |
+| `GET /03.01-model/ekspresi-toarraydb` | `200` | tulis tetap kolom fisik |
+| `GET /03.01-model/ekspresi-key` | `400` | key + expression ditolak |
+| `GET /03.02-relasi/` | `200` | `departemen`/`unit` terisi |
+| `GET /03.02-relasi/aggregate` | `200` | `jmlKontak` `5`/`null` |
+| `GET /03.02-relasi/nested` | `200` | `unit.departemen` terisi |
+| `GET /03.02-relasi/nested-aggregate` | `200` | `unit.departemen.jmlKontak` `5` |
+| `GET /03.02-relasi/aggregate-ekspresi` | `200` | array expression menghasilkan `5`/`0` |
+| `GET /03.02-relasi/aggregate-resolver` | `200` | resolver menghasilkan `5`/`0` |
+| `GET /03.02-relasi/nested-ekspresi` | `200` | model anak array expression, subquery mode |
+| `GET /03.02-relasi/nested-resolver` | `200` | model anak resolver, subquery mode |
+| `GET /03.02-relasi/nested-aggregate-resolver` | `200` | resolver agregat bertingkat, `5` |
+| `GET /03.02-relasi/relations` | `200` | tiga relasi |
+| `GET /03.02-relasi/tanpa-relasi` | `200` | relasi `null` |
+| `GET /03.03-konversi-value/dasar` | `200` | cast int/bool/float/string |
+| `GET /03.03-konversi-value/array` | `200` | `ArrayCast` |
+| `GET /03.03-konversi-value/tanggal` | `200` | `DateTimeCast` |
+| `GET /03.03-konversi-value/enum` | `200` | `EnumCast` |
+| `GET /03.03-konversi-value/custom` | `200` | cast kustom |
+| `GET /03.03-konversi-value/model` | `200` | `toArray`/`toArrayDb` |
+
+## Langkah 9 — uji halaman DML (`04.03`–`04.04`)
+
+Folder ini memakai koneksi `main` dari `tests/private/.ENV` dan data contoh di
+tabel `kontak`/`departemen`.
+
+```sh
+for u in /04.03-membaca-data/ /04.03-membaca-data/sql \
+         /04.03-membaca-data/row /04.03-membaca-data/row-kosong \
+         /04.03-membaca-data/where \
+         /04.03-membaca-data/join /04.03-membaca-data/order-limit \
+         /04.03-membaca-data/hasil-bool /04.03-membaca-data/fungsi \
+         /04.03-membaca-data/fungsi-agregat \
+         /04.03-membaca-data/fungsi-bertumpuk /04.03-membaca-data/fungsi-sql \
+         /04.03-membaca-data/fungsi-null /04.03-membaca-data/fungsi-raw \
+         /04.03-membaca-data/fungsi-invalid /04.04-menulis-data/ \
+         /04.04-menulis-data/tanpa-where \
+         /04.04-menulis-data/tanpa-where-delete; do
+  printf '%-44s ' "$u"
+  curl -s -o /dev/null -w '%{http_code}\n' "http://localhost:8089$u"
+done
+```
+
+Hasil terverifikasi:
+
+| Endpoint | Status | Hasil |
+|---|---|---|
+| `GET /04.03-membaca-data/` | `200` | tiga baris `kontak` |
+| `GET /04.03-membaca-data/sql` | `200` | SQL dengan join, group, order, limit |
+| `GET /04.03-membaca-data/row` | `200` | `num_rows` `1` |
+| `GET /04.03-membaca-data/row-kosong` | `200` | `num_rows` `0`, `row` `null` |
+| `GET /04.03-membaca-data/where` | `200` | `operator` `3`, `null` `0`, `raw` `5`, `nested` `2` |
+| `GET /04.03-membaca-data/join` | `200` | satu grup `Programmer` |
+| `GET /04.03-membaca-data/order-limit` | `200` | `["8","7"]` |
+| `GET /04.03-membaca-data/hasil-bool` | `200` | `query('SET ...')` menghasilkan `bool` |
+| `GET /04.03-membaca-data/fungsi` | `200` | `COALESCE`, `CONCAT`, `NOW` terisi |
+| `GET /04.03-membaca-data/fungsi-agregat` | `200` | `COUNT(*)`, `MAX` dengan alias |
+| `GET /04.03-membaca-data/fungsi-bertumpuk` | `200` | `COALESCE(IFNULL(...))` |
+| `GET /04.03-membaca-data/fungsi-sql` | `200` | SQL fungsi sesuai |
+| `GET /04.03-membaca-data/fungsi-null` | `200` | literal `null` menjadi `NULL` |
+| `GET /04.03-membaca-data/fungsi-raw` | `200` | `COUNT(*) AS total` |
+| `GET /04.03-membaca-data/fungsi-invalid` | `400` | `InvalidArgumentException` |
+| `GET /04.04-menulis-data/` | `200` | insert/update/delete berhasil, tabel sementara dihapus |
+| `GET /04.04-menulis-data/tanpa-where` | `400` | `LogicException` UPDATE |
+| `GET /04.04-menulis-data/tanpa-where-delete` | `400` | `LogicException` DELETE |
 
 Tabel `demo_tulis` dibuat dan dihapus di dalam endpoint `/`, jadi tidak perlu
 pembersihan manual.
 
-## Langkah 9 — uji migrasi dan seeder (`03.05`–`03.06`)
+## Langkah 10 — uji migrasi dan seeder (`04.05`–`04.06`)
 
 Migrasi:
 
 ```sh
-curl -s http://localhost:8089/03.05-migrasi/bersihkan
-docker exec -w /workspace/tests/03.05-migrasi selvi_test_dev \
+curl -s http://localhost:8089/04.05-migrasi/bersihkan
+docker exec -w /workspace/tests/04.05-migrasi selvi_test_dev \
   php console.php db:migrate demo_migrasi up --all --no-interaction
-curl -s http://localhost:8089/03.05-migrasi/
-docker exec -w /workspace/tests/03.05-migrasi selvi_test_dev \
+curl -s http://localhost:8089/04.05-migrasi/
+docker exec -w /workspace/tests/04.05-migrasi selvi_test_dev \
   php console.php db:migrate demo_migrasi down --all --no-interaction
 ```
 
@@ -385,11 +466,11 @@ menghasilkan `[skipped:up]`.
 Seeder:
 
 ```sh
-curl -s http://localhost:8089/03.06-seeder/siapkan
-docker exec -w /workspace/tests/03.06-seeder selvi_test_dev \
+curl -s http://localhost:8089/04.06-seeder/siapkan
+docker exec -w /workspace/tests/04.06-seeder selvi_test_dev \
   php console.php db:seed demo_seed --no-interaction
-curl -s http://localhost:8089/03.06-seeder/
-docker exec -w /workspace/tests/03.06-seeder selvi_test_dev \
+curl -s http://localhost:8089/04.06-seeder/
+docker exec -w /workspace/tests/04.06-seeder selvi_test_dev \
   php console.php db:seed demo_seed --no-interaction
 ```
 
@@ -400,7 +481,7 @@ Keduanya memakai koneksi terpisah (`demo_migrasi`, `demo_seed`) yang menunjuk
 database yang sama, tetapi path file terdaftar terpisah. Tabel `_migration`
 dipakai bersama.
 
-## Langkah 10 — cek sintaks source
+## Langkah 11 — cek sintaks source
 
 ```sh
 docker exec selvi_test_dev sh -lc '

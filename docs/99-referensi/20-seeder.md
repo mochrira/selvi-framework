@@ -14,7 +14,7 @@ applies_to: Selvi 3.x
 Perintah seeder dan registry path seed. Nama perintah berasal dari
 `#[AsCommand('db:seed')]`.
 
-Pemakaian ada di [seeder](../03-database/06-seeder.md).
+Pemakaian ada di [seeder](../04-database/06-seeder.md).
 
 ## Method statis
 
@@ -86,7 +86,7 @@ Pesan penting:
 - `src/Database/Seeder.php`
 - `src/Database/MigrationLog.php`
 - `src/Database/Schema.php`
-- `tests/03.06-seeder/console.php` dan `tests/03.06-seeder/seeds/` — aplikasi uji
+- `tests/04.06-seeder/console.php` dan `tests/04.06-seeder/seeds/` — aplikasi uji
 
 ## Status verifikasi
 

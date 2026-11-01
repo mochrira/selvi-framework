@@ -13,7 +13,7 @@ applies_to: Selvi 3.x
 
 Registry koneksi database. Seluruh state berupa properti statis, jadi koneksi
 yang didaftarkan berlaku untuk seluruh proses. Pemakaian sehari-hari ada di
-[koneksi](../03-database/01-koneksi.md).
+[koneksi](../04-database/01-koneksi.md).
 
 Aturan yang berlaku:
 
@@ -70,14 +70,14 @@ bila belum ada koneksi.
 
 - `src/Database/Manager.php`
 - `src/Database/Drivers/MySQL/MySQLConnection.php` — pembuatan koneksi
-- `tests/03.01-koneksi/index.php` — aplikasi uji
+- `tests/04.01-koneksi/index.php` — aplikasi uji
 
 ## Status verifikasi
 
 > Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
 > yang mengikat ada di bagian sebelumnya.
 
-Diuji 29 Oktober 2026 lewat `http://localhost:8089/03.01-koneksi/`:
+Diuji 29 Oktober 2026 lewat `http://localhost:8089/04.01-koneksi/`:
 
 | Kasus | Hasil |
 |---|---|

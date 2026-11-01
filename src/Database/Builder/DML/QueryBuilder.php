@@ -80,6 +80,18 @@ class QueryBuilder implements IQueryBuilder {
     }
 
     #[Override]
+    public function selectFunction(string $name, array $arguments = [], ?string $alias = null): static {
+        $this->selectBuilder->function($name, $arguments, $alias);
+        return $this;
+    }
+
+    #[Override]
+    public function selectRaw(string $sql, ?string $alias = null): static {
+        $this->selectBuilder->raw($sql, $alias);
+        return $this;
+    }
+
+    #[Override]
     public function selectUsing(Closure $input): static {
         $input($this->selectBuilder);
         return $this;

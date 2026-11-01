@@ -2,6 +2,7 @@
 
 require __DIR__.'/../../vendor/autoload.php';
 
+use Selvi\Database\Builder\DML\Clauses\SelectNode;
 use Selvi\Database\DB;
 use Selvi\Database\Manager;
 use Selvi\Env;
@@ -136,6 +137,106 @@ Route::get('/order-limit', function () {
         ->rows();
 
     return jsonResponse(['id' => array_column($rows, 'id_kontak')]);
+});
+
+Route::get('/fungsi', function () {
+    $rows = DB::table('kontak')
+        ->select(
+            'id_kontak',
+            SelectNode::function('COALESCE', [
+                SelectNode::column('nm_kontak'),
+                SelectNode::literal('Tanpa Nama'),
+            ], 'nama'),
+            SelectNode::function('CONCAT', [
+                SelectNode::column('id_kontak'),
+                SelectNode::literal('#'),
+                SelectNode::column('nm_kontak'),
+            ], 'label'))
+        ->selectFunction('NOW', alias: 'sekarang')
+        ->where([['id_kontak', '=', 5]])
+        ->get()
+        ->rows();
+
+    return jsonResponse(['data' => $rows]);
+});
+
+Route::get('/fungsi-agregat', function () {
+    $rows = DB::table('kontak')
+        ->select('id_departemen')
+        ->selectFunction('COUNT', [SelectNode::star()], 'total')
+        ->selectFunction('MAX', [SelectNode::column('id_kontak')], 'maks')
+        ->group('id_departemen')
+        ->get()
+        ->rows();
+
+    return jsonResponse(['data' => $rows]);
+});
+
+Route::get('/fungsi-bertumpuk', function () {
+    $rows = DB::table('kontak')
+        ->select(
+            'id_kontak',
+            SelectNode::function('COALESCE', [
+                SelectNode::function('IFNULL', [
+                    SelectNode::column('nm_kontak'),
+                    SelectNode::literal(''),
+                ]),
+                SelectNode::literal('Tanpa Nama'),
+            ], 'nama'))
+        ->where([['id_kontak', '=', 5]])
+        ->get()
+        ->rows();
+
+    return jsonResponse(['data' => $rows]);
+});
+
+Route::get('/fungsi-sql', function () {
+    $sql = DB::table('kontak')
+        ->select('id_kontak')
+        ->selectFunction('COALESCE', [
+            SelectNode::column('nm_kontak'),
+            SelectNode::literal('Tanpa Nama'),
+        ], 'nama')
+        ->selectFunction('CONCAT', [
+            SelectNode::column('id_kontak'),
+            SelectNode::literal('#'),
+            SelectNode::column('nm_kontak'),
+        ], 'label')
+        ->getSql();
+
+    return jsonResponse(['sql' => $sql]);
+});
+
+Route::get('/fungsi-null', function () {
+    $sql = DB::table('kontak')
+        ->selectFunction('COALESCE', [
+            SelectNode::literal(null),
+            SelectNode::column('nm_kontak'),
+            SelectNode::literal('Tanpa Nama'),
+        ], 'nama')
+        ->getSql();
+
+    return jsonResponse(['sql' => $sql]);
+});
+
+Route::get('/fungsi-raw', function () {
+    $sql = DB::table('kontak')
+        ->selectRaw('COUNT(*)', 'total')
+        ->getSql();
+
+    return jsonResponse(['sql' => $sql]);
+});
+
+Route::get('/fungsi-invalid', function () {
+    try {
+        DB::table('kontak')->selectFunction('1COALESCE')->getSql();
+        return jsonResponse(['error' => false]);
+    } catch (Throwable $e) {
+        return jsonResponse([
+            'kelas' => get_class($e),
+            'pesan' => $e->getMessage(),
+        ], 400);
+    }
 });
 
 \Selvi\Framework::run();

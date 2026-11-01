@@ -1,12 +1,12 @@
 <?php
 
-namespace Selvi\Model\Base;
+namespace Selvi\Model;
 
 use Override;
+use Selvi\Model\Interfaces\IModelAttribute;
 use Selvi\Model;
-use Selvi\Interfaces\IAttribute;
 
-class Attribute implements IAttribute {
+class Attribute implements IModelAttribute {
 
     /** @var class-string<Model> */
     private string $owner;

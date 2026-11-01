@@ -25,7 +25,7 @@ $schema->create('demo', function (Selvi\Database\Builder\DDL\Blueprint $table) {
 });
 ```
 
-Pemakaian ada di [migrasi](../03-database/05-migrasi.md).
+Pemakaian ada di [migrasi](../04-database/05-migrasi.md).
 
 ## Method instance
 
@@ -100,9 +100,9 @@ Dipakai untuk DML di dalam migrasi/seed, misalnya
 
 - `src/Database/Schema.php`
 - `src/Database/Builder/DDL/SchemaBuilder.php` — implementasi DDL
-- `tests/03.05-migrasi/migrations/20260101_01_create_demo_migrasi.php` —
+- `tests/04.05-migrasi/migrations/20260101_01_create_demo_migrasi.php` —
   pemakaian `create()`/`drop()` di file migrasi
-- `tests/03.05-migrasi/index.php` — `new Schema('demo_migrasi')`
+- `tests/04.05-migrasi/index.php` — `new Schema('demo_migrasi')`
 
 ## Status verifikasi
 
@@ -119,5 +119,5 @@ Diuji 1 November 2026 lewat aplikasi uji migrasi (PHP 8.4.14, MariaDB 10.7.8):
 | `table()` dipakai `MigrationLog` | insert riwayat berhasil |
 
 `rename()`, `truncate()`, dan `alter()` diuji di aplikasi
-[skema tabel](../03-database/02-skema-tabel.md) lewat `SchemaBuilder` (jalur
+[skema tabel](../04-database/02-skema-tabel.md) lewat `SchemaBuilder` (jalur
 eksekusi yang sama). Belum diuji langsung lewat `Schema`.

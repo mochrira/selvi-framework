@@ -286,8 +286,10 @@ tetap dibentuk dan anaknya berisi nilai dari kolom cucu tersebut.
 
 ## Sumber
 
-- `src/Data/DataObject.php` — `hasPrefixedKey()`, cabang `DataProperty` dengan
-  prefix, dan pemanggilan `of()` rekursif
+- `src/Data/DataObject.php` — orchestrator `of()` dan pemanggilan `assign()`
+- `src/Data/DataRow.php` — pembacaan prefix dan `hasAny()`
+- `src/Data/DataProperty.php` — cabang `assign()` dengan prefix dan
+  pemanggilan `of()` rekursif
 - `src/Data/DataProperty.php` — parameter `prefix`
 - `tests/02.02-properti-nested/index.php` — aplikasi uji halaman ini
 - `tests/app/DTO/KontakDTO.php` — contoh pemakaian pada aplikasi harness
@@ -311,5 +313,4 @@ dengan PHP 8.4.14:
 | CLI: `?GrupDTO $grup` dengan prefix `grup` tanpa data | `toArray()` menghasilkan `{"grup":null}` |
 
 Perilaku "minimal satu kunci tidak `null`" disimpulkan dari
-`DataObject::hasPrefixedKey()`; kasus semua kunci berprefix bernilai `null`
-belum diuji.
+`DataRow::hasAny()`; kasus semua kunci berprefix bernilai `null` belum diuji.

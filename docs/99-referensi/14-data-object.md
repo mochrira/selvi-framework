@@ -17,13 +17,15 @@ Basis DTO berbasis attribute. Kelas ini memetakan objek sumber (baris query,
 Aturan yang berlaku:
 
 - Hanya properti yang punya attribute turunan
-  `Selvi\Interfaces\IPropertyAttribute` yang dipetakan. Properti lain diabaikan.
+  `Selvi\Data\Interfaces\IDataProperty` yang dipetakan. Properti lain diabaikan.
 - Daftar properti di-cache per kelas di `self::$cache_properties`, bukan per
   instance.
 - `of()` memakai `new static()`, sehingga kelas turunan (termasuk
   `Selvi\Model` dan DTO aplikasi) memakai aturan yang sama.
+- `of()` hanya membuat `DataRow` dan memanggil `assign()` pada setiap attribute.
+  Aturan pemetaan per jenis attribute berada di attribute masing-masing.
 - Kelas ini mengimplementasikan `Selvi\Interfaces\IArrayable` dan
-  `Selvi\Interfaces\IDataObject`.
+  `Selvi\Data\Interfaces\IDataObject`.
 
 Pemakaian ada di [Data Object](../02-dto/01-data-object.md),
 [properti bersarang](../02-dto/02-properti-nested.md), dan
@@ -52,6 +54,25 @@ Perilaku per properti:
 5. Nilai ditemukan → `Converter::get()`, lalu bila tipe properti turunan
    `DataObject`, nilainya diubah lewat `of()` pada kelas tersebut.
 
+Aturan `BelongsTo` dan `Aggregate` tidak berada di `DataObject`; keduanya
+mengimplementasikan `assign()` sendiri. `DataRow` menyediakan pembacaan kunci
+dan prefix yang sama untuk semua attribute. Attribute model mewarisi
+`assign()` dari `DataProperty` melalui `PropertyAttribute`.
+
+### `DataObject::assignValue($target, $name, $value)`
+
+Method internal untuk menulis nilai ke properti target dari scope
+`DataObject`. Dipakai oleh `assign()` pada attribute agar properti
+`protected` tetap dapat diisi.
+
+| Parameter | Tipe | Keterangan |
+|---|---|---|
+| `$target` | `object` | objek yang diisi |
+| `$name` | `string` | nama properti |
+| `$value` | `mixed` | nilai |
+
+**Kembalian:** `void`. Tidak perlu dipanggil manual.
+
 ## Method instance
 
 ### `DataObject::toArray()`
@@ -67,8 +88,9 @@ Perilaku:
 
 ## Sumber
 
-- `src/Data/DataObject.php`
-- `src/Interfaces/IDataObject.php`
+- `src/Data/DataObject.php` — orchestrator `of()` dan `toArray()`
+- `src/Data/DataRow.php` — pembacaan sumber dan prefix
+- `src/Data/Interfaces/IDataObject.php`
 - `src/Interfaces/IArrayable.php`
 - `src/Data/DataProperty.php` — attribute yang dibaca
 - `tests/02.01-data-object/index.php`, `tests/02.02-properti-nested/index.php`,
