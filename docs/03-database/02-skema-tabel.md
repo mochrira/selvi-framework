@@ -262,7 +262,7 @@ $schema->truncate('kontak_lama');         // TRUNCATE TABLE kontak_lama
 - `src/Database/Builder/DDL/HasColumnTypes.php` — daftar tipe kolom.
 - `src/Database/Drivers/MySQL/MySQLGrammar.php` — rendering SQL.
 - `src/Database/Schema.php` — facade yang dipakai file migrasi.
-- `tests/02.02-skema-tabel/index.php` — semua contoh di halaman ini.
+- `tests/03.02-skema-tabel/index.php` — semua contoh di halaman ini.
 
 ## Status verifikasi
 
@@ -270,7 +270,7 @@ $schema->truncate('kontak_lama');         // TRUNCATE TABLE kontak_lama
 > yang mengikat ada di bagian sebelumnya.
 
 Diuji 29 Oktober 2026 dengan container `mochrira/dev` (PHP 8.4.14) dan server
-MariaDB 10.7.8 lewat `http://localhost:8089/02.02-skema-tabel/`. `php -l` pada
+MariaDB 10.7.8 lewat `http://localhost:8089/03.02-skema-tabel/`. `php -l` pada
 `index.php` bersih.
 
 Aplikasi uji memakai prefiks `demo_` (`demo_kontak`, `demo_grup`) supaya tabel
@@ -279,13 +279,13 @@ dihasilkan sama dengan contoh di halaman ini.
 
 | Request | Status | Hasil |
 |---|---|---|
-| `GET /02.02-skema-tabel/` | `200` | empat statement SQL sesuai *Membuat tabel* dan *Mengubah tabel*, termasuk `AFTER nomor` dan `ON DELETE SET NULL` |
-| `GET /02.02-skema-tabel/jalankan` | `200` | `drop_kontak`, `drop_grup`, `create_grup`, `create_kontak`, `alter_email`, `alter_grup` semuanya `true` |
-| `GET /02.02-skema-tabel/struktur` | `200` | kolom `demo_kontak` berurutan `id_kontak`, `nm_kontak`, `nomor`, `email`, `id_grup`; index `PRIMARY`, `uniq_demo_kontak_nomor`, `fk_demo_kontak_grup` |
-| `GET /02.02-skema-tabel/tipe` | `200` | sembilan tipe kolom terender benar, `length(30)` menggantikan panjang awal, `ifNotExists(false)` menghapus `IF NOT EXISTS` |
-| `GET /02.02-skema-tabel/sementara` | `200` | `modify`, `add_first`, `rename_column`, `unique`, `drop_index`, `drop_column`, `rename`, `truncate`, `drop` semuanya `true` |
-| `GET /02.02-skema-tabel/kunci` | `200` | `primary` pada dua kolom dan `drop_primary` berhasil |
-| `GET /02.02-skema-tabel/hapus` | `200` | `drop_foreign`, `drop_kontak`, `drop_grup` bernilai `true` |
+| `GET /03.02-skema-tabel/` | `200` | empat statement SQL sesuai *Membuat tabel* dan *Mengubah tabel*, termasuk `AFTER nomor` dan `ON DELETE SET NULL` |
+| `GET /03.02-skema-tabel/jalankan` | `200` | `drop_kontak`, `drop_grup`, `create_grup`, `create_kontak`, `alter_email`, `alter_grup` semuanya `true` |
+| `GET /03.02-skema-tabel/struktur` | `200` | kolom `demo_kontak` berurutan `id_kontak`, `nm_kontak`, `nomor`, `email`, `id_grup`; index `PRIMARY`, `uniq_demo_kontak_nomor`, `fk_demo_kontak_grup` |
+| `GET /03.02-skema-tabel/tipe` | `200` | sembilan tipe kolom terender benar, `length(30)` menggantikan panjang awal, `ifNotExists(false)` menghapus `IF NOT EXISTS` |
+| `GET /03.02-skema-tabel/sementara` | `200` | `modify`, `add_first`, `rename_column`, `unique`, `drop_index`, `drop_column`, `rename`, `truncate`, `drop` semuanya `true` |
+| `GET /03.02-skema-tabel/kunci` | `200` | `primary` pada dua kolom dan `drop_primary` berhasil |
+| `GET /03.02-skema-tabel/hapus` | `200` | `drop_foreign`, `drop_kontak`, `drop_grup` bernilai `true` |
 
 Urutan uji: `/` → `/jalankan` → `/struktur` → `/tipe` → `/sementara` → `/kunci` →
 `/hapus`. Setelah rangkaian itu, `SHOW TABLES` di database uji hanya berisi

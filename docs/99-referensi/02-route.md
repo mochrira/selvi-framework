@@ -129,7 +129,7 @@ URI berupa `string`.
 | `$name` | `string` | wajib | nama parameter |
 | `$value` | `mixed` | wajib | nilai parameter |
 
-**Kembalian:** `RouteInterface` — instance route sendiri.
+**Kembalian:** `Selvi\Routing\Interfaces\IRoute` — instance route sendiri.
 
 ### `Route::getMiddleware()`
 
@@ -143,7 +143,7 @@ Menambahkan middleware ke daftar yang sudah ada.
 |---|---|---|---|
 | `$middleware` | `Closure\|array\|string` | wajib | satu atau beberapa middleware |
 
-**Kembalian:** `RouteInterface` — instance route sendiri.
+**Kembalian:** `Selvi\Routing\Interfaces\IRoute` — instance route sendiri.
 
 ### `Route::match($method, $uri, $parent)`
 
@@ -175,7 +175,7 @@ Membuat salinan route dengan middleware dan parameter dari grup induk.
 
 - `src/Routing/Route.php` — implementasi.
 - `src/Routing/RouteGroup.php` — grup, middleware, dan parameter grup.
-- `src/Routing/RouteInterface.php` — kontrak route dan grup.
+- `src/Routing/Interfaces/IRoute.php` — kontrak route dan grup.
 - `src/Router.php` — registry dan pencocokan route.
 - `tests/01.04-controller/index.php` — aplikasi uji method statis, grup, dan
   middleware.

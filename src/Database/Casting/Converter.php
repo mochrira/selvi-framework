@@ -6,7 +6,7 @@ namespace Selvi\Database\Casting;
 
 use BackedEnum;
 use DateTimeInterface;
-use Selvi\Contracts\Arrayable;
+use Selvi\Interfaces\IArrayable;
 use Selvi\Database\Interfaces\ICast;
 use Selvi\Database\Interfaces\ISerializesCast;
 
@@ -110,7 +110,7 @@ class Converter {
 
         if($serialize !== null) return $serialize->serialize($value);
 
-        return $value instanceof Arrayable ? $value->toArray() : $value;
+        return $value instanceof IArrayable ? $value->toArray() : $value;
     }
 
     /**

@@ -5,13 +5,14 @@ namespace Selvi\Data;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionProperty;
-use Selvi\Contracts\Arrayable;
+use Selvi\Data\Interfaces\IDataObject;
+use Selvi\Data\Interfaces\IPropertyAttribute;
 use Selvi\Database\Casting\Converter;
+use Selvi\Interfaces\IArrayable;
 use Selvi\Model\Attributes\Aggregate;
 use Selvi\Model\Attributes\BelongsTo;
-use Selvi\Model\Interfaces\IPropertyAttribute;
 
-class DataObject implements Arrayable {
+class DataObject implements IArrayable, IDataObject {
 
     private static ?array $cache_properties = [];
     private static $debug = false;
@@ -20,7 +21,6 @@ class DataObject implements Arrayable {
         if(static::$debug == false) return;
         echo $text."\n";
     }
-
 
     /**
      * @return list<DataProperty>
@@ -49,7 +49,7 @@ class DataObject implements Arrayable {
         return self::$cache_properties[static::class] = $result;
     }
 
-    private static function hasPrefixedColumn(object $item, ?string $prefix): bool {
+    private static function hasPrefixedKey(object $item, ?string $prefix): bool {
         /**
          * Periksa 2 kemungkinan : 
          * 1. Prefix kosong, tidak punya prefixed column
@@ -65,11 +65,72 @@ class DataObject implements Arrayable {
         return false;
     }
 
-    public static function of(object $item, ?string $prefix = "") {
+    public static function of(object $item, ?string $prefix = ""): static {
         $obj = new static();
         /** Mengambil semua properties */
         $properties = static::properties(); 
         foreach($properties as $index => $property) {
+            $source = "{$property->name}";
+            if($prefix != "") $source = "{$prefix}_{$source}";
+
+            /**
+             * 1. Jika properti TIDAK DITEMUKAN
+             *      a. Jika properti tidak ditemukan, kemungkinan DataObject dengan prefix
+             *      b. Jika tetap tidak ada, maka dipastikan nullable atau un-instantiable
+             */
+            if(!property_exists($item, $source)) {
+                static::log("{$index}. Property {$source} tidak ditemukan");
+
+                if(is_subclass_of($property->propertyType(), DataObject::class) && ($property->prefix != null)) {
+                    static::log("{$index}. Mencoba konfigurasi child prefix");
+                    if(static::hasPrefixedKey($item, "{$prefix}{$property->prefix}_")) {
+                        $obj->{$property->propertyName()} = $property->propertyType()::of($item, "{$prefix}{$property->prefix}_");
+                        continue;
+                    }
+                    static::log("{$index}. Gagal mencoba konfigurasi child prefix");
+                }
+
+                /** 1a. mengijinkan null */
+                if($property->allowsNull()) {
+                    static::log("{$index}. Property {$source} mengijinkan null, setting to null");
+                    $obj->{$property->propertyName()} = null;
+                } else {
+                    /** 1b. tinggalkan tanpa inisialisasi */
+                    static::log("{$index}. Property {$source} tidak ditemukan, setting uninitialized");
+                }
+                continue;
+            }
+
+            /**
+             * 2. Jika properti DITEMUKAN
+             *      a. Periksa apakah DTO bersarang
+             *      b. Jika tidak / scalar, langsung convert value
+             */
+            static::log("{$index}. Property {$source} ditemukan");
+
+            $value = $item->{$source};
+
+            /** 2a. Jika properti bertipe DataObject */
+            if(is_subclass_of($property->propertyType(), DataObject::class)) {
+                if($value !== null) {
+                    static::log("{$index}. Property {$source} merupakan data object, panggil ::of");
+                    $value = $property->propertyType()::of($value);
+                }
+                $obj->{$property->propertyName()} = $value;
+                continue;
+            }
+
+            /** 2b. langsung convert value */
+            $value = Converter::instance()->get(
+                type: $property->propertyType(),
+                value: $value,
+                cast: $property->cast
+            );
+
+            static::log("{$index}. Properti {$source} diassign ke object");
+            $obj->{$property->propertyName()} = $value;
+            continue;
+
             /**
              * prefix diasumsikan string kosong jika tidak diisi, 
              * sehingga aman untuk menambahkannya sebagai prefix dari source
@@ -109,7 +170,7 @@ class DataObject implements Arrayable {
                  * berlaku rekursif sehingga prefix akan terus dibawa sampai ke anak2nya
                  * 
                  */
-                $hasPrefixedCol = static::hasPrefixedColumn($item, "{$prefix}{$property->propertyName()}_");
+                $hasPrefixedCol = static::hasPrefixedKey($item, "{$prefix}{$property->propertyName()}_");
                 if($hasPrefixedCol) {
                     $obj->{$property->propertyName()} = $property->propertyType()::of($item, "{$prefix}{$property->propertyName()}_", false);
                 }
@@ -117,69 +178,14 @@ class DataObject implements Arrayable {
             }
 
             if($property instanceof Aggregate) {
-                $hasPrefixedCol = static::hasPrefixedColumn($item, "{$prefix}{$property->query}_");
+                $hasPrefixedCol = static::hasPrefixedKey($item, "{$prefix}{$property->query}_");
                 if($hasPrefixedCol) {
                     $obj->{$property->propertyName()} = $item->{"{$prefix}{$property->query}__{$property->column}"};
                 }
                 continue;
             }
 
-            if($property instanceof DataProperty && $property->prefix != null) {
-                static::log("{$index}. Mencoba konfigurasi child prefix");
-                if(static::hasPrefixedColumn($item, "{$property->prefix}_") && 
-                    is_subclass_of($property->propertyType(), DataObject::class)) {
-                    $obj->{$property->propertyName()} = $property->propertyType()::of($item, "{$prefix}{$property->prefix}_");
-                    continue;
-                }
-                static::log("{$index}. Gagal mencoba konfigurasi child prefix");
-            }
-
-            $source = "{$property->name}";
-            if($prefix != "") $source = "{$prefix}_{$source}";
-            /** Kesalahan user, name/prefix harus diisi salah satunya */
-            if($source == "_") continue;
-
-            /**
-             * 1. Jika properti tidak ditemukan (baik yang memiliki prefix maupun tidak), maka ada 2 kemungkinan:
-             *      a. Properti merupakan nested DataObject
-             *      b. Properti diijinkan null (allowsNull == true)
-             *      c. Properti memang tidak ada di $item (ditinggalkan uninitialized), serahkan ke toArray
-             */
-            if(!property_exists($item, $source)) {
-                static::log("{$index}. Property {$source} tidak ditemukan");
-                if($property->allowsNull()) {
-                    /** 1b. properti mengijinkan null */
-                    static::log("{$index}. Property {$source} mengijinkan null, setting to null");
-                    $obj->{$property->propertyName()} = null;
-                } else {
-                    /** 1c. properti memang tidak ada di $item */
-                    static::log("{$index}. Property {$source} tidak ditemukan, setting uninitialized");
-                }
-                continue;
-            }
-
-            /**
-             * 2. Jika properti ditemukan, ada 2 kemungkinan:
-             *      a. Properti diassign apa adanya
-             *      b. Properti bertipe DataObject, jadi harus memanggil ::of
-             */
-            static::log("{$index}. Property {$source} ditemukan");
-
-            /** 2a. Di assign apa adanya dulu */
-            $value = Converter::instance()->get(
-                type: $property->propertyType(),
-                value: $item->{$source},
-                cast: $property->cast
-            );
-
-            if(is_subclass_of($property->propertyType(), DataObject::class)) {
-                /** 2b. Jika properti bertipe DataObject */
-                static::log("{$index}. Property {$source} merupakan data object, panggil ::of");
-                $value = $property->propertyType()::of($value);
-            }
-
-            static::log("{$index}. Properti {$source} diassign ke object");
-            $obj->{$property->propertyName()} = $value;
+            
         }
         return $obj;
     }
@@ -203,7 +209,7 @@ class DataObject implements Arrayable {
              * 2. Sudah diinisialisasi
              */
 
-            $name = $property->propertyName();
+            $name = $property->propertyName();            
 
             /** 1. Belum diinisialisasi */
             if(!array_key_exists($name, $vars)) {
@@ -214,7 +220,7 @@ class DataObject implements Arrayable {
                 continue;
             }
 
-            if($this->{$name} instanceof Arrayable) {
+            if($this->{$name} instanceof IArrayable) {
                 $result[$name] = $this->{$name}->toArray();
                 continue;
             }

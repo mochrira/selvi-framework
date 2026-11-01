@@ -6,8 +6,9 @@ namespace Selvi\Routing;
 
 use Closure;
 use Selvi\Router;
+use Selvi\Routing\Interfaces\IRoute;
 
-class Route implements RouteInterface {
+class Route implements IRoute {
 
     private static ?RouteGroup $parent = null;
 
@@ -83,12 +84,12 @@ class Route implements RouteInterface {
         return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
     }
 
-    public function setParam(string $name, mixed $value): RouteInterface {
+    public function setParam(string $name, mixed $value): IRoute {
         $this->parameters[$name] = $value;
         return $this;
     }
 
-    public function setMiddleware(Closure | array | string $middleware): RouteInterface {
+    public function setMiddleware(Closure | array | string $middleware): IRoute {
         $this->middlewares = array_merge(
             $this->middlewares, is_array($middleware) ? $middleware : [$middleware]
         );

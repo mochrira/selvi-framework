@@ -30,7 +30,7 @@ Aturan yang berlaku:
   `default(true)` menjadi `DEFAULT 1`, `default('aktif')` menjadi
   `DEFAULT 'aktif'`, `default(null)` tidak menghasilkan klausa `DEFAULT`.
 
-Pemakaian ada di [skema tabel](../02-database/02-skema-tabel.md).
+Pemakaian ada di [skema tabel](../03-database/02-skema-tabel.md).
 
 ## Konstanta
 
@@ -153,14 +153,14 @@ Hanya berpengaruh di `alter()`. Memanggilnya membatalkan `after()`.
 - `src/Database/Builder/DDL/Clauses/ColumnClause.php`
 - `src/Database/Builder/DDL/HasColumnTypes.php` — pemanggil `make()`
 - `src/Database/Drivers/MySQL/MySQLGrammar.php` — pemakai `toArray()`
-- `tests/02.02-skema-tabel/index.php` — aplikasi uji
+- `tests/03.02-skema-tabel/index.php` — aplikasi uji
 
 ## Status verifikasi
 
 > Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
 > yang mengikat ada di bagian sebelumnya.
 
-Diuji 29 Oktober 2026 lewat `http://localhost:8089/02.02-skema-tabel/`:
+Diuji 29 Oktober 2026 lewat `http://localhost:8089/03.02-skema-tabel/`:
 
 | Kasus | Hasil |
 |---|---|

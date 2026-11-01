@@ -1,6 +1,6 @@
 <?php 
 
-namespace Selvi\Model\Interfaces;
+namespace Selvi\Interfaces;
 
 use Selvi\Model;
 

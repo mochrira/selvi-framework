@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Selvi\Routing;
 
 use Closure;
+use Selvi\Routing\Interfaces\IRoute;
 
-class RouteGroup implements RouteInterface {
+class RouteGroup implements IRoute {
 
     private array $routes = [];
     private array $middlewares = [];
@@ -18,14 +19,14 @@ class RouteGroup implements RouteInterface {
         return $this->middlewares;
     }
 
-    public function setMiddleware(Closure | array | string $middleware): RouteInterface {
+    public function setMiddleware(Closure | array | string $middleware): IRoute {
         $this->middlewares = array_merge(
             $this->middlewares, is_array($middleware) ? $middleware : [$middleware]
         );
         return $this;
     }
 
-    public function add(RouteInterface $route): RouteInterface {
+    public function add(IRoute $route): IRoute {
         $this->routes[] = $route;
         return $route;
     }
@@ -38,15 +39,15 @@ class RouteGroup implements RouteInterface {
         return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
     }
 
-    public function setParam(string $name, mixed $value): RouteInterface {
+    public function setParam(string $name, mixed $value): IRoute {
         $this->parameters[$name] = $value;
         return $this;
     }
 
-    public function match(string $method, string $uri, ?RouteGroup $parent = null): RouteInterface|false {
+    public function match(string $method, string $uri, ?RouteGroup $parent = null): IRoute|false {
         $this->parent = $parent;
         foreach($this->routes as $route) {
-            /** @var RouteInterface $route */
+            /** @var IRoute $route */
             $r = $route->match($method, $uri, $this);
             if($r !== false) return $r;
         }

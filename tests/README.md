@@ -287,7 +287,120 @@ Endpoint `PATCH`/`DELETE`/`OPTIONS`, grup, dan middleware dipakai untuk
 memverifikasi `docs/99-referensi/02-route.md`. `HaloController` mewarisi
 `Selvi\Controller` untuk memverifikasi `docs/99-referensi/07-controller.md`.
 
-## Langkah 7 — cek sintaks source
+## Langkah 7 — uji halaman DTO (`02.01`–`02.03`)
+
+Folder `02.01-data-object/`, `02.02-properti-nested/`, dan
+`02.03-cast-dan-serialize/` memuat `vendor/` workspace dan tidak memerlukan
+database.
+
+```sh
+docker exec selvi_test_dev sh -lc '
+php -l /workspace/tests/02.01-data-object/index.php
+php -l /workspace/tests/02.02-properti-nested/index.php
+php -l /workspace/tests/02.03-cast-dan-serialize/index.php'
+
+for u in /02.01-data-object/ /02.01-data-object/lengkap \
+         /02.01-data-object/wajib-hilang /02.02-properti-nested/ \
+         /02.02-properti-nested/dua-tingkat \
+         /02.02-properti-nested/objek-bersarang \
+         /02.02-properti-nested/objek-null \
+         /02.02-properti-nested/objek-null-wajib \
+         /02.02-properti-nested/tanpa-anak /02.03-cast-dan-serialize/ \
+         /02.03-cast-dan-serialize/null; do
+  printf '%-40s ' "$u"
+  curl -s -o /dev/null -w '%{http_code}\n' "http://localhost:8089$u"
+done
+```
+
+Hasil terverifikasi:
+
+| Endpoint | Status | Hasil |
+|---|---|---|
+| `GET /02.01-data-object/` | `200` | `idKontak` `1` (dari `'1'`), `nmKontak` `Halo`, `nomor` tidak muncul |
+| `GET /02.01-data-object/lengkap` | `200` | tiga kunci termasuk `nomor` |
+| `GET /02.01-data-object/wajib-hilang` | `200` | `toArray.idKontak` `null`, `inisialisasi` `false` |
+| `GET /02.02-properti-nested/` | `200` | `departemen` terisi dari kunci `departemen__...` |
+| `GET /02.02-properti-nested/dua-tingkat` | `200` | `unit.departemen` terisi dari `unit_departemen__...` |
+| `GET /02.02-properti-nested/objek-bersarang` | `200` | objek `grup` menjadi DTO |
+| `GET /02.02-properti-nested/objek-null` | `200` | `"grup": null` pada properti nullable |
+| `GET /02.02-properti-nested/objek-null-wajib` | `500` | `TypeError: Cannot assign null to property KontakGrupWajibDTO::$grup of type GrupDTO` |
+| `GET /02.02-properti-nested/tanpa-anak` | `200` | `unit` dan `departemen` tidak muncul |
+| `GET /02.03-cast-dan-serialize/` | `200` | `opsi` array, `dibuat` `Y-m-d H:i:s`, `diperbarui` `DATE_ATOM` |
+| `GET /02.03-cast-dan-serialize/null` | `200` | nilai `null` dipertahankan |
+
+## Langkah 8 — uji halaman DML (`03.03`–`03.04`)
+
+Folder ini memakai koneksi `main` dari `tests/private/.ENV` dan data contoh di
+tabel `kontak`/`departemen`.
+
+```sh
+for u in /03.03-membaca-data/ /03.03-membaca-data/sql \
+         /03.03-membaca-data/row /03.03-membaca-data/row-kosong \
+         /03.03-membaca-data/where \
+         /03.03-membaca-data/join /03.03-membaca-data/order-limit \
+         /03.03-membaca-data/hasil-bool /03.04-menulis-data/ \
+         /03.04-menulis-data/tanpa-where \
+         /03.04-menulis-data/tanpa-where-delete; do
+  printf '%-44s ' "$u"
+  curl -s -o /dev/null -w '%{http_code}\n' "http://localhost:8089$u"
+done
+```
+
+Hasil terverifikasi:
+
+| Endpoint | Status | Hasil |
+|---|---|---|
+| `GET /03.03-membaca-data/` | `200` | tiga baris `kontak` |
+| `GET /03.03-membaca-data/sql` | `200` | SQL dengan join, group, order, limit |
+| `GET /03.03-membaca-data/row` | `200` | `num_rows` `1` |
+| `GET /03.03-membaca-data/row-kosong` | `200` | `num_rows` `0`, `row` `null` |
+| `GET /03.03-membaca-data/where` | `200` | `operator` `3`, `null` `0`, `raw` `5`, `nested` `2` |
+| `GET /03.03-membaca-data/join` | `200` | satu grup `Programmer` |
+| `GET /03.03-membaca-data/order-limit` | `200` | `["8","7"]` |
+| `GET /03.03-membaca-data/hasil-bool` | `200` | `query('SET ...')` menghasilkan `bool` |
+| `GET /03.04-menulis-data/` | `200` | insert/update/delete berhasil, tabel sementara dihapus |
+| `GET /03.04-menulis-data/tanpa-where` | `400` | `LogicException` UPDATE |
+| `GET /03.04-menulis-data/tanpa-where-delete` | `400` | `LogicException` DELETE |
+
+Tabel `demo_tulis` dibuat dan dihapus di dalam endpoint `/`, jadi tidak perlu
+pembersihan manual.
+
+## Langkah 9 — uji migrasi dan seeder (`03.05`–`03.06`)
+
+Migrasi:
+
+```sh
+curl -s http://localhost:8089/03.05-migrasi/bersihkan
+docker exec -w /workspace/tests/03.05-migrasi selvi_test_dev \
+  php console.php db:migrate demo_migrasi up --all --no-interaction
+curl -s http://localhost:8089/03.05-migrasi/
+docker exec -w /workspace/tests/03.05-migrasi selvi_test_dev \
+  php console.php db:migrate demo_migrasi down --all --no-interaction
+```
+
+Hasil yang diharapkan: `[success:up]`, `tabel_ada: true`, lalu
+`[success:down]` dan `tabel_ada: false`. Menjalankan `up` dua kali
+menghasilkan `[skipped:up]`.
+
+Seeder:
+
+```sh
+curl -s http://localhost:8089/03.06-seeder/siapkan
+docker exec -w /workspace/tests/03.06-seeder selvi_test_dev \
+  php console.php db:seed demo_seed --no-interaction
+curl -s http://localhost:8089/03.06-seeder/
+docker exec -w /workspace/tests/03.06-seeder selvi_test_dev \
+  php console.php db:seed demo_seed --no-interaction
+```
+
+Hasil yang diharapkan: `[success:seed]`, `jumlah: 2`, lalu `[skipped:seed]`
+dengan jumlah tetap `2`.
+
+Keduanya memakai koneksi terpisah (`demo_migrasi`, `demo_seed`) yang menunjuk
+database yang sama, tetapi path file terdaftar terpisah. Tabel `_migration`
+dipakai bersama.
+
+## Langkah 10 — cek sintaks source
 
 ```sh
 docker exec selvi_test_dev sh -lc '

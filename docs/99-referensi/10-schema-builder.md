@@ -23,7 +23,7 @@ Aturan yang berlaku:
 - Bila Grammar mengembalikan beberapa statement (sebagian driver), semuanya
   dijalankan berurutan dan berhenti pada kegagalan pertama.
 
-Pemakaian ada di [skema tabel](../02-database/02-skema-tabel.md).
+Pemakaian ada di [skema tabel](../03-database/02-skema-tabel.md).
 
 ## Method instance
 
@@ -126,14 +126,14 @@ operasi apa pun.` bila closure tidak mencatat operasi.
 - `src/Database/Builder/DDL/SchemaBuilder.php`
 - `src/Database/Schema.php` — facade yang mendelegasikan ke kelas ini
 - `src/Database/Drivers/MySQL/MySQLGrammar.php` — perender SQL
-- `tests/02.02-skema-tabel/index.php` — aplikasi uji
+- `tests/03.02-skema-tabel/index.php` — aplikasi uji
 
 ## Status verifikasi
 
 > Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
 > yang mengikat ada di bagian sebelumnya.
 
-Diuji 29 Oktober 2026 lewat `http://localhost:8089/02.02-skema-tabel/`:
+Diuji 29 Oktober 2026 lewat `http://localhost:8089/03.02-skema-tabel/`:
 
 | Method | Hasil |
 |---|---|

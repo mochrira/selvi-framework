@@ -15,7 +15,7 @@
 
 ## Cara memotong (chunking)
 
-- `01-memulai/` dan `02-database/`: potong per heading `##`.
+- `01-memulai/`, `02-dto/`, dan `03-database/`: potong per heading `##`.
 - `99-referensi/`: potong per heading `###` — satu method satu chunk.
 - Sertakan hierarki heading (`H1` → `H2` → `H3`) sebagai metadata chunk.
 - Heading method referensi sudah memuat nama kelas
@@ -32,12 +32,33 @@
   form, header, cookie.
 - [Controller](01-memulai/04-controller.md) — `id: controller`. Callback
   `Kelas@method`, parameter route, dependency injection, middleware.
-- [Koneksi Database](02-database/01-koneksi.md) — `id: database-koneksi`.
+- [Data Object (DTO)](02-dto/01-data-object.md) — `id: data-object`.
+  `DataObject::of()`, `toArray()`, `DataProperty`, kunci sumber vs nama
+  properti, `optional`.
+- [Properti Bersarang](02-dto/02-properti-nested.md) — `id: data-object-nested`.
+  `DataProperty(prefix: ...)`, kunci `{prefix}__{name}`, nesting dua tingkat,
+  objek bersarang langsung, nullable vs `optional`.
+- [Cast dan Serialize](02-dto/03-cast-dan-serialize.md) —
+  `id: data-object-cast-serialize`. Cast bawaan, `ArrayCast`, `DateTimeCast`,
+  `cast`, `serialize`, nilai `null`.
+- [Koneksi Database](03-database/01-koneksi.md) — `id: database-koneksi`.
   `Manager::add()`, `.ENV`, `DB` facade, query mentah, transaksi, multi-koneksi,
   bentuk `DatabaseException`.
-- [Skema Tabel](02-database/02-skema-tabel.md) — `id: database-skema-tabel`.
+- [Skema Tabel](03-database/02-skema-tabel.md) — `id: database-skema-tabel`.
   `create()`, tipe kolom, modifier, `alter()` (index, primary key, foreign key),
   `drop()`, `rename()`, `truncate()`.
+- [Membaca Data](03-database/03-membaca-data.md) — `id: database-membaca-data`.
+  `DB::table()`, `select()`, bentuk `where`, `join`, `group`, `order`,
+  `limit`/`offset`, `getSql()`, `rows()`/`row()`/`num_rows()`.
+- [Menulis Data](03-database/04-menulis-data.md) — `id: database-menulis-data`.
+  `insert()` single/multi, `update()`/`delete()` dengan pengaman `WHERE`,
+  transaksi manual.
+- [Migrasi](03-database/05-migrasi.md) — `id: database-migrasi`.
+  `Migration::add()`, kontrak file, perintah `db:migrate`, `--step`/`--all`,
+  tabel `_migration`, skip dan kegagalan.
+- [Seeder](03-database/06-seeder.md) — `id: database-seeder`.
+  `Seeder::add()`, kontrak file tanpa arah, perintah `db:seed`, log `seed`,
+  skip.
 
 ## Referensi
 
@@ -55,6 +76,11 @@
   `setVar()`, `render()`, `include()`, helper `view()`.
 - [`Selvi\Controller`](99-referensi/07-controller.md) — `id: ref-controller`.
   Base class opsional.
+- [`Selvi\Data\DataObject`](99-referensi/14-data-object.md) —
+  `id: ref-data-object`. `of()`, `toArray()`, aturan pemetaan.
+- [`Selvi\Data\DataProperty`](99-referensi/15-data-property.md) —
+  `id: ref-data-property`. Attribute properti: `name`, `prefix`, `optional`,
+  `cast`, `serialize`.
 - [`Selvi\Database\Manager`](99-referensi/08-manager.md) — `id: ref-manager`.
   Registry koneksi: `add()`, `get()`, `default()`, `has()`.
 - [`Selvi\Database\DB`](99-referensi/09-db.md) — `id: ref-db`.
@@ -67,8 +93,19 @@
   — `id: ref-alter-blueprint`. Operasi `alter()`.
 - [`Selvi\Database\Builder\DDL\Clauses\ColumnClause`](99-referensi/13-column-clause.md)
   — `id: ref-column-clause`. Modifier kolom.
+- [`Selvi\Database\Builder\DML\QueryBuilder`](99-referensi/16-query-builder.md)
+  — `id: ref-query-builder`. SELECT, WHERE, JOIN, GROUP, ORDER, LIMIT,
+  INSERT/UPDATE/DELETE.
+- [`Selvi\Database\Interfaces\IResult`](99-referensi/17-hasil-query.md) —
+  `id: ref-hasil-query`. `num_rows()`, `rows()`, `row()`, `result()`.
+- [`Selvi\Database\Schema`](99-referensi/18-schema.md) — `id: ref-schema`.
+  Handle DDL terikat koneksi untuk migrasi/seed.
+- [`Selvi\Database\Migration`](99-referensi/19-migration.md) —
+  `id: ref-migration`. Registry path, perintah `db:migrate`, aturan skip.
+- [`Selvi\Database\Seeder`](99-referensi/20-seeder.md) — `id: ref-seeder`.
+  Registry path, perintah `db:seed`, aturan skip.
 
 ## Belum ditulis
 
-Migrasi, seeder, membaca data, menulis data, model, relasi, dan konversi value
-(bab `02-database/`). Halaman yang belum ada sengaja tidak ditautkan di sini.
+Model, relasi, dan konversi value menunggu refactor attribute Model selesai.
+Halaman yang belum ada sengaja tidak ditautkan di sini.

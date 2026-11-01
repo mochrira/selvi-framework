@@ -33,6 +33,7 @@ class JsonResponse extends Response {
 
     #[\Override]
     public function send(): void {
+        header("Content-Type: application/json");
         $this->setContent($this->jsonData !== null ? json_encode($this->jsonData, $this->jsonOptions) : null);
         parent::send();
     }

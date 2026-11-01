@@ -11,12 +11,12 @@ use Selvi\Database\Builder\DML\WhereBuilder;
 use Selvi\Database\Builder\DML\WithBuilder;
 use Selvi\Database\Casting\Converter;
 use Selvi\Database\Interfaces\IQueryBuilder;
+use Selvi\Interfaces\IAttribute;
+use Selvi\Interfaces\IPropertyAttribute;
 use Selvi\Model\Attributes\Aggregate;
 use Selvi\Model\Attributes\BelongsTo;
 use Selvi\Model\Attributes\Column;
 use Selvi\Model\Attributes\Table;
-use Selvi\Model\Interfaces\IAttribute;
-use Selvi\Model\Interfaces\IPropertyAttribute;
 
 class Model extends DataObject {
 

@@ -26,7 +26,7 @@ Aturan yang berlaku:
 - `after()` dan `first()` tidak berpengaruh di sini; keduanya hanya dipakai
   `alter()`.
 
-Pemakaian ada di [skema tabel](../02-database/02-skema-tabel.md).
+Pemakaian ada di [skema tabel](../03-database/02-skema-tabel.md).
 
 ## Method instance
 
@@ -158,14 +158,14 @@ kolom hasil `ColumnClause::toArray()`. Dipakai Grammar.
 - `src/Database/Builder/DDL/HasColumnTypes.php` — method tipe kolom
 - `src/Database/Builder/DDL/Clauses/ColumnClause.php`
 - `src/Database/Interfaces/IBlueprint.php` — kontrak untuk Grammar
-- `tests/02.02-skema-tabel/index.php` — aplikasi uji
+- `tests/03.02-skema-tabel/index.php` — aplikasi uji
 
 ## Status verifikasi
 
 > Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
 > yang mengikat ada di bagian sebelumnya.
 
-Diuji 29 Oktober 2026 lewat `GET /02.02-skema-tabel/tipe` dan `/jalankan`:
+Diuji 29 Oktober 2026 lewat `GET /03.02-skema-tabel/tipe` dan `/jalankan`:
 
 | Kasus | Hasil |
 |---|---|
