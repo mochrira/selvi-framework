@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Selvi\Database\Casting;
 
-use Selvi\Contracts\Arrayable;
 use Selvi\Database\Interfaces\ICast;
 use Selvi\Database\Interfaces\ISerializesCast;
+use Selvi\Interfaces\IArrayable;
 
 /**
  * Cast property bertipe array untuk kolom JSON.
@@ -41,7 +41,7 @@ final class ArrayCast implements ICast, ISerializesCast {
         if(!is_array($value)) return $value;
 
         return array_map(
-            fn(mixed $item) => $item instanceof Arrayable ? $item->toArray() : $item,
+            fn(mixed $item) => $item instanceof IArrayable ? $item->toArray() : $item,
             $value
         );
     }

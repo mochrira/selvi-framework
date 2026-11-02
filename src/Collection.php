@@ -2,14 +2,14 @@
 
 namespace Selvi;
 
-use Selvi\Contracts\Arrayable;
+use Selvi\Interfaces\IArrayable;
 
 /**
  * Type-safe list class — setara dengan List<T> di C#.
  *
  * @template T
  */
-class Collection implements Arrayable
+class Collection implements IArrayable
 {
     /** @var array<int, T> */
     private array $items = [];
@@ -150,7 +150,7 @@ class Collection implements Arrayable
     public function toArray(): array
     {
         return array_map(
-            fn(mixed $item) => $item instanceof Arrayable ? $item->toArray() : $item,
+            fn(mixed $item) => $item instanceof IArrayable ? $item->toArray() : $item,
             $this->items
         );
     }

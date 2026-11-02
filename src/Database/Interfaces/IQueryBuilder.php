@@ -18,6 +18,13 @@ interface IQueryBuilder {
 
     public function select(mixed ...$columns): static;
     public function selectColumns(array $columns): static;
+    /**
+     * Menambahkan satu fungsi SQL sebagai kolom SELECT.
+     *
+     * @param list<array> $arguments Daftar node dari SelectNode
+     */
+    public function selectFunction(string $name, array $arguments = [], ?string $alias = null): static;
+    public function selectRaw(string $sql, ?string $alias = null): static;
     /** 
      * @param Closure(SelectBuilder) $callback
      * */

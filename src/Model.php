@@ -15,8 +15,8 @@ use Selvi\Model\Attributes\Aggregate;
 use Selvi\Model\Attributes\BelongsTo;
 use Selvi\Model\Attributes\Column;
 use Selvi\Model\Attributes\Table;
-use Selvi\Model\Interfaces\IAttribute;
-use Selvi\Model\Interfaces\IPropertyAttribute;
+use Selvi\Model\Interfaces\IModelPropertyAttribute;
+use Selvi\Model\Interfaces\IModelAttribute;
 
 class Model extends DataObject {
 
@@ -38,7 +38,7 @@ class Model extends DataObject {
             $name = $attribute->getName();
             if (isset($result[$name])) continue;
 
-            /** @var IAttribute */
+            /** @var IModelAttribute */
             $obj = $attribute->newInstance();
             $obj->setOwner($key);
             $result[$name] = $obj;
@@ -64,7 +64,7 @@ class Model extends DataObject {
 
         $result = [];
         foreach ($properties as $property) {
-            $attributes = $property->getAttributes(IPropertyAttribute::class, ReflectionAttribute::IS_INSTANCEOF);
+            $attributes = $property->getAttributes(IModelPropertyAttribute::class, ReflectionAttribute::IS_INSTANCEOF);
             foreach ($attributes as $attribute) {
                 $attr = $attribute->newInstance();
                 $attr->setOwner(static::class);
@@ -158,7 +158,7 @@ class Model extends DataObject {
      * @return ModelQuery<static>
      */
     public static function offset(?int $offset): ModelQuery {
-        return static::query()->limit($offset);
+        return static::query()->offset($offset);
     }
 
     /**

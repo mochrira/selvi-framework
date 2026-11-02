@@ -1,0 +1,5 @@
+{
+    "require": {
+        "mochrira/selvi-framework": "^3.6"
+    }
+}
