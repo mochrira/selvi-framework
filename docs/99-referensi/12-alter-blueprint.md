@@ -141,7 +141,8 @@ sesuai urutan pemanggilan. Dipakai Grammar.
 ### Method tipe kolom
 
 `integer()`, `bigInteger()`, `string()`, `text()`, `boolean()`, `decimal()`,
-`float()`, `date()`, dan `datetime()` berasal dari trait `HasColumnTypes`.
+`float()`, `date()`, `time()`, dan `datetime()` berasal dari trait
+`HasColumnTypes`.
 Signature dan tipe MySQL-nya sama persis dengan
 [`Blueprint`](11-blueprint.md#method-instance); perbedaannya hanya pada hasil
 pencatatan operasi:

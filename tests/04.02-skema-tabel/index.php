@@ -103,6 +103,7 @@ Route::get('/tipe', function () {
             $table->date('h_date')->nullable();
             $table->datetime('i_datetime')->nullable();
             $table->string('j_panjang', 10)->length(30);
+            $table->time('k_time')->nullable();
         }),
         'tanpa_if_not_exists' => $schema->compileCreate('demo_tipe_2', function (Blueprint $table) {
             $table->ifNotExists(false);

@@ -64,6 +64,10 @@ trait HasColumnTypes {
         return $this->add($name, 'date', ['nullable' => $nullable]);
     }
 
+    public function time(string $name, bool $nullable = false): ColumnClause {
+        return $this->add($name, 'time', ['nullable' => $nullable]);
+    }
+
     public function datetime(string $name, bool $nullable = false): ColumnClause {
         return $this->add($name, 'datetime', ['nullable' => $nullable]);
     }
