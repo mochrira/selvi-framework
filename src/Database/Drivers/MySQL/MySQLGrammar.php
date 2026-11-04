@@ -352,6 +352,7 @@ class MySQLGrammar implements IGrammar {
             'decimal'    => 'DECIMAL(' . ($column['precision'] ?? 10) . ', ' . ($column['scale'] ?? 0) . ')',
             'float'      => 'DOUBLE',
             'date'       => 'DATE',
+            'time'       => 'TIME',
             'datetime'   => 'DATETIME',
             default      => throw new InvalidArgumentException(
                 'Tipe kolom tidak dikenal: ' . $column['type']

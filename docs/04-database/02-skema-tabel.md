@@ -60,6 +60,7 @@ Semua tipe di bawah tersedia di `Blueprint` maupun `AlterBlueprint`:
 | `decimal()` | `decimal($name, int $precision = 10, int $scale = 0, bool $nullable = false)` | `DECIMAL(p, s)` |
 | `float()` | `float($name, bool $nullable = false)` | `DOUBLE` |
 | `date()` | `date($name, bool $nullable = false)` | `DATE` |
+| `time()` | `time($name, bool $nullable = false)` | `TIME` |
 | `datetime()` | `datetime($name, bool $nullable = false)` | `DATETIME` |
 
 Tipe tidak dikenal (mis. dari grammar driver lain) melempar
@@ -282,7 +283,7 @@ dihasilkan sama dengan contoh di halaman ini.
 | `GET /04.02-skema-tabel/` | `200` | empat statement SQL sesuai *Membuat tabel* dan *Mengubah tabel*, termasuk `AFTER nomor` dan `ON DELETE SET NULL` |
 | `GET /04.02-skema-tabel/jalankan` | `200` | `drop_kontak`, `drop_grup`, `create_grup`, `create_kontak`, `alter_email`, `alter_grup` semuanya `true` |
 | `GET /04.02-skema-tabel/struktur` | `200` | kolom `demo_kontak` berurutan `id_kontak`, `nm_kontak`, `nomor`, `email`, `id_grup`; index `PRIMARY`, `uniq_demo_kontak_nomor`, `fk_demo_kontak_grup` |
-| `GET /04.02-skema-tabel/tipe` | `200` | sembilan tipe kolom terender benar, `length(30)` menggantikan panjang awal, `ifNotExists(false)` menghapus `IF NOT EXISTS` |
+| `GET /04.02-skema-tabel/tipe` | `200` | sepuluh tipe kolom terender benar (termasuk `k_time TIME`), `length(30)` menggantikan panjang awal, `ifNotExists(false)` menghapus `IF NOT EXISTS` |
 | `GET /04.02-skema-tabel/sementara` | `200` | `modify`, `add_first`, `rename_column`, `unique`, `drop_index`, `drop_column`, `rename`, `truncate`, `drop` semuanya `true` |
 | `GET /04.02-skema-tabel/kunci` | `200` | `primary` pada dua kolom dan `drop_primary` berhasil |
 | `GET /04.02-skema-tabel/hapus` | `200` | `drop_foreign`, `drop_kontak`, `drop_grup` bernilai `true` |
@@ -291,6 +292,11 @@ Urutan uji: `/` → `/jalankan` → `/struktur` → `/tipe` → `/sementara` →
 `/hapus`. Setelah rangkaian itu, `SHOW TABLES` di database uji hanya berisi
 tabel milik harness (`_migration`, `kontak`, `departemen`, `profesi`,
 `transaksi`, `unit`) — tidak ada sisa tabel `demo_`.
+
+Pada 4 November 2026, `time()` diuji ulang lewat
+`GET /04.02-skema-tabel/tipe` (menghasilkan `k_time TIME`), serta `create()` dan
+`alter()` pada MariaDB 10.7.8 menghasilkan kolom `TIME`; `php -l` pada file yang
+diubah bersih.
 
 Yang belum diuji: kasus error di *Batasan yang perlu diketahui* (mis. `DROP PRIMARY KEY` pada kolom
 `AUTO_INCREMENT`, `ADD COLUMN NOT NULL` pada tabel berisi data). Bagian itu

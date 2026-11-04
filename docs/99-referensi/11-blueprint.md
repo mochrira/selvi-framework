@@ -124,6 +124,15 @@ Dipakai internal oleh `SchemaBuilder`; tidak perlu dibuat manual.
 
 **Kembalian:** `ColumnClause`. MySQL: `DATE`.
 
+### `Blueprint::time($name, $nullable)`
+
+| Parameter | Tipe | Default | Keterangan |
+|---|---|---|---|
+| `$name` | `string` | wajib | nama kolom |
+| `$nullable` | `bool` | `false` | `true` menghilangkan `NOT NULL` |
+
+**Kembalian:** `ColumnClause`. MySQL: `TIME`.
+
 ### `Blueprint::datetime($name, $nullable)`
 
 | Parameter | Tipe | Default | Keterangan |
@@ -169,11 +178,14 @@ Diuji 29 Oktober 2026 lewat `GET /04.02-skema-tabel/tipe` dan `/jalankan`:
 
 | Kasus | Hasil |
 |---|---|
-| kesembilan method tipe kolom | menghasilkan `INT`, `BIGINT`, `VARCHAR(40)`, `TEXT`, `TINYINT(1)`, `DECIMAL(12, 2)`, `DOUBLE`, `DATE`, `DATETIME` |
+| kesepuluh method tipe kolom | menghasilkan `INT`, `BIGINT`, `VARCHAR(40)`, `TEXT`, `TINYINT(1)`, `DECIMAL(12, 2)`, `DOUBLE`, `DATE`, `TIME`, `DATETIME` |
 | `length(30)` setelah `string(..., 10)` | `VARCHAR(30)` |
 | `ifNotExists(false)` | `CREATE TABLE demo_tipe_2 (...)` tanpa `IF NOT EXISTS` |
 | `nullable()` | kolom tanpa `NOT NULL` |
 | `getTable()`, `hasIfNotExists()`, `getColumns()` | terpakai tidak langsung oleh `compileCreate()` |
+
+Pada 4 November 2026, `time()` diuji ulang lewat `GET /04.02-skema-tabel/tipe`
+dan menghasilkan `k_time TIME`.
 
 Belum diuji: `InvalidArgumentException` untuk kolom duplikat. Perilaku itu
 disimpulkan dari kode.
