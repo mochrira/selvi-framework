@@ -53,7 +53,9 @@ Bab `04-database/` ditulis bertahap, dimulai dari menyiapkan koneksi:
 
 Bab `05-api/` membahas pembuatan endpoint dari migrasi sampai pengujian:
 
-1. [Panduan Endpoint CRUD API](05-api/01-crud-endpoint.md) — selesai.
+1. [Panduan Endpoint CRUD API](05-api/01-crud-endpoint.md) — migrasi tabel,
+   spesifikasi OpenAPI di `specs/`, Swagger UI, persetujuan spec, model, route,
+   controller, dan pengujian.
 
 ## Referensi API
 

@@ -2,7 +2,7 @@
 id: api-crud-endpoint
 title: Panduan Endpoint CRUD API
 type: panduan
-tags: [api, crud, migration, model, controller, validasi, best-practice]
+tags: [api, crud, migration, model, controller, validasi, best-practice, openapi, swagger-ui]
 prerequisites: [database-migrasi, model, controller, request, response]
 verified: 2026-11-05
 applies_to: Selvi 3.x
@@ -11,12 +11,19 @@ applies_to: Selvi 3.x
 # Panduan Endpoint CRUD API
 
 Halaman ini menuntun pembuatan satu resource API dari nol: migrasi tabel,
-model, controller, route, sampai pengujian dengan `curl`. Contoh yang dipakai
-adalah resource `produk` dengan operasi list, detail, create, update, dan
-delete.
+spesifikasi OpenAPI, model, route, controller, sampai pengujian dengan `curl`.
+Contoh yang dipakai adalah resource `produk` dengan operasi list, detail,
+create, update, dan delete.
 
-Urutan langkahnya sengaja dibuat sama untuk resource lain. Ganti nama
-`produk`, nama kolom, dan aturan validasi sesuai domain aplikasi.
+Urutan yang dipakai:
+
+```text
+migrasi tabel → jalankan migrasi → tulis spesifikasi → Swagger UI
+→ setujui spesifikasi → model → route → controller → uji endpoint
+```
+
+Model, route, dan controller tidak dibuat sebelum spesifikasi disetujui. Ganti
+nama `produk`, nama kolom, dan aturan validasi sesuai domain aplikasi.
 
 ## Tujuan
 
@@ -42,15 +49,19 @@ Menghasilkan endpoint CRUD yang:
 
 ## Rancangan kontrak API
 
-Tentukan kontrak sebelum menulis kode. Untuk resource `produk`:
+Tentukan kontrak setelah struktur tabel disepakati, sebelum menulis kode
+aplikasi. Untuk resource `produk`:
 
 | Method | URI | Fungsi | Sukses | Gagal |
 |---|---|---|---|---|
-| `GET` | `/produk` | daftar produk | `200` | `400` |
+| `GET` | `/produk` | daftar produk | `200` | `500` |
 | `GET` | `/produk/{id}` | detail produk | `200` | `400`, `404` |
 | `POST` | `/produk` | buat produk | `201` | `400`, `422` |
 | `PATCH` | `/produk/{id}` | ubah sebagian field | `200` | `400`, `404`, `422` |
 | `DELETE` | `/produk/{id}` | hapus produk | `204` | `400`, `404` |
+
+Tabel ini ringkasan. Kontrak lengkap beserta schema request/response ditulis
+sebagai OpenAPI pada langkah 4.
 
 Keputusan yang dipakai di halaman ini:
 
@@ -90,7 +101,6 @@ Handler::setDefaultHandlers();
 Handler::listen();
 
 require __DIR__.'/Config/database.php';
-require __DIR__.'/Config/routes.php';
 ```
 
 `Config/database.php`:
@@ -135,8 +145,9 @@ Praktik yang perlu dijaga:
 - `Handler::setDefaultHandlers()` dan `Handler::listen()` dipasang sekali di
   bootstrap agar exception dari controller menjadi respons JSON, bukan halaman
   error PHP.
-- `Route::...` tetap ditulis di `Config/routes.php`; bootstrap hanya memuatnya.
-  Dengan begitu daftar endpoint tetap terbaca sebagai kontrak API.
+- `Route::...` tetap ditulis di `Config/routes.php`; bootstrap tidak memuatnya.
+  `public/index.php` yang memuat route, sehingga `console.php` bisa menjalankan
+  migrasi sebelum file route dibuat.
 - `public/index.php` dan `console.php` memakai bootstrap yang sama, sehingga
   konfigurasi koneksi tidak ditulis dua kali.
 
@@ -209,7 +220,337 @@ php console.php db:migrate main down
 Jangan mengubah file migrasi yang sudah dijalankan di lingkungan bersama.
 Buat file baru untuk perubahan berikutnya.
 
-## 4. Buat model
+## 4. Tulis spesifikasi OpenAPI
+
+Struktur tabel sudah disepakati lewat migrasi. Sekarang tulis spesifikasi
+sebagai kontrak API sebelum model, route, dan controller dibuat.
+Pisahkan file utama, schema, dan operasi path:
+
+```text
+specs/
+├── index.yaml
+├── paths/
+│   ├── produk.yaml
+│   └── produk-single.yaml
+└── schemas/
+    └── Produk.yaml
+```
+
+`specs/index.yaml` menjadi pintu masuk. File ini memuat `info`, `servers`, lalu
+menunjuk file path dan schema lewat `$ref` relatif.
+
+```yaml
+openapi: 3.0.3
+
+info:
+  title: Produk API
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit
+  description: |
+    Spesifikasi CRUD resource `produk` untuk aplikasi contoh Selvi Framework.
+    Kontrak ini menjadi acuan sebelum migrasi, model, controller, dan route
+    dibuat.
+
+security: []
+
+servers:
+  - url: /05.01-crud-endpoint
+    description: Aplikasi uji lokal
+
+tags:
+  - name: Produk
+    description: Operasi CRUD resource produk
+
+paths:
+  /produk:
+    $ref: './paths/produk.yaml'
+  /produk/{id}:
+    $ref: './paths/produk-single.yaml'
+```
+
+Aturan yang dipakai:
+
+- `$ref` di `index.yaml` relatif terhadap folder `specs/`.
+- File di `specs/paths/` merujuk schema dengan `../schemas/...`.
+- Example hanya ditulis di file schema, bukan diulang di setiap endpoint.
+- Schema request ditulis inline di `requestBody` operasi yang membutuhkannya;
+  tidak ada schema input terpisah.
+- Response daftar ditulis inline di `paths/produk.yaml`; tidak ada schema
+  pembungkus terpisah.
+- Respons error (`400`, `404`, `422`) sengaja tidak didokumentasikan. Spesifikasi
+  hanya memuat respons sukses.
+- `security: []` menandakan contoh belum memakai autentikasi. Saat endpoint
+  dilindungi middleware, ganti dengan skema keamanan yang sesuai.
+- `count` pada response daftar adalah total baris yang cocok, bukan jumlah baris
+  halaman.
+- `createdAt`/`updatedAt` bertipe `string`, bukan `format: date-time`, karena
+  model menyerialisasikannya sebagai `Y-m-d H:i:s` (bukan RFC 3339).
+
+### Schema
+
+Hanya ada satu schema produk. Bentuk response daftar ditulis langsung pada
+operasi GET di file path.
+
+#### `Produk.yaml`
+
+```yaml
+type: object
+required: [idProduk, nama, harga, stok, createdAt, updatedAt]
+properties:
+  idProduk:
+    type: integer
+    example: 1
+  nama:
+    type: string
+    example: Kopi Gayo
+  harga:
+    type: integer
+    minimum: 0
+    example: 85000
+  stok:
+    type: integer
+    minimum: 0
+    example: 12
+  createdAt:
+    type: string
+    description: Format `Y-m-d H:i:s`.
+    example: '2026-11-05 02:36:05'
+  updatedAt:
+    type: string
+    description: Format `Y-m-d H:i:s`.
+    example: '2026-11-05 02:36:05'
+example:
+  idProduk: 1
+  nama: Kopi Gayo
+  harga: 85000
+  stok: 12
+  createdAt: '2026-11-05 02:36:05'
+  updatedAt: '2026-11-05 02:36:05'
+```
+
+### Path dan operasi
+
+Satu file path berisi operasi HTTP untuk path tersebut. Schema input ditulis
+inline pada `requestBody`, sehingga tidak ada file schema request tambahan.
+
+#### `produk.yaml`
+
+```yaml
+get:
+  tags: [Produk]
+  operationId: resultProduk
+  summary: Daftar produk
+  description: Mengembalikan daftar produk dengan filter nama dan pagination.
+  parameters:
+    - name: q
+      in: query
+      description: Filter substring pada nama produk.
+      schema:
+        type: string
+    - name: limit
+      in: query
+      description: Jumlah baris per halaman. Nilai di luar 1–100 dipaksa masuk rentang.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 30
+    - name: offset
+      in: query
+      description: Jumlah baris yang dilewati. Nilai negatif dipaksa menjadi 0.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+  responses:
+    '200':
+      description: Daftar produk
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../schemas/Produk.yaml'
+              count:
+                type: integer
+                description: Total baris yang cocok dengan filter, bukan jumlah baris halaman.
+                example: 1
+
+post:
+  tags: [Produk]
+  operationId: insertProduk
+  summary: Buat produk
+  description: Membuat satu produk baru.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [nama, harga]
+          properties:
+            nama:
+              type: string
+              minLength: 1
+              maxLength: 100
+            harga:
+              type: integer
+              minimum: 0
+            stok:
+              type: integer
+              minimum: 0
+              default: 0
+  responses:
+    '201':
+      description: Produk berhasil dibuat
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Produk.yaml'
+```
+
+#### `produk-single.yaml`
+
+```yaml
+parameters:
+  - name: id
+    in: path
+    required: true
+    description: ID produk berupa angka.
+    schema:
+      type: integer
+      minimum: 1
+
+get:
+  tags: [Produk]
+  operationId: rowProduk
+  summary: Detail produk
+  responses:
+    '200':
+      description: Detail produk
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Produk.yaml'
+
+patch:
+  tags: [Produk]
+  operationId: updateProduk
+  summary: Ubah sebagian field produk
+  description: Hanya field yang dikirim yang diubah; `updatedAt` selalu diperbarui.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          minProperties: 1
+          properties:
+            nama:
+              type: string
+              minLength: 1
+              maxLength: 100
+            harga:
+              type: integer
+              minimum: 0
+            stok:
+              type: integer
+              minimum: 0
+  responses:
+    '200':
+      description: Produk setelah diubah
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Produk.yaml'
+
+delete:
+  tags: [Produk]
+  operationId: deleteProduk
+  summary: Hapus produk
+  responses:
+    '204':
+      description: Produk dihapus tanpa body
+```
+
+## 5. Sajikan dokumentasi dengan Swagger UI
+
+Buat `specs/index.html`:
+
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Produk API — Swagger UI</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.34.1/swagger-ui.css">
+    <style>
+        body { margin: 0; background: #fafafa; }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5.34.1/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.34.1/swagger-ui-standalone-preset.js"></script>
+    <script>
+        window.ui = SwaggerUIBundle({
+            url: './index.yaml',
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            validatorUrl: null,
+            presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+            ],
+            layout: 'StandaloneLayout'
+        });
+    </script>
+</body>
+</html>
+```
+
+Buka `http://127.0.0.1:8089/05.01-crud-endpoint/specs/`. Server menyajikan
+`index.html` sebagai halaman utama folder, lalu halaman memuat `./index.yaml`
+dan menampilkan lima operasi serta schema `Produk`.
+
+- Aset Swagger UI dimuat dari unpkg versi `5.34.1`. Jika lingkungan tidak punya
+  akses internet, unduh `swagger-ui.css`, `swagger-ui-bundle.js`, dan
+  `swagger-ui-standalone-preset.js` ke folder `specs/`, lalu ubah `href`/`src`
+  menjadi path lokal.
+- `url: './index.yaml'` relatif terhadap `specs/index.html`.
+- `validatorUrl: null` mematikan validator online. Tanpa ini, Swagger UI
+  menampilkan badge **INVALID** karena `validator.swagger.io` tidak bisa membaca
+  host lokal seperti `selvi.local`.
+- Tombol **Try it out** mengirim request ke `servers.url` pada spesifikasi.
+- Pastikan seluruh file di `specs/` tidak ikut di-rewrite ke front controller.
+  Kondisi `!-f` dan `!-d` seperti pada `.htaccess` aplikasi uji sudah cukup.
+- Jika server mengirim YAML sebagai `application/octet-stream`, tambahkan
+  `AddType application/yaml .yaml` pada `.htaccess`.
+
+## 6. Review dan setujui spesifikasi
+
+Model, route, dan controller belum boleh dibuat sebelum spesifikasi disetujui.
+Review kontrak bersama pemilik domain atau reviewer:
+
+- Path dan method HTTP sesuai kebutuhan operasi.
+- Field wajib, tipe, rentang nilai, dan default sudah benar.
+- Contoh response di schema mewakili data nyata.
+- Nama field JSON konsisten dengan `toArray()` model.
+- Respons error tidak didokumentasikan, sesuai kebijakan spesifikasi ini.
+- `servers.url` sudah menunjuk lingkungan yang benar.
+
+Setelah disetujui, spesifikasi menjadi acuan implementasi. Jika kebutuhan
+berubah, ubah dan review spesifikasi lebih dulu, baru sesuaikan model, route,
+dan controller.
+
+## 7. Buat model
 
 Buat `app/Models/Produk.php`:
 
@@ -257,7 +598,46 @@ class Produk extends Model {
   `NOT NULL`, jadi properti tidak memakai `?`.
 - `create()` menerima kunci **nama kolom** (`id_produk`), bukan nama properti.
 
-## 5. Buat controller
+## 8. Daftarkan route
+
+Buat `app/Config/routes.php`:
+
+```php
+<?php
+
+use Selvi\Routing\Route;
+
+Route::get('/produk', 'App\Controllers\ProdukController@result');
+Route::get('/produk/{id}', 'App\Controllers\ProdukController@row');
+Route::post('/produk', 'App\Controllers\ProdukController@insert');
+Route::patch('/produk/{id}', 'App\Controllers\ProdukController@update');
+Route::delete('/produk/{id}', 'App\Controllers\ProdukController@delete');
+```
+
+`public/index.php`:
+
+```php
+<?php
+
+require __DIR__.'/../bootstrap.php';
+require __DIR__.'/../app/Config/routes.php';
+
+\Selvi\Framework::run();
+```
+
+- `bootstrap.php` hanya memuat konfigurasi database. Route dimuat oleh
+  `public/index.php` agar `console.php` tetap bisa dipakai sebelum file route
+  dibuat.
+- Pada aplikasi nyata, `App\Models\Produk` dan `App\Controllers\ProdukController`
+  dimuat oleh autoload PSR-4. Folder uji memuat keduanya manual karena autoload
+  repo hanya memetakan `Selvi\` dan `Selvi\Tests\`.
+- Placeholder route dan nama parameter method harus sama: `{id}` dengan
+  `string $id`.
+- Nilai route selalu berupa string. Karena itu controller memvalidasi
+  `ctype_digit($id)` sebelum mengubahnya menjadi `int`.
+- Route didaftarkan sebelum `Framework::run()`.
+
+## 9. Buat controller
 
 Buat `app/Controllers/ProdukController.php`:
 
@@ -447,44 +827,7 @@ Catatan pengembangan:
 - Jangan memakai `echo`, `die`, atau `http_response_code()` di controller.
   Selalu kembalikan `response()` atau `jsonResponse()`.
 
-## 6. Daftarkan route
-
-Buat `app/Config/routes.php`:
-
-```php
-<?php
-
-use Selvi\Routing\Route;
-
-Route::get('/produk', 'App\Controllers\ProdukController@result');
-Route::get('/produk/{id}', 'App\Controllers\ProdukController@row');
-Route::post('/produk', 'App\Controllers\ProdukController@insert');
-Route::patch('/produk/{id}', 'App\Controllers\ProdukController@update');
-Route::delete('/produk/{id}', 'App\Controllers\ProdukController@delete');
-```
-
-`public/index.php`:
-
-```php
-<?php
-
-require __DIR__.'/../bootstrap.php';
-
-\Selvi\Framework::run();
-```
-
-- `bootstrap.php` sudah memuat `Config/routes.php`; `index.php` tidak perlu
-  memuatnya lagi.
-- Pada aplikasi nyata, `App\Models\Produk` dan `App\Controllers\ProdukController`
-  dimuat oleh autoload PSR-4. Folder uji memuat keduanya manual karena autoload
-  repo hanya memetakan `Selvi\` dan `Selvi\Tests\`.
-- Placeholder route dan nama parameter method harus sama: `{id}` dengan
-  `string $id`.
-- Nilai route selalu berupa string. Karena itu controller memvalidasi
-  `ctype_digit($id)` sebelum mengubahnya menjadi `int`.
-- Route didaftarkan sebelum `Framework::run()`.
-
-## 7. Uji endpoint
+## 10. Uji endpoint
 
 Gunakan `curl` dari host. Respons dirapikan oleh `JSON_PRETTY_PRINT` bawaan
 `jsonResponse()`.
@@ -673,6 +1016,10 @@ Body kosong. Memanggil `GET /produk/1` setelahnya menghasilkan `404`.
 
 ## Sumber
 
+- `specs/index.yaml` — file utama OpenAPI 3.0.
+- `specs/schemas/` — schema response produk.
+- `specs/paths/` — operasi HTTP per path.
+- `specs/index.html` — halaman Swagger UI yang memuat spesifikasi.
 - `app/Migrations/20261105_01_create_produk.php` — contoh migrasi.
 - `app/Models/Produk.php` — model resource.
 - `app/Controllers/ProdukController.php` — controller CRUD dan validasi.
@@ -702,6 +1049,9 @@ kelas `App\` secara manual karena autoload repo hanya memetakan `Selvi\` dan
 |---|---|
 | `php -l` pada delapan file uji | bersih |
 | `db:migrate main up --all --no-interaction` | `[success:up] 20261105_01_create_produk.php berhasil dijalankan` |
+| `GET /05.01-crud-endpoint/specs/index.yaml` | `200`, YAML terbaca; Redocly lint `0 error`, `5 warning` aturan `4XX` karena respons error sengaja tidak didokumentasikan |
+| `GET /05.01-crud-endpoint/specs/schemas/Produk.yaml`, `specs/paths/produk.yaml` | `200`, `$ref` relatif terbaca |
+| `GET /05.01-crud-endpoint/specs/` | `200`, HTML termuat dengan `url: './index.yaml'` dan `validatorUrl: null`; pengecekan visual manual |
 | `GET /05.01-crud-endpoint/produk` | `200`, `data` kosong dan `count` `0` |
 | `POST /produk` body valid | `201`, `idProduk` `1`, `createdAt`/`updatedAt` terisi |
 | `POST /produk` JSON rusak | `400`, `code` `produk/invalid-json` |
@@ -717,9 +1067,10 @@ kelas `App\` secara manual karena autoload repo hanya memetakan `Selvi\` dan
 | `GET /produk/abc` | `400`, `code` `produk/invalid-id` |
 | `DELETE /produk/1` | `204` tanpa body |
 | `GET /produk/1` setelah delete | `404` |
+| `db:migrate main down --no-interaction` | `[success:down]`; tabel `produk` hilang |
 
 Tabel `produk` dibatalkan dengan `db:migrate main down` setelah pengujian agar
 database uji kembali bersih.
 
-Belum diuji: pagination dengan data lebih dari satu halaman dan penggantian
-handler produksi.
+Belum diuji: pagination dengan data lebih dari satu halaman, penggantian
+handler produksi, dan interaksi Swagger UI pada struktur `specs/` baru.

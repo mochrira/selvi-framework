@@ -1,0 +1,32 @@
+type: object
+required: [idProduk, nama, harga, stok, createdAt, updatedAt]
+properties:
+  idProduk:
+    type: integer
+    example: 1
+  nama:
+    type: string
+    example: Kopi Gayo
+  harga:
+    type: integer
+    minimum: 0
+    example: 85000
+  stok:
+    type: integer
+    minimum: 0
+    example: 12
+  createdAt:
+    type: string
+    description: Format `Y-m-d H:i:s`.
+    example: '2026-11-05 02:36:05'
+  updatedAt:
+    type: string
+    description: Format `Y-m-d H:i:s`.
+    example: '2026-11-05 02:36:05'
+example:
+  idProduk: 1
+  nama: Kopi Gayo
+  harga: 85000
+  stok: 12
+  createdAt: '2026-11-05 02:36:05'
+  updatedAt: '2026-11-05 02:36:05'

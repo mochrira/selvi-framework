@@ -488,6 +488,10 @@ docker exec -w /workspace/tests/05.01-crud-endpoint selvi_test_dev \
   php console.php db:migrate main up --all --no-interaction
 
 B=http://127.0.0.1:8089/05.01-crud-endpoint
+curl -s -o /dev/null -w 'spec %{http_code}\n' "$B/specs/index.yaml"
+curl -s -o /dev/null -w 'schema %{http_code}\n' "$B/specs/schemas/Produk.yaml"
+curl -s -o /dev/null -w 'path %{http_code}\n' "$B/specs/paths/produk.yaml"
+curl -s -o /dev/null -w 'ui %{http_code}\n' "$B/specs/"
 curl -s "$B/produk"
 curl -s -X POST "$B/produk" -H 'Content-Type: application/json' \
   -d '{"nama":"Kopi Gayo","harga":85000,"stok":12}'
@@ -500,10 +504,11 @@ docker exec -w /workspace/tests/05.01-crud-endpoint selvi_test_dev \
   php console.php db:migrate main down --no-interaction
 ```
 
-Hasil yang diharapkan: `[success:up]`, daftar kosong, `201` dengan
-`idProduk: 1`, daftar berisi satu baris, update `stok` menjadi `20`, `204`
-saat delete, lalu `[success:down]`. Setelah `down`, endpoint CRUD tidak bisa
-dipakai sampai migrasi dijalankan lagi.
+Hasil yang diharapkan: `[success:up]`, `spec 200`, `schema 200`, `path 200`,
+`ui 200`, daftar kosong, `201` dengan `idProduk: 1`, daftar berisi satu
+baris, update `stok` menjadi `20`, `204` saat delete, lalu `[success:down]`.
+Setelah `down`, endpoint CRUD tidak bisa dipakai sampai migrasi dijalankan lagi.
+Halaman Swagger UI memuat aset dari unpkg, jadi butuh akses internet.
 
 ## Langkah 12 — cek sintaks source
 

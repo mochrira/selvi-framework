@@ -1,0 +1,28 @@
+openapi: 3.0.3
+
+info:
+  title: Produk API
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/license/mit
+  description: |
+    Spesifikasi CRUD resource `produk` untuk aplikasi contoh Selvi Framework.
+    Kontrak ini menjadi acuan sebelum migrasi, model, controller, dan route
+    dibuat.
+
+security: []
+
+servers:
+  - url: /05.01-crud-endpoint
+    description: Aplikasi uji lokal
+
+tags:
+  - name: Produk
+    description: Operasi CRUD resource produk
+
+paths:
+  /produk:
+    $ref: './paths/produk.yaml'
+  /produk/{id}:
+    $ref: './paths/produk-single.yaml'
