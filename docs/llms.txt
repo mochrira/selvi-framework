@@ -43,7 +43,7 @@
   `id: data-object-cast-serialize`. Cast bawaan, `ArrayCast`, `DateTimeCast`,
   `cast`, `serialize`, nilai `null`.
 - [Model](03-model/01-model.md) — `id: model`. `Table`/`Column`/`NotMapped`,
-  `find()`/`all()`/`first()`/`count()`, `create()`/`update()`/`delete()`,
+  `find()`/`all($query)`/`first()`/`count()`, `create()`/`update()`/`delete()`,
   `toArray()` vs `toArrayDb()`, kolom terhitung (`Column(expression:)`
   dengan resolver atau node `SelectNode`).
 - [Relasi](03-model/02-relasi.md) — `id: model-relasi`. `BelongsTo`,

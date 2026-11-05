@@ -5,7 +5,7 @@ type: referensi
 class: Selvi\Database\Builder\DML\ModelQuery
 tags: [model, query, eager-loading, find, count, insert, update, delete]
 prerequisites: [model]
-verified: 2026-11-01
+verified: 2026-11-05
 applies_to: Selvi 3.x
 ---
 
@@ -106,7 +106,13 @@ Menerima bentuk yang sama dengan
 
 ### `ModelQuery::all($query)`
 
-**Kembalian:** `Collection<Model>`.
+| Parameter | Tipe | Default | Keterangan |
+|---|---|---|---|
+| `$query` | `?Closure(IQueryBuilder): void` | `null` | kustomisasi builder sebelum eksekusi |
+
+**Kembalian:** `Collection<Model>`. Closure dijalankan setelah select, join,
+dan where dari `ModelQuery` disusun, sehingga bisa menambahkan `orderBy()`,
+`limit()`, atau `offset()`.
 
 ### `ModelQuery::first($query)`
 
@@ -167,6 +173,7 @@ Diuji 1 November 2026 lewat aplikasi uji model/relasi:
 | `offset(1)` + `limit(2)` | id `6`, `7` |
 | `find(5)` | satu model |
 | `count()` | `5` |
+| `all()` tanpa closure dan `all(fn($b) => $b->limit(2))` | seluruh baris dan dua baris |
 | `with()` satu dan dua tingkat | relasi terisi |
 | `insert`/`update`/`delete` lewat `Model` | berhasil |
 
