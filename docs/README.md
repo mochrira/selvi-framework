@@ -49,6 +49,12 @@ Bab `04-database/` ditulis bertahap, dimulai dari menyiapkan koneksi:
 5. [Migrasi](04-database/05-migrasi.md) — selesai.
 6. [Seeder](04-database/06-seeder.md) — selesai.
 
+## API
+
+Bab `05-api/` membahas pembuatan endpoint dari migrasi sampai pengujian:
+
+1. [Panduan Endpoint CRUD API](05-api/01-crud-endpoint.md) — selesai.
+
 ## Referensi API
 
 Rujukan per kelas, satu file per kelas.
@@ -103,6 +109,7 @@ Kelas yang dipakai di bab `04-database/`:
 | `02-dto/` | selesai (3 halaman) |
 | `03-model/` | selesai (3 halaman) |
 | `04-database/` | selesai (6 halaman) |
+| `05-api/` | selesai (1 halaman) |
 | `99-referensi/` | selesai (30 halaman) |
 | bagian lain | belum ditulis |
 
@@ -151,9 +158,9 @@ applies_to: Selvi 3.x
 
 Aturan pengindeksan yang disarankan:
 
-- Potong `01-memulai/`, `02-dto/`, `03-model/`, dan `04-database/` per heading
-  `##` (satu bagian satu chunk), dan `99-referensi/` per heading `###` (satu
-  method satu chunk).
+- Potong `01-memulai/`, `02-dto/`, `03-model/`, `04-database/`, dan `05-api/`
+  per heading `##` (satu bagian satu chunk), dan `99-referensi/` per heading
+  `###` (satu method satu chunk).
 - Pertahankan hierarki heading sebagai metadata chunk. Heading method referensi
   sudah memuat nama kelas (mis. `AlterBlueprint::dropForeign($name)`), sehingga
   chunk tetap jelas walau dipisah dari halamannya.
