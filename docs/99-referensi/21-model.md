@@ -5,7 +5,7 @@ type: referensi
 class: Selvi\Model
 tags: [model, database, crud, query, relations, toarraydb]
 prerequisites: [model]
-verified: 2026-11-01
+verified: 2026-11-05
 applies_to: Selvi 3.x
 ---
 
@@ -122,9 +122,15 @@ dikunci nama properti.
 
 **Kembalian:** `?static`.
 
-### `Model::all()`
+### `Model::all($query)`
 
-**Kembalian:** `Collection<static>`.
+| Parameter | Tipe | Default | Keterangan |
+|---|---|---|---|
+| `$query` | `?Closure(IQueryBuilder): void` | `null` | kustomisasi query sebelum eksekusi |
+
+**Kembalian:** `Collection<static>`. Tanpa `$query`, seluruh baris diambil.
+Dengan `$query`, closure menerima builder yang sama seperti `find()` dan
+`first()`, misalnya `fn($b) => $b->orderBy('id', 'desc')->limit(5)`.
 
 ### `Model::count($query)`
 
@@ -190,3 +196,7 @@ Diuji 1 November 2026 lewat `tests/03.01-model` dan `tests/03.02-relasi`:
 
 Belum diuji: `attributes()`/`attribute()` langsung, `limit`/`offset` dengan
 `null`, dan `find()` dengan array id.
+
+Pada 5 November 2026, `all($query)` diuji ulang lewat CLI: tanpa argumen
+mengembalikan seluruh baris, dengan `limit(2)` mengembalikan dua model, dan
+dengan `orderBy(...)->limit(1)` mengembalikan baris terakhir.

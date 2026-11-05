@@ -4,7 +4,7 @@ title: Model
 type: panduan
 tags: [model, database, table, column, crud, query, notmapped]
 prerequisites: [instalasi, database-koneksi, database-skema-tabel]
-verified: 2026-11-01
+verified: 2026-11-05
 applies_to: Selvi 3.x
 ---
 
@@ -73,12 +73,15 @@ class Kontak extends Model {
 ```php
 $kontak = Kontak::find(5);
 $semua = Kontak::all();
+$terbaru = Kontak::all(fn($b) => $b->orderBy('id_kontak', 'desc')->limit(5));
 $pertama = Kontak::first();
 $jumlah = Kontak::count();
 ```
 
 `find(5)` mengembalikan model atau `null`. `all()` mengembalikan
-[`Collection`](../99-referensi/23-collection.md). Hasil `find(5)` pada data uji:
+[`Collection`](../99-referensi/23-collection.md). Parameter `$query` opsional
+dan menerima closure berisi `IQueryBuilder`, sama seperti `first()` dan
+`count()`. Hasil `find(5)` pada data uji:
 
 ```json
 {
@@ -365,3 +368,9 @@ Diuji 1 November 2026 lewat `http://localhost:8089/03.01-model/`
 
 Belum diuji: `Model::limit()` tanpa `offset`, model dengan nama koneksi default,
 dan `create()` dengan kolom yang tidak lengkap.
+
+Pada 5 November 2026, `Model::all($query)` diuji ulang lewat CLI (`php -r`) pada
+data uji `kontak`: `Kontak::all()` mengembalikan 5 model,
+`Kontak::all(fn($b) => $b->limit(2))` mengembalikan 2 model, dan
+`Kontak::all(fn($b) => $b->orderBy('kontak.id_kontak', 'desc')->limit(1))`
+mengembalikan id `9`.

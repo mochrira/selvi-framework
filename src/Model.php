@@ -175,9 +175,12 @@ class Model extends DataObject {
         return static::query()->first($query);
     }
 
-    /** @return Collection<static> */
-    public static function all(): Collection {
-        return static::query()->all();
+    /**
+     * @param ?Closure(IQueryBuilder): void $query
+     * @return Collection<static>
+     */
+    public static function all(?Closure $query = null): Collection {
+        return static::query()->all($query);
     }
     
     /** @param Closure(IQueryBuilder): void $query */
