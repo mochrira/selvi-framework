@@ -481,7 +481,31 @@ Keduanya memakai koneksi terpisah (`demo_migrasi`, `demo_seed`) yang menunjuk
 database yang sama, tetapi path file terdaftar terpisah. Tabel `_migration`
 dipakai bersama.
 
-## Langkah 11 — cek sintaks source
+## Langkah 11 — uji halaman CRUD API (`05.01`)
+
+```sh
+docker exec -w /workspace/tests/05.01-crud-endpoint selvi_test_dev \
+  php console.php db:migrate main up --all --no-interaction
+
+B=http://127.0.0.1:8089/05.01-crud-endpoint
+curl -s "$B/produk"
+curl -s -X POST "$B/produk" -H 'Content-Type: application/json' \
+  -d '{"nama":"Kopi Gayo","harga":85000,"stok":12}'
+curl -s "$B/produk?q=kopi&limit=10&offset=0"
+curl -s -X PATCH "$B/produk/1" -H 'Content-Type: application/json' \
+  -d '{"stok":20}'
+curl -s -o /dev/null -w '%{http_code}\n' -X DELETE "$B/produk/1"
+
+docker exec -w /workspace/tests/05.01-crud-endpoint selvi_test_dev \
+  php console.php db:migrate main down --no-interaction
+```
+
+Hasil yang diharapkan: `[success:up]`, daftar kosong, `201` dengan
+`idProduk: 1`, daftar berisi satu baris, update `stok` menjadi `20`, `204`
+saat delete, lalu `[success:down]`. Setelah `down`, endpoint CRUD tidak bisa
+dipakai sampai migrasi dijalankan lagi.
+
+## Langkah 12 — cek sintaks source
 
 ```sh
 docker exec selvi_test_dev sh -lc '

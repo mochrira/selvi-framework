@@ -15,8 +15,8 @@
 
 ## Cara memotong (chunking)
 
-- `01-memulai/`, `02-dto/`, `03-model/`, dan `04-database/`: potong per
-  heading `##`.
+- `01-memulai/`, `02-dto/`, `03-model/`, `04-database/`, dan `05-api/`: potong
+  per heading `##`.
 - `99-referensi/`: potong per heading `###` — satu method satu chunk.
 - Sertakan hierarki heading (`H1` → `H2` → `H3`) sebagai metadata chunk.
 - Heading method referensi sudah memuat nama kelas
@@ -70,6 +70,9 @@
 - [Seeder](04-database/06-seeder.md) — `id: database-seeder`.
   `Seeder::add()`, kontrak file tanpa arah, perintah `db:seed`, log `seed`,
   skip.
+- [Panduan Endpoint CRUD API](05-api/01-crud-endpoint.md) —
+  `id: api-crud-endpoint`. Kontrak endpoint, migrasi, model, controller,
+  validasi, status code, route, dan uji `curl`.
 
 ## Referensi
 
@@ -137,5 +140,5 @@
 
 ## Belum ditulis
 
-Halaman di luar bab `01`–`04` dan referensi kelas di atas belum ada. Halaman
+Halaman di luar bab `01`–`05` dan referensi kelas di atas belum ada. Halaman
 yang belum ada sengaja tidak ditautkan di sini.
