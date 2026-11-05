@@ -71,8 +71,9 @@
   `Seeder::add()`, kontrak file tanpa arah, perintah `db:seed`, log `seed`,
   skip.
 - [Panduan Endpoint CRUD API](05-api/01-crud-endpoint.md) —
-  `id: api-crud-endpoint`. Kontrak endpoint, migrasi, model, controller,
-  validasi, status code, route, dan uji `curl`.
+  `id: api-crud-endpoint`. Urutan migrasi → spesifikasi OpenAPI di `specs/`
+  (`index.yaml`, `schemas/`, `paths/`) → Swagger UI → persetujuan → model →
+  route → controller → uji `curl`.
 
 ## Referensi
 

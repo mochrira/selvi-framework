@@ -1,0 +1,74 @@
+get:
+  tags: [Produk]
+  operationId: resultProduk
+  summary: Daftar produk
+  description: Mengembalikan daftar produk dengan filter nama dan pagination.
+  parameters:
+    - name: q
+      in: query
+      description: Filter substring pada nama produk.
+      schema:
+        type: string
+    - name: limit
+      in: query
+      description: Jumlah baris per halaman. Nilai di luar 1–100 dipaksa masuk rentang.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 30
+    - name: offset
+      in: query
+      description: Jumlah baris yang dilewati. Nilai negatif dipaksa menjadi 0.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+  responses:
+    '200':
+      description: Daftar produk
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../schemas/Produk.yaml'
+              count:
+                type: integer
+                description: Total baris yang cocok dengan filter, bukan jumlah baris halaman.
+                example: 1
+
+post:
+  tags: [Produk]
+  operationId: insertProduk
+  summary: Buat produk
+  description: Membuat satu produk baru.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [nama, harga]
+          properties:
+            nama:
+              type: string
+              minLength: 1
+              maxLength: 100
+            harga:
+              type: integer
+              minimum: 0
+            stok:
+              type: integer
+              minimum: 0
+              default: 0
+  responses:
+    '201':
+      description: Produk berhasil dibuat
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Produk.yaml'

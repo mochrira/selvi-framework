@@ -1,0 +1,59 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    description: ID produk berupa angka.
+    schema:
+      type: integer
+      minimum: 1
+
+get:
+  tags: [Produk]
+  operationId: rowProduk
+  summary: Detail produk
+  responses:
+    '200':
+      description: Detail produk
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Produk.yaml'
+
+patch:
+  tags: [Produk]
+  operationId: updateProduk
+  summary: Ubah sebagian field produk
+  description: Hanya field yang dikirim yang diubah; `updatedAt` selalu diperbarui.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          minProperties: 1
+          properties:
+            nama:
+              type: string
+              minLength: 1
+              maxLength: 100
+            harga:
+              type: integer
+              minimum: 0
+            stok:
+              type: integer
+              minimum: 0
+  responses:
+    '200':
+      description: Produk setelah diubah
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Produk.yaml'
+
+delete:
+  tags: [Produk]
+  operationId: deleteProduk
+  summary: Hapus produk
+  responses:
+    '204':
+      description: Produk dihapus tanpa body

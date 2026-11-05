@@ -113,6 +113,10 @@ Urutan verifikasi yang dipakai:
    `tests/README.md`. Ringkasnya:
    - **Cek container lebih dulu** (sering sudah berjalan):
      `docker ps --filter name=selvi_test_dev --format '{{.Names}} {{.Status}}'`
+   - **Jangan menghentikan container yang tidak Anda jalankan.** Jika
+     `selvi_test_dev` sudah berjalan sebelum tugas dimulai, biarkan tetap
+     berjalan. Hanya hentikan container yang Anda nyalakan sendiri pada sesi
+     tersebut.
    - Hanya jika belum berjalan, jalankan
      `docker compose -f tests/.docker/compose.yaml up -d`
      (butuh network eksternal `environment` dan `database`).
