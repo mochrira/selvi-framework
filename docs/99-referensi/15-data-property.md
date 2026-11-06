@@ -96,15 +96,15 @@ Method ini tidak perlu dipanggil manual.
 
 ## Sumber
 
-- `src/Data/DataProperty.php`
-- `src/Model/PropertyAttribute.php` — attribute dasar model yang memperluas
+- [src/Data/DataProperty.php](../../src/Data/DataProperty.php)
+- [src/Model/PropertyAttribute.php](../../src/Model/PropertyAttribute.php) — attribute dasar model yang memperluas
   `DataProperty`
-- `src/Data/DataRow.php` — sumber data dan prefix
-- `src/Data/Interfaces/IDataProperty.php` — kontrak attribute properti
-- `src/Database/Interfaces/ICast.php` dan
-  `src/Database/Interfaces/ISerializesCast.php` — tipe `cast` dan `serialize`
-- `tests/02.01-data-object/index.php`, `tests/02.02-properti-nested/index.php`,
-  dan `tests/02.03-cast-dan-serialize/index.php` — aplikasi uji
+- [src/Data/DataRow.php](../../src/Data/DataRow.php) — sumber data dan prefix
+- [src/Data/Interfaces/IDataProperty.php](../../src/Data/Interfaces/IDataProperty.php) — kontrak attribute properti
+- [src/Database/Interfaces/ICast.php](../../src/Database/Interfaces/ICast.php) dan
+  [src/Database/Interfaces/ISerializesCast.php](../../src/Database/Interfaces/ISerializesCast.php) — tipe `cast` dan `serialize`
+- [tests/02.01-data-object/index.php](../../tests/02.01-data-object/index.php), [tests/02.02-properti-nested/index.php](../../tests/02.02-properti-nested/index.php),
+  dan [tests/02.03-cast-dan-serialize/index.php](../../tests/02.03-cast-dan-serialize/index.php) — aplikasi uji
 
 ## Status verifikasi
 
@@ -122,3 +122,5 @@ Diuji 1 November 2026 lewat aplikasi uji bab DTO (PHP 8.4.14):
 
 `DataProperty` tidak memiliki `getOwner()`/`setOwner()`; ia hanya
 mengimplementasikan kontrak `IDataProperty`.
+
+Semua contoh di halaman ini teruji.

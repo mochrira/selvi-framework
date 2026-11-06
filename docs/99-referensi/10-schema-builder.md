@@ -123,10 +123,10 @@ operasi apa pun.` bila closure tidak mencatat operasi.
 
 ## Sumber
 
-- `src/Database/Builder/DDL/SchemaBuilder.php`
-- `src/Database/Schema.php` — facade yang mendelegasikan ke kelas ini
-- `src/Database/Drivers/MySQL/MySQLGrammar.php` — perender SQL
-- `tests/04.02-skema-tabel/index.php` — aplikasi uji
+- [src/Database/Builder/DDL/SchemaBuilder.php](../../src/Database/Builder/DDL/SchemaBuilder.php)
+- [src/Database/Schema.php](../../src/Database/Schema.php) — facade yang mendelegasikan ke kelas ini
+- [src/Database/Drivers/MySQL/MySQLGrammar.php](../../src/Database/Drivers/MySQL/MySQLGrammar.php) — perender SQL
+- [tests/04.02-skema-tabel/index.php](../../tests/04.02-skema-tabel/index.php) — aplikasi uji
 
 ## Status verifikasi
 

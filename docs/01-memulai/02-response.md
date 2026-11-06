@@ -13,6 +13,18 @@ applies_to: Selvi 3.x
 Setiap route harus mengembalikan `Response`. Ada dua helper: `response()`
 untuk teks dan `jsonResponse()` untuk JSON.
 
+## Jawaban singkat
+
+```php
+return response('Halo');                              // teks, 200
+return response('Tidak ditemukan', 404);              // teks, 404
+return jsonResponse(['pesan' => 'Halo']);             // JSON, 200
+return view('home.php', ['nama' => 'Budi'])->render(); // HTML dari views/
+```
+
+Semua bentuk di atas mengembalikan objek `Response`. Jangan memakai `echo`.
+`view()` memerlukan `View::addPath()` ke folder template lebih dulu.
+
 ## Prasyarat
 
 - [Instalasi](01-instalasi.md) sudah berhasil.
@@ -167,12 +179,12 @@ Unix timestamp.
 
 ## Sumber
 
-- `src/Helpers/ResponseHelper.php` — helper `response()` dan `jsonResponse()`.
-- `src/Helpers/LoadHelper.php` — helper `view()`.
-- `src/View.php` — pemuatan template dan `render()`.
-- `src/Output/Response.php` — status code, cookie, `send()`.
-- `src/Output/JsonResponse.php` — encoding JSON.
-- `tests/01.02-response/index.php` dan `tests/01.02-response/views/home.php` —
+- [src/Helpers/ResponseHelper.php](../../src/Helpers/ResponseHelper.php) — helper `response()` dan `jsonResponse()`.
+- [src/Helpers/LoadHelper.php](../../src/Helpers/LoadHelper.php) — helper `view()`.
+- [src/View.php](../../src/View.php) — pemuatan template dan `render()`.
+- [src/Output/Response.php](../../src/Output/Response.php) — status code, cookie, `send()`.
+- [src/Output/JsonResponse.php](../../src/Output/JsonResponse.php) — encoding JSON.
+- [tests/01.02-response/index.php](../../tests/01.02-response/index.php) dan [tests/01.02-response/views/home.php](../../tests/01.02-response/views/home.php) —
   semua contoh di halaman ini.
 
 ## Status verifikasi
@@ -200,3 +212,9 @@ halaman itu menjelaskan alur instalasi user.
 Endpoint `/tanpa-return` dan `/halaman-hilang` sengaja dibuat untuk
 membuktikan baris pada tabel kesalahan umum: `echo` tanpa `return` berakhir
 `500`, dan nama template yang salah juga `500`.
+
+`Response::cookie()` dan opsi JSON diuji lewat `tests/01.02-response/`
+(`/cookie-set`, `/options`); keduanya dirinci di
+[referensi Response](../99-referensi/04-response.md).
+
+Semua contoh di halaman ini teruji.

@@ -41,10 +41,10 @@ Aturan:
 
 ## Sumber
 
-- `src/Model/Attributes/NotMapped.php`
-- `src/Model/PropertyAttribute.php`
-- `src/Model.php` — `columns()`
-- `tests/03.01-model/index.php` — aplikasi uji
+- [src/Model/Attributes/NotMapped.php](../../src/Model/Attributes/NotMapped.php)
+- [src/Model/PropertyAttribute.php](../../src/Model/PropertyAttribute.php)
+- [src/Model.php](../../src/Model.php) — `columns()`
+- [tests/03.01-model/index.php](../../tests/03.01-model/index.php) — aplikasi uji
 
 ## Status verifikasi
 

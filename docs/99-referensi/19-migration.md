@@ -96,10 +96,10 @@ Pesan penting:
 
 ## Sumber
 
-- `src/Database/Migration.php`
-- `src/Database/MigrationLog.php`
-- `src/Database/Schema.php`
-- `tests/04.05-migrasi/console.php` dan `tests/04.05-migrasi/migrations/` —
+- [src/Database/Migration.php](../../src/Database/Migration.php)
+- [src/Database/MigrationLog.php](../../src/Database/MigrationLog.php)
+- [src/Database/Schema.php](../../src/Database/Schema.php)
+- [tests/04.05-migrasi/console.php](../../tests/04.05-migrasi/console.php) dan [tests/04.05-migrasi/migrations/](../../tests/04.05-migrasi/migrations) —
   aplikasi uji
 
 ## Status verifikasi

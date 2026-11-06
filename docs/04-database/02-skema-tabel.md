@@ -14,6 +14,18 @@ Struktur tabel dibuat dan diubah lewat `SchemaBuilder`. Definisi ditulis sebagai
 method PHP, lalu Grammar driver menerjemahkannya menjadi SQL — saat ini hanya
 dialek MySQL/MariaDB. Tidak perlu menulis `CREATE TABLE` manual.
 
+## Jawaban singkat
+
+```php
+DB::schema()->create('kontak', function (Blueprint $table) {
+    $table->integer('id_kontak')->key()->autoIncrement();
+    $table->string('nm_kontak', 100);
+    $table->string('nomor', 20)->nullable();
+});
+```
+
+`create()` mengembalikan `true`; `IF NOT EXISTS` aktif secara default.
+
 ## Prasyarat
 
 - [Koneksi database](01-koneksi.md) sudah berjalan.
@@ -256,14 +268,14 @@ $schema->truncate('kontak_lama');         // TRUNCATE TABLE kontak_lama
 
 ## Sumber
 
-- `src/Database/Builder/DDL/SchemaBuilder.php` — eksekusi dan `compile*()`.
-- `src/Database/Builder/DDL/Blueprint.php` — kolektor kolom `create()`.
-- `src/Database/Builder/DDL/AlterBlueprint.php` — operasi `alter()`.
-- `src/Database/Builder/DDL/Clauses/ColumnClause.php` — modifier kolom.
-- `src/Database/Builder/DDL/HasColumnTypes.php` — daftar tipe kolom.
-- `src/Database/Drivers/MySQL/MySQLGrammar.php` — rendering SQL.
-- `src/Database/Schema.php` — facade yang dipakai file migrasi.
-- `tests/04.02-skema-tabel/index.php` — semua contoh di halaman ini.
+- [src/Database/Builder/DDL/SchemaBuilder.php](../../src/Database/Builder/DDL/SchemaBuilder.php) — eksekusi dan `compile*()`.
+- [src/Database/Builder/DDL/Blueprint.php](../../src/Database/Builder/DDL/Blueprint.php) — kolektor kolom `create()`.
+- [src/Database/Builder/DDL/AlterBlueprint.php](../../src/Database/Builder/DDL/AlterBlueprint.php) — operasi `alter()`.
+- [src/Database/Builder/DDL/Clauses/ColumnClause.php](../../src/Database/Builder/DDL/Clauses/ColumnClause.php) — modifier kolom.
+- [src/Database/Builder/DDL/HasColumnTypes.php](../../src/Database/Builder/DDL/HasColumnTypes.php) — daftar tipe kolom.
+- [src/Database/Drivers/MySQL/MySQLGrammar.php](../../src/Database/Drivers/MySQL/MySQLGrammar.php) — rendering SQL.
+- [src/Database/Schema.php](../../src/Database/Schema.php) — facade yang dipakai file migrasi.
+- [tests/04.02-skema-tabel/index.php](../../tests/04.02-skema-tabel/index.php) — semua contoh di halaman ini.
 
 ## Status verifikasi
 
@@ -298,6 +310,6 @@ Pada 4 November 2026, `time()` diuji ulang lewat
 `alter()` pada MariaDB 10.7.8 menghasilkan kolom `TIME`; `php -l` pada file yang
 diubah bersih.
 
-Yang belum diuji: kasus error di *Batasan yang perlu diketahui* (mis. `DROP PRIMARY KEY` pada kolom
-`AUTO_INCREMENT`, `ADD COLUMN NOT NULL` pada tabel berisi data). Bagian itu
-disimpulkan dari aturan MySQL, bukan dari uji di repo ini.
+Belum diuji: kasus error di *Batasan yang perlu diketahui* (mis. `DROP PRIMARY
+KEY` pada kolom `AUTO_INCREMENT`, `ADD COLUMN NOT NULL` pada tabel berisi data).
+Bagian itu disimpulkan dari aturan MySQL, bukan dari uji di repo ini.

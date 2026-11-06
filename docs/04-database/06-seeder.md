@@ -13,6 +13,22 @@ applies_to: Selvi 3.x
 Seeder mengisi data awal ke tabel yang sudah ada. Berbeda dari migrasi, seeder
 tidak punya arah `down`: satu file seed hanya berjalan sekali.
 
+## Jawaban singkat
+
+```php
+return function (Schema $schema) {
+
+    $schema->table('demo_seed')->insert([
+        ['nama' => 'Seed A', 'nilai' => 1],
+        ['nama' => 'Seed B', 'nilai' => 2],
+    ]);
+
+};
+```
+
+Jalankan `php console.php db:seed main`. Seed yang sudah tercatat di log
+di-skip, jadi aman dijalankan berulang.
+
 ## Prasyarat
 
 - [Migrasi](05-migrasi.md) sudah dipahami dan tabel target sudah dibuat.
@@ -96,7 +112,7 @@ php console.php db:seed main --step=1
 Tidak ada arah `down`. Untuk mengulang seed, hapus record `_migration` untuk
 file tersebut (dan bersihkan tabelnya bila perlu), lalu jalankan lagi.
 
-## 4. Output
+## 4. Output perintah seeder
 
 ```text
 [success:seed] 20260101_01_demo_seed.php berhasil dijalankan
@@ -141,11 +157,11 @@ $seeder->up('main');
 
 ## Sumber
 
-- `src/Database/Seeder.php` — perintah `db:seed`, pemilihan file, skip, logger
-- `src/Database/MigrationLog.php` — tabel `_migration` bersama
-- `src/Database/Schema.php` — handle koneksi untuk file seed
-- `tests/04.06-seeder/console.php`, `tests/04.06-seeder/seeds/`, dan
-  `tests/04.06-seeder/index.php` — aplikasi uji halaman ini
+- [src/Database/Seeder.php](../../src/Database/Seeder.php) — perintah `db:seed`, pemilihan file, skip, logger
+- [src/Database/MigrationLog.php](../../src/Database/MigrationLog.php) — tabel `_migration` bersama
+- [src/Database/Schema.php](../../src/Database/Schema.php) — handle koneksi untuk file seed
+- [tests/04.06-seeder/console.php](../../tests/04.06-seeder/console.php), [tests/04.06-seeder/seeds/](../../tests/04.06-seeder/seeds), dan
+  [tests/04.06-seeder/index.php](../../tests/04.06-seeder/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

@@ -98,11 +98,11 @@ Dipakai untuk DML di dalam migrasi/seed, misalnya
 
 ## Sumber
 
-- `src/Database/Schema.php`
-- `src/Database/Builder/DDL/SchemaBuilder.php` — implementasi DDL
-- `tests/04.05-migrasi/migrations/20260101_01_create_demo_migrasi.php` —
+- [src/Database/Schema.php](../../src/Database/Schema.php)
+- [src/Database/Builder/DDL/SchemaBuilder.php](../../src/Database/Builder/DDL/SchemaBuilder.php) — implementasi DDL
+- [tests/04.05-migrasi/migrations/20260101_01_create_demo_migrasi.php](../../tests/04.05-migrasi/migrations/20260101_01_create_demo_migrasi.php) —
   pemakaian `create()`/`drop()` di file migrasi
-- `tests/04.05-migrasi/index.php` — `new Schema('demo_migrasi')`
+- [tests/04.05-migrasi/index.php](../../tests/04.05-migrasi/index.php) — `new Schema('demo_migrasi')`
 
 ## Status verifikasi
 

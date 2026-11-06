@@ -173,13 +173,13 @@ Membuat salinan route dengan middleware dan parameter dari grup induk.
 
 ## Sumber
 
-- `src/Routing/Route.php` — implementasi.
-- `src/Routing/RouteGroup.php` — grup, middleware, dan parameter grup.
-- `src/Routing/Interfaces/IRoute.php` — kontrak route dan grup.
-- `src/Router.php` — registry dan pencocokan route.
-- `tests/01.04-controller/index.php` — aplikasi uji method statis, grup, dan
+- [src/Routing/Route.php](../../src/Routing/Route.php) — implementasi.
+- [src/Routing/RouteGroup.php](../../src/Routing/RouteGroup.php) — grup, middleware, dan parameter grup.
+- [src/Routing/Interfaces/IRoute.php](../../src/Routing/Interfaces/IRoute.php) — kontrak route dan grup.
+- [src/Router.php](../../src/Router.php) — registry dan pencocokan route.
+- [tests/01.04-controller/index.php](../../tests/01.04-controller/index.php) — aplikasi uji method statis, grup, dan
   middleware.
-- `tests/01.03-request/index.php` — aplikasi uji `getUri()`.
+- [tests/01.03-request/index.php](../../tests/01.03-request/index.php) — aplikasi uji `getUri()`.
 
 ## Status verifikasi
 

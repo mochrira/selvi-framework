@@ -74,13 +74,13 @@ Perilaku:
 
 ## Sumber
 
-- `src/Data/DataObject.php` — orchestrator `of()` dan `toArray()`
-- `src/Data/DataRow.php` — pembacaan sumber dan prefix
-- `src/Data/Interfaces/IDataObject.php`
-- `src/Interfaces/IArrayable.php`
-- `src/Data/DataProperty.php` — attribute yang dibaca
-- `tests/02.01-data-object/index.php`, `tests/02.02-properti-nested/index.php`,
-  dan `tests/02.03-cast-dan-serialize/index.php` — aplikasi uji
+- [src/Data/DataObject.php](../../src/Data/DataObject.php) — orchestrator `of()` dan `toArray()`
+- [src/Data/DataRow.php](../../src/Data/DataRow.php) — pembacaan sumber dan prefix
+- [src/Data/Interfaces/IDataObject.php](../../src/Data/Interfaces/IDataObject.php)
+- [src/Interfaces/IArrayable.php](../../src/Interfaces/IArrayable.php)
+- [src/Data/DataProperty.php](../../src/Data/DataProperty.php) — attribute yang dibaca
+- [tests/02.01-data-object/index.php](../../tests/02.01-data-object/index.php), [tests/02.02-properti-nested/index.php](../../tests/02.02-properti-nested/index.php),
+  dan [tests/02.03-cast-dan-serialize/index.php](../../tests/02.03-cast-dan-serialize/index.php) — aplikasi uji
 
 ## Status verifikasi
 

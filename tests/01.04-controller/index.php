@@ -10,6 +10,12 @@ use Selvi\Routing\Route;
 
 Route::get('/', 'App\Controllers\HaloController@index');
 Route::get('/sapa/{nama}', 'App\Controllers\HaloController@sapa');
+Route::get('/method-inject/{nama}', 'App\Controllers\HaloController@methodInject');
+Route::get('/inject/{nama}', 'App\Controllers\HaloController@injectHelper');
+Route::get('/array-callback/{nama}', [
+    inject(\App\Controllers\HaloController::class),
+    'arrayCallback'
+]);
 Route::get('/cari', 'App\Controllers\HaloController@cari');
 Route::get('/urut/{kedua}/{pertama}', 'App\Controllers\HaloController@urut');
 Route::get('/salah-nama/{name}', 'App\Controllers\HaloController@sapaSalah');

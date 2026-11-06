@@ -14,6 +14,26 @@ Migrasi adalah file PHP yang mengubah struktur database ke depan (`up`) dan
 mengembalikannya (`down`). Selvi tidak memakai ORM atau diff schema: setiap file
 menjalankan DDL sendiri lewat [`Schema`](../99-referensi/18-schema.md).
 
+## Jawaban singkat
+
+```php
+return function (Schema $schema, string $direction) {
+
+    if($direction === 'up') {
+        $schema->create('demo_migrasi', function (Blueprint $table) {
+            $table->integer('id')->key()->autoIncrement();
+        });
+    }
+
+    if($direction === 'down') {
+        $schema->drop('demo_migrasi');
+    }
+
+};
+```
+
+Jalankan `php console.php db:migrate main up`; `down` membatalkan.
+
 ## Prasyarat
 
 - [Koneksi database](01-koneksi.md) dan [skema tabel](02-skema-tabel.md) sudah
@@ -130,7 +150,7 @@ php console.php db:migrate main down
 Tanpa `--step`, `up` menjalankan **semua** file yang belum tercatat sukses,
 sedangkan `down` menjalankan **satu** file terakhir.
 
-## 4. Output
+## 4. Output perintah migrasi
 
 ```text
 [success:up] 20260101_01_create_demo_migrasi.php berhasil dijalankan
@@ -206,12 +226,12 @@ Keduanya menerima `?callable $logger` dengan signature
 
 ## Sumber
 
-- `src/Database/Migration.php` — perintah `db:migrate`, pemilihan file, skip,
+- [src/Database/Migration.php](../../src/Database/Migration.php) — perintah `db:migrate`, pemilihan file, skip,
   logger
-- `src/Database/MigrationLog.php` — tabel `_migration`
-- `src/Database/Schema.php` — handle koneksi untuk file migrasi
-- `tests/04.05-migrasi/console.php`, `tests/04.05-migrasi/migrations/`, dan
-  `tests/04.05-migrasi/index.php` — aplikasi uji halaman ini
+- [src/Database/MigrationLog.php](../../src/Database/MigrationLog.php) — tabel `_migration`
+- [src/Database/Schema.php](../../src/Database/Schema.php) — handle koneksi untuk file migrasi
+- [tests/04.05-migrasi/console.php](../../tests/04.05-migrasi/console.php), [tests/04.05-migrasi/migrations/](../../tests/04.05-migrasi/migrations), dan
+  [tests/04.05-migrasi/index.php](../../tests/04.05-migrasi/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

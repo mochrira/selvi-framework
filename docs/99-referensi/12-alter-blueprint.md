@@ -155,11 +155,11 @@ pencatatan operasi:
 
 ## Sumber
 
-- `src/Database/Builder/DDL/AlterBlueprint.php`
-- `src/Database/Builder/DDL/HasColumnTypes.php` — method tipe kolom
-- `src/Database/Interfaces/IAlterBlueprint.php` — kontrak untuk Grammar
-- `src/Database/Drivers/MySQL/MySQLGrammar.php` — `compileAlterTable()`
-- `tests/04.02-skema-tabel/index.php` — aplikasi uji
+- [src/Database/Builder/DDL/AlterBlueprint.php](../../src/Database/Builder/DDL/AlterBlueprint.php)
+- [src/Database/Builder/DDL/HasColumnTypes.php](../../src/Database/Builder/DDL/HasColumnTypes.php) — method tipe kolom
+- [src/Database/Interfaces/IAlterBlueprint.php](../../src/Database/Interfaces/IAlterBlueprint.php) — kontrak untuk Grammar
+- [src/Database/Drivers/MySQL/MySQLGrammar.php](../../src/Database/Drivers/MySQL/MySQLGrammar.php) — `compileAlterTable()`
+- [tests/04.02-skema-tabel/index.php](../../tests/04.02-skema-tabel/index.php) — aplikasi uji
 
 ## Status verifikasi
 

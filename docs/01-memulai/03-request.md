@@ -13,6 +13,21 @@ applies_to: Selvi 3.x
 Data request diambil lewat `Selvi\Input\Request`. Objek ini disuntikkan
 otomatis jika parameter callback diberi type hint `Request`.
 
+## Jawaban singkat
+
+```php
+Route::get('/halo', function (Request $request) {
+    $q    = $request->get('q');                        // query string
+    $form = $request->post('nama');                    // form-urlencoded
+    $body = json_decode($request->raw() ?? '', true);  // body JSON
+    $uas  = $request->header('User-Agent');            // header
+
+    return jsonResponse(compact('q', 'form', 'body', 'uas'));
+});
+```
+
+`Request` di-resolve otomatis karena parameternya bertipe `Request`.
+
 ## Prasyarat
 
 - [Instalasi](01-instalasi.md) sudah berhasil.
@@ -126,9 +141,9 @@ RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 
 ## Sumber
 
-- `src/Input/Request.php` — seluruh method request.
-- `src/Injector.php` — penyuntikan `Request` ke callback.
-- `tests/01.03-request/index.php` — semua contoh di halaman ini.
+- [src/Input/Request.php](../../src/Input/Request.php) — seluruh method request.
+- [src/Injector.php](../../src/Injector.php) — penyuntikan `Request` ke callback.
+- [tests/01.03-request/index.php](../../tests/01.03-request/index.php) — semua contoh di halaman ini.
 
 ## Status verifikasi
 
@@ -155,3 +170,11 @@ workspace, jadi yang diuji adalah `src/` repo ini.
 Baris `cookie()` tanpa cookie memang memunculkan
 `Warning: Undefined array key "sesi"` pada `src/Input/Request.php`; itu sebabnya
 baris tersebut ada di tabel kesalahan umum.
+
+Belum diuji: `header()` untuk header yang dibuang Apache selain
+`Authorization`. Header lain belum diuji karena container uji memakai
+konfigurasi `mod_rewrite` yang sama.
+
+`Request::file()` sudah diuji lewat `POST /01.03-request/unggah` (lihat
+[tests/README.md](../../tests/README.md)); halaman ini tidak menampilkan
+contoh upload.

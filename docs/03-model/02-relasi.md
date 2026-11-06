@@ -19,6 +19,18 @@ Ada dua jenis relasi:
 - **`Aggregate`** — nilai agregat dari query lain (mis. jumlah kontak per
   departemen).
 
+## Jawaban singkat
+
+```php
+#[BelongsTo(Departemen::class, foreignKey: 'id_departemen')]
+public ?Departemen $departemen;
+
+$kontak = Kontak::with('departemen')->find(1);
+$kontak?->departemen?->nmDepartemen;
+```
+
+Tanpa `with()`, properti relasi tetap `null`; tidak ada lazy loading.
+
 ## Prasyarat
 
 - [Model](01-model.md) sudah dipahami.
@@ -273,11 +285,11 @@ Kontak::relation('tidakAda');   // null
 
 ## Sumber
 
-- `src/Model.php` — `with()`, `relations()`, `relation()`
-- `src/Database/Builder/DML/ModelQuery.php` — `buildWith()`, alias join
-- `src/Model/Attributes/BelongsTo.php` dan `Aggregate.php`
-- `tests/app/Models/` — contoh model
-- `tests/03.02-relasi/index.php` — aplikasi uji halaman ini
+- [src/Model.php](../../src/Model.php) — `with()`, `relations()`, `relation()`
+- [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php) — `buildWith()`, alias join
+- [src/Model/Attributes/BelongsTo.php](../../src/Model/Attributes/BelongsTo.php) dan `Aggregate.php`
+- [tests/app/Models/](../../tests/app/Models) — contoh model
+- [tests/03.02-relasi/index.php](../../tests/03.02-relasi/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

@@ -169,11 +169,11 @@ SELECT id_kontak, COALESCE(nm_kontak, 'Tanpa Nama') AS nama, COUNT(*) AS total F
 
 ## Sumber
 
-- `src/Database/Builder/DML/Clauses/SelectNode.php`
-- `src/Database/Builder/DML/SelectBuilder.php`
-- `src/Database/Drivers/MySQL/MySQLGrammar.php` — renderer node
-- `src/Database/Interfaces/IQueryBuilder.php` — `selectFunction()`/`selectRaw()`
-- `tests/04.03-membaca-data/index.php` — aplikasi uji
+- [src/Database/Builder/DML/Clauses/SelectNode.php](../../src/Database/Builder/DML/Clauses/SelectNode.php)
+- [src/Database/Builder/DML/SelectBuilder.php](../../src/Database/Builder/DML/SelectBuilder.php)
+- [src/Database/Drivers/MySQL/MySQLGrammar.php](../../src/Database/Drivers/MySQL/MySQLGrammar.php) — renderer node
+- [src/Database/Interfaces/IQueryBuilder.php](../../src/Database/Interfaces/IQueryBuilder.php) — `selectFunction()`/`selectRaw()`
+- [tests/04.03-membaca-data/index.php](../../tests/04.03-membaca-data/index.php) — aplikasi uji
 
 ## Status verifikasi
 

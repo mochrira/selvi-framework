@@ -21,6 +21,19 @@ applies_to: Selvi 3.x
 `Column` bisa memberi `cast` (dua arah) dan `serialize` (khusus output). Bila
 tidak diisi, Converter memilih cast berdasarkan tipe properti.
 
+## Jawaban singkat
+
+```php
+#[Column('opsi', cast: new ArrayCast())]
+public ?array $opsi;
+
+#[Column('created_at', serialize: new DateTimeCast(format: DATE_ATOM))]
+public DateTime $createdAt;
+```
+
+Tanpa `cast`/`serialize`, Converter memilih cast dari tipe properti: `int`,
+`float`, `bool`, `string`, `DateTimeInterface`, dan `BackedEnum`.
+
 ## Prasyarat
 
 - [Model](01-model.md) sudah dipahami.
@@ -202,11 +215,11 @@ class KontakCast extends Model {
 
 ## Sumber
 
-- `src/Database/Casting/Converter.php`
-- `src/Database/Casting/ArrayCast.php`, `DateTimeCast.php`, `EnumCast.php`
-- `src/Database/Interfaces/ICast.php`, `ISerializesCast.php`
-- `src/Model/Attributes/Column.php`
-- `tests/03.03-konversi-value/index.php` — aplikasi uji halaman ini
+- [src/Database/Casting/Converter.php](../../src/Database/Casting/Converter.php)
+- [src/Database/Casting/ArrayCast.php](../../src/Database/Casting/ArrayCast.php), `DateTimeCast.php`, `EnumCast.php`
+- [src/Database/Interfaces/ICast.php](../../src/Database/Interfaces/ICast.php), `ISerializesCast.php`
+- [src/Model/Attributes/Column.php](../../src/Model/Attributes/Column.php)
+- [tests/03.03-konversi-value/index.php](../../tests/03.03-konversi-value/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

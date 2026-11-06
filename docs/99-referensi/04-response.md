@@ -86,9 +86,9 @@ Helper ini tidak mengatur header apa pun, termasuk `Content-Type`.
 
 ## Sumber
 
-- `src/Output/Response.php` — implementasi.
-- `src/Helpers/ResponseHelper.php` — helper `response()`.
-- `tests/01.02-response/index.php` — aplikasi uji.
+- [src/Output/Response.php](../../src/Output/Response.php) — implementasi.
+- [src/Helpers/ResponseHelper.php](../../src/Helpers/ResponseHelper.php) — helper `response()`.
+- [tests/01.02-response/index.php](../../tests/01.02-response/index.php) — aplikasi uji.
 
 ## Status verifikasi
 

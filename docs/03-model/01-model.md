@@ -19,6 +19,26 @@ Halaman ini membahas model tanpa relasi. Relasi ada di
 [relasi](02-relasi.md); cast dan serializer ada di
 [konversi value](03-konversi-value.md).
 
+## Jawaban singkat
+
+```php
+#[Table('kontak', schema: 'main')]
+class Kontak extends Model {
+
+    #[Column('id_kontak', key: true)]
+    public int $idKontak;
+
+    #[Column('nm_kontak')]
+    public ?string $nmKontak;
+
+}
+
+$kontak = Kontak::find(1);   // null bila tidak ada
+$kontak?->toArray();
+```
+
+Butuh koneksi `main` terdaftar dan tabel `kontak` sudah dibuat.
+
 ## Prasyarat
 
 - [Instalasi](../01-memulai/01-instalasi.md) sudah berhasil.
@@ -328,14 +348,14 @@ Aturan:
 
 ## Sumber
 
-- `src/Model.php` — metadata, query statis, `create()`, `update()`, `delete()`,
+- [src/Model.php](../../src/Model.php) — metadata, query statis, `create()`, `update()`, `delete()`,
   `toArrayDb()`
-- `src/Data/DataObject.php` — `of()` dan `toArray()`
-- `src/Data/DataRow.php` dan `src/Data/DataProperty.php` — assignment
+- [src/Data/DataObject.php](../../src/Data/DataObject.php) — `of()` dan `toArray()`
+- [src/Data/DataRow.php](../../src/Data/DataRow.php) dan [src/Data/DataProperty.php](../../src/Data/DataProperty.php) — assignment
   properti
-- `src/Database/Builder/DML/ModelQuery.php`
-- `src/Model/Attributes/Table.php`, `Column.php`, `NotMapped.php`
-- `tests/03.01-model/index.php` — aplikasi uji halaman ini
+- [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php)
+- [src/Model/Attributes/Table.php](../../src/Model/Attributes/Table.php), `Column.php`, `NotMapped.php`
+- [tests/03.01-model/index.php](../../tests/03.01-model/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

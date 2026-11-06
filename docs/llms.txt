@@ -11,17 +11,41 @@
   (khusus referensi), `tags`, `prerequisites`, `verified`, `applies_to`.
 - Signature kanonik ada di `99-referensi/`; halaman bab hanya contoh.
 - Bagian **Status verifikasi** adalah catatan pengujian, bukan spesifikasi API.
+- Nilai `verified`: tanggal = langkah utama teruji (kasus tepi dicatat di
+  `Belum diuji:`), `partial` = ada langkah/method utama yang belum dijalankan,
+  `false` = belum pernah dijalankan.
+- Setiap Status verifikasi diakhiri baris `Belum diuji: ...` atau
+  `Semua contoh di halaman ini teruji.` — jangan menganggap bagian yang tidak
+  disebut sebagai teruji.
+- Bagian **Sumber** berisi tautan Markdown relatif ke file nyata.
 - Peta dokumentasi lengkap: [README.md](README.md).
 
 ## Cara memotong (chunking)
 
 - `01-memulai/`, `02-dto/`, `03-model/`, `04-database/`, dan `05-api/`: potong
-  per heading `##`.
+  per heading `##`. Chunk pertama setiap panduan adalah **Jawaban singkat**,
+  jadi pertanyaan umum bisa dijawab tanpa memuat seluruh halaman.
 - `99-referensi/`: potong per heading `###` — satu method satu chunk.
 - Sertakan hierarki heading (`H1` → `H2` → `H3`) sebagai metadata chunk.
 - Heading method referensi sudah memuat nama kelas
   (mis. `AlterBlueprint::dropForeign($name)`), jadi tetap jelas tanpa halaman
   induk.
+- Heading panduan berupa langkah bernomor atau frasa topik yang memuat kata
+  kunci (`## 4. Dependency di parameter method dan helper inject()`). Hindari
+  heading yang hanya berisi angka atau kata umum.
+
+## Peta pertanyaan
+
+| Pertanyaan | Dokumen utama | Referensi | Contoh uji |
+|---|---|---|---|
+| Bagaimana membuat controller? | `01-memulai/04-controller.md` | `99-referensi/07-controller.md` | `tests/01.04-controller/` |
+| Bagaimana menyuntikkan dependency? | `01-memulai/04-controller.md` bagian 3–4 | `99-referensi/01-framework.md` | `tests/01.04-controller/` |
+| Bagaimana memakai middleware atau grup route? | `01-memulai/04-controller.md` bagian 6 | `99-referensi/02-route.md` | `tests/01.04-controller/` |
+| Bagaimana menata folder aplikasi? | `01-memulai/05-struktur-folder.md` | `99-referensi/01-framework.md` | `tests/01.05-struktur-folder/` |
+| Bagaimana mengembalikan teks atau JSON? | `01-memulai/02-response.md` | `99-referensi/04-response.md`, `05-json-response.md` | `tests/01.02-response/` |
+| Bagaimana membaca query, body, header? | `01-memulai/03-request.md` | `99-referensi/03-request.md` | `tests/01.03-request/` |
+| Bagaimana membuat endpoint CRUD? | `05-api/01-crud-endpoint.md` | `99-referensi/21-model.md`, `19-migration.md` | `tests/05.01-crud-endpoint/` |
+| Bagaimana menyiapkan koneksi database? | `04-database/01-koneksi.md` | `99-referensi/08-manager.md` | `tests/04.01-koneksi/` |
 
 ## Panduan
 
@@ -32,7 +56,13 @@
 - [Request](01-memulai/03-request.md) — `id: request`. Query string, body JSON,
   form, header, cookie.
 - [Controller](01-memulai/04-controller.md) — `id: controller`. Callback
-  `Kelas@method`, parameter route, dependency injection, middleware.
+  `Kelas@method`, parameter route, dependency lewat constructor/parameter
+  method/`inject()`, bentuk callback, grup dan middleware.
+- [Struktur Folder Aplikasi](01-memulai/05-struktur-folder.md) —
+  `id: struktur-folder`. Folder proyek sebagai document root: `app/`,
+  `bootstrap.php`, `index.php`, `app/Config/routes.php`, PSR-4 `App\`,
+  `.htaccess` (rewrite + blokir `app/`, `vendor/`, `private/`,
+  `bootstrap.php`).
 - [Data Object (DTO)](02-dto/01-data-object.md) — `id: data-object`.
   `DataObject::of()`, `toArray()`, `DataProperty`, kunci sumber vs nama
   properti, `optional`.

@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Tolak akses langsung ke kode, dependency, dan file sensitif.
+RewriteRule ^(app|vendor|private)(/|$) - [F,L]
+RewriteRule ^(bootstrap\.php|composer\.(json|lock)|console\.php)$ - [F,L]
+RewriteRule ^\.(?!well-known(/|$)) - [F,L]
+
+# URI lain diarahkan ke front controller.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]

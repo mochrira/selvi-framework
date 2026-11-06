@@ -34,6 +34,19 @@ Menghasilkan endpoint CRUD yang:
 - memvalidasi input di batas API dan mengembalikan status HTTP yang benar;
 - mengembalikan bentuk JSON yang konsisten untuk sukses maupun gagal.
 
+## Jawaban singkat
+
+```php
+Route::get('/produk', 'App\Controllers\ProdukController@result');
+Route::get('/produk/{id}', 'App\Controllers\ProdukController@row');
+Route::post('/produk', 'App\Controllers\ProdukController@insert');
+Route::patch('/produk/{id}', 'App\Controllers\ProdukController@update');
+Route::delete('/produk/{id}', 'App\Controllers\ProdukController@delete');
+```
+
+Urutan pembuatannya: migrasi tabel → spesifikasi OpenAPI → model → route →
+controller → uji `curl`. Controller hanya mengurus HTTP; query ada di model.
+
 ## Prasyarat
 
 - [Migrasi](../04-database/05-migrasi.md), [Model](../03-model/01-model.md),
@@ -146,9 +159,9 @@ Praktik yang perlu dijaga:
   bootstrap agar exception dari controller menjadi respons JSON, bukan halaman
   error PHP.
 - `Route::...` tetap ditulis di `Config/routes.php`; bootstrap tidak memuatnya.
-  `public/index.php` yang memuat route, sehingga `console.php` bisa menjalankan
+  `index.php` yang memuat route, sehingga `console.php` bisa menjalankan
   migrasi sebelum file route dibuat.
-- `public/index.php` dan `console.php` memakai bootstrap yang sama, sehingga
+- `index.php` dan `console.php` memakai bootstrap yang sama, sehingga
   konfigurasi koneksi tidak ditulis dua kali.
 
 ## 2. Buat migrasi tabel
@@ -614,19 +627,19 @@ Route::patch('/produk/{id}', 'App\Controllers\ProdukController@update');
 Route::delete('/produk/{id}', 'App\Controllers\ProdukController@delete');
 ```
 
-`public/index.php`:
+`index.php`:
 
 ```php
 <?php
 
-require __DIR__.'/../bootstrap.php';
-require __DIR__.'/../app/Config/routes.php';
+require __DIR__.'/bootstrap.php';
+require __DIR__.'/app/Config/routes.php';
 
 \Selvi\Framework::run();
 ```
 
 - `bootstrap.php` hanya memuat konfigurasi database. Route dimuat oleh
-  `public/index.php` agar `console.php` tetap bisa dipakai sebelum file route
+  `index.php` agar `console.php` tetap bisa dipakai sebelum file route
   dibuat.
 - Pada aplikasi nyata, `App\Models\Produk` dan `App\Controllers\ProdukController`
   dimuat oleh autoload PSR-4. Folder uji memuat keduanya manual karena autoload
@@ -827,6 +840,10 @@ Catatan pengembangan:
 - Jangan memakai `echo`, `die`, atau `http_response_code()` di controller.
   Selalu kembalikan `response()` atau `jsonResponse()`.
 
+Kode di atas adalah salinan dari
+`tests/05.01-crud-endpoint/Controllers/ProdukController.php`. Bila salah satu
+diubah, perbarui keduanya agar dokumen dan aplikasi uji tidak menyimpang.
+
 ## 10. Uji endpoint
 
 Gunakan `curl` dari host. Respons dirapikan oleh `JSON_PRETTY_PRINT` bawaan
@@ -1025,14 +1042,14 @@ Body kosong. Memanggil `GET /produk/1` setelahnya menghasilkan `404`.
 - `app/Controllers/ProdukController.php` — controller CRUD dan validasi.
 - `app/Config/database.php` — pendaftaran koneksi.
 - `app/Config/routes.php` — pendaftaran endpoint.
-- `bootstrap.php`, `public/index.php`, dan `console.php` — perakitan web dan
+- `bootstrap.php`, `index.php`, dan `console.php` — perakitan web dan
   CLI.
-- `src/Routing/Route.php` — method HTTP yang tersedia.
-- `src/Injector.php` dan `src/Factory.php` — penyuntikan `Request` dan
+- [src/Routing/Route.php](../../src/Routing/Route.php) — method HTTP yang tersedia.
+- [src/Injector.php](../../src/Injector.php) dan [src/Factory.php](../../src/Factory.php) — penyuntikan `Request` dan
   pembuatan controller.
-- `src/Model.php` dan `src/Database/Builder/DML/ModelQuery.php` — operasi model.
-- `src/Exception.php` dan `src/Exception/Handler.php` — bentuk error JSON.
-- `tests/05.01-crud-endpoint/` — aplikasi uji halaman ini.
+- [src/Model.php](../../src/Model.php) dan [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php) — operasi model.
+- [src/Exception.php](../../src/Exception.php) dan [src/Exception/Handler.php](../../src/Exception/Handler.php) — bentuk error JSON.
+- [tests/05.01-crud-endpoint/](../../tests/05.01-crud-endpoint) — aplikasi uji halaman ini.
 
 ## Status verifikasi
 

@@ -40,10 +40,10 @@ Aturan:
 
 ## Sumber
 
-- `src/Model/Attributes/Table.php`
-- `src/Model/Attribute.php`
-- `src/Model.php` — `getTable()`, `getSchema()`
-- `tests/app/Models/Kontak.php` — aplikasi uji
+- [src/Model/Attributes/Table.php](../../src/Model/Attributes/Table.php)
+- [src/Model/Attribute.php](../../src/Model/Attribute.php)
+- [src/Model.php](../../src/Model.php) — `getTable()`, `getSchema()`
+- [tests/app/Models/Kontak.php](../../tests/app/Models/Kontak.php) — aplikasi uji
 
 ## Status verifikasi
 
@@ -52,4 +52,6 @@ Aturan:
 
 Diuji 1 November 2026 lewat `tests/03.01-model` dan `tests/03.02-relasi`:
 `Table('kontak', schema: 'main')` membuat `Model::getTable()` mengembalikan
-`kontak` dan query memakai koneksi `main`. Model tanpa `Table` belum diuji.
+`kontak` dan query memakai koneksi `main`.
+
+Belum diuji: model tanpa attribute `Table`.

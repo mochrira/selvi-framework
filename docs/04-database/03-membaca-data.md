@@ -14,6 +14,20 @@ applies_to: Selvi 3.x
 (`select`, `where`, `join`, `group`, `order`, `limit`) merangkai AST, lalu
 `get()` mengubahnya menjadi SQL dan mengeksekusinya.
 
+## Jawaban singkat
+
+```php
+$rows = DB::table('kontak')
+    ->select('id_kontak', 'nm_kontak')
+    ->where([['nm_kontak', 'LIKE', '%John%']])
+    ->orderBy('id_kontak')
+    ->limit(10)
+    ->get()
+    ->rows();   // list<stdClass>
+
+$satu = DB::table('kontak')->where([['id_kontak', '=', 5]])->get()->row();
+```
+
 ## Prasyarat
 
 - [Koneksi database](01-koneksi.md) sudah terdaftar.
@@ -282,16 +296,16 @@ tidak menghasilkan result set (mis. `SET`, `UPDATE`).
 
 ## Sumber
 
-- `src/Database/Builder/DML/QueryBuilder.php` — rantai DML
-- `src/Database/Builder/DML/WhereBuilder.php` dan
+- [src/Database/Builder/DML/QueryBuilder.php](../../src/Database/Builder/DML/QueryBuilder.php) — rantai DML
+- [src/Database/Builder/DML/WhereBuilder.php](../../src/Database/Builder/DML/WhereBuilder.php) dan
   `Clauses/WhereClause.php` — parsing kondisi
-- `src/Database/Builder/DML/SelectBuilder.php`, `JoinBuilder.php`,
+- [src/Database/Builder/DML/SelectBuilder.php](../../src/Database/Builder/DML/SelectBuilder.php), `JoinBuilder.php`,
   `GroupBuilder.php`, `OrderBuilder.php`
-- `src/Database/Builder/DML/Clauses/SelectNode.php` — node AST select
-- `src/Database/Interfaces/IQueryBuilder.php` — `selectFunction()`/`selectRaw()`
-- `src/Database/Drivers/MySQL/MySQLGrammar.php` — kompilasi SQL
-- `src/Database/Drivers/MySQL/MySQLResult.php` — pembacaan hasil
-- `tests/04.03-membaca-data/index.php` — aplikasi uji halaman ini
+- [src/Database/Builder/DML/Clauses/SelectNode.php](../../src/Database/Builder/DML/Clauses/SelectNode.php) — node AST select
+- [src/Database/Interfaces/IQueryBuilder.php](../../src/Database/Interfaces/IQueryBuilder.php) — `selectFunction()`/`selectRaw()`
+- [src/Database/Drivers/MySQL/MySQLGrammar.php](../../src/Database/Drivers/MySQL/MySQLGrammar.php) — kompilasi SQL
+- [src/Database/Drivers/MySQL/MySQLResult.php](../../src/Database/Drivers/MySQL/MySQLResult.php) — pembacaan hasil
+- [tests/04.03-membaca-data/index.php](../../tests/04.03-membaca-data/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

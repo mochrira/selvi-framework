@@ -89,11 +89,11 @@ Membuat instance `View` dan menyimpan variabel untuk template.
 
 ## Sumber
 
-- `src/View.php` — pemuatan, variabel, `render()`, `include()`.
-- `src/Helpers/LoadHelper.php` — helper `view()`.
-- `src/views/default.php` — contoh halaman bawaan.
-- `tests/01.02-response/views/home.php` dan
-  `tests/01.02-response/index.php` — aplikasi uji.
+- [src/View.php](../../src/View.php) — pemuatan, variabel, `render()`, `include()`.
+- [src/Helpers/LoadHelper.php](../../src/Helpers/LoadHelper.php) — helper `view()`.
+- [src/views/default.php](../../src/views/default.php) — contoh halaman bawaan.
+- [tests/01.02-response/views/home.php](../../tests/01.02-response/views/home.php) dan
+  [tests/01.02-response/index.php](../../tests/01.02-response/index.php) — aplikasi uji.
 
 ## Status verifikasi
 

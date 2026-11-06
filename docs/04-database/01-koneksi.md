@@ -17,6 +17,24 @@ Aplikasi mendaftarkan koneksi sekali saat bootstrap, lalu seluruh fitur database
 Halaman ini hanya menyiapkan koneksi. Belum ada tabel yang dibuat dan belum ada
 data yang dibaca.
 
+## Jawaban singkat
+
+```php
+Manager::add('main', [
+    'driver'   => Env::get('DB_DRIVER', 'mysql'),
+    'host'     => Env::get('DB_HOST'),
+    'port'     => Env::get('DB_PORT'),
+    'username' => Env::get('DB_USER'),
+    'password' => Env::get('DB_PASS'),
+    'database' => Env::get('DB_NAME'),
+]);
+
+$rows = DB::table('kontak')->get()->rows();
+```
+
+`Manager::add()` dipanggil sekali saat bootstrap; nama `main` itu yang dipakai
+`DB::table()`, model, migrasi, dan seeder.
+
 ## Prasyarat
 
 - [Instalasi](../01-memulai/01-instalasi.md) sudah berhasil dan aplikasi bisa
@@ -280,15 +298,15 @@ method yang dipanggil di dalamnya (`QueryBuilder` atau `SchemaBuilder`).
 
 ## Sumber
 
-- `src/Database/Manager.php` — registry koneksi.
-- `src/Database/DB.php` — facade `connection()`, `table()`, `schema()`.
-- `src/Database/Drivers/MySQL/MySQLConnection.php` — implementasi `IConnection`.
-- `src/Database/Interfaces/IConnection.php` dan `IResult.php` — kontrak koneksi
+- [src/Database/Manager.php](../../src/Database/Manager.php) — registry koneksi.
+- [src/Database/DB.php](../../src/Database/DB.php) — facade `connection()`, `table()`, `schema()`.
+- [src/Database/Drivers/MySQL/MySQLConnection.php](../../src/Database/Drivers/MySQL/MySQLConnection.php) — implementasi `IConnection`.
+- [src/Database/Interfaces/IConnection.php](../../src/Database/Interfaces/IConnection.php) dan `IResult.php` — kontrak koneksi
   dan hasil query.
-- `src/Env.php` — pembacaan `.ENV`.
-- `src/Exception/DatabaseException.php` dan `src/Exception/Handler.php` — bentuk
+- [src/Env.php](../../src/Env.php) — pembacaan `.ENV`.
+- [src/Exception/DatabaseException.php](../../src/Exception/DatabaseException.php) dan [src/Exception/Handler.php](../../src/Exception/Handler.php) — bentuk
   error database.
-- `tests/04.01-koneksi/index.php` — semua contoh di halaman ini.
+- [tests/04.01-koneksi/index.php](../../tests/04.01-koneksi/index.php) — semua contoh di halaman ini.
 
 ## Status verifikasi
 
@@ -312,6 +330,6 @@ Endpoint `/error` sengaja menanyakan tabel yang tidak ada, untuk membuktikan
 bentuk error di *Bentuk error database*. Tabel `kontak` tidak perlu ada karena `/sql` hanya
 menyusun SQL.
 
-Satu hal yang belum diuji: kegagalan saat `Manager::add()` (kredensial salah).
-Perilaku itu disimpulkan dari `MySQLConnection::__construct()` yang langsung
-memanggil `connect()`.
+Belum diuji: kegagalan saat `Manager::add()` (kredensial salah). Perilaku itu
+disimpulkan dari `MySQLConnection::__construct()` yang langsung memanggil
+`connect()`.

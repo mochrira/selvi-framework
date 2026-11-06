@@ -138,11 +138,11 @@ aman.
 
 ## Sumber
 
-- `src/Model/Attributes/Aggregate.php`
-- `src/Database/Builder/DML/ModelQuery.php` — `buildWith()`
-- `src/Model/Attributes/Aggregate.php` — `assign()`
-- `src/Data/DataRow.php` — pembacaan prefix agregat
-- `tests/app/Models/Departemen.php` — aplikasi uji
+- [src/Model/Attributes/Aggregate.php](../../src/Model/Attributes/Aggregate.php)
+- [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php) — `buildWith()`
+- [src/Model/Attributes/Aggregate.php](../../src/Model/Attributes/Aggregate.php) — `assign()`
+- [src/Data/DataRow.php](../../src/Data/DataRow.php) — pembacaan prefix agregat
+- [tests/app/Models/Departemen.php](../../tests/app/Models/Departemen.php) — aplikasi uji
 
 ## Status verifikasi
 

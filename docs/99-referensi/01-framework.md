@@ -53,11 +53,11 @@ Menjalankan siklus request dari pencocokan route sampai pengiriman respons.
 
 ## Sumber
 
-- `src/Framework.php` — implementasi.
-- `src/Router.php`, `src/Injector.php`, `src/Output/Response.php` — komponen
+- [src/Framework.php](../../src/Framework.php) — implementasi.
+- [src/Router.php](../../src/Router.php), [src/Injector.php](../../src/Injector.php), [src/Output/Response.php](../../src/Output/Response.php) — komponen
   yang dipanggil.
-- `tests/01.01-instalasi/index.php`, `tests/01.02-response/index.php`,
-  `tests/01.03-request/index.php` — aplikasi uji.
+- [tests/01.01-instalasi/index.php](../../tests/01.01-instalasi/index.php), [tests/01.02-response/index.php](../../tests/01.02-response/index.php),
+  [tests/01.03-request/index.php](../../tests/01.03-request/index.php) — aplikasi uji.
 
 ## Status verifikasi
 
@@ -66,4 +66,7 @@ Menjalankan siklus request dari pencocokan route sampai pengiriman respons.
 
 Jalur web (tahap 2–7) terverifikasi lewat tiga aplikasi uji di atas: route
 closure, teks, JSON, view, status code, serta pembacaan query, body, header,
-cookie, dan file. Cabang CLI (tahap 1) **BELUM DIVERIFIKASI**.
+cookie, dan file.
+
+Belum diuji: cabang CLI (tahap 1) — `$argv[1]`, `Cli::listen()`, dan peralihan
+dari `Framework::run()` saat `php_sapi_name() === 'cli'`.

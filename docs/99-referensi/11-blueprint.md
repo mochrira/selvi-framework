@@ -163,11 +163,11 @@ kolom hasil `ColumnClause::toArray()`. Dipakai Grammar.
 
 ## Sumber
 
-- `src/Database/Builder/DDL/Blueprint.php`
-- `src/Database/Builder/DDL/HasColumnTypes.php` — method tipe kolom
-- `src/Database/Builder/DDL/Clauses/ColumnClause.php`
-- `src/Database/Interfaces/IBlueprint.php` — kontrak untuk Grammar
-- `tests/04.02-skema-tabel/index.php` — aplikasi uji
+- [src/Database/Builder/DDL/Blueprint.php](../../src/Database/Builder/DDL/Blueprint.php)
+- [src/Database/Builder/DDL/HasColumnTypes.php](../../src/Database/Builder/DDL/HasColumnTypes.php) — method tipe kolom
+- [src/Database/Builder/DDL/Clauses/ColumnClause.php](../../src/Database/Builder/DDL/Clauses/ColumnClause.php)
+- [src/Database/Interfaces/IBlueprint.php](../../src/Database/Interfaces/IBlueprint.php) — kontrak untuk Grammar
+- [tests/04.02-skema-tabel/index.php](../../tests/04.02-skema-tabel/index.php) — aplikasi uji
 
 ## Status verifikasi
 
