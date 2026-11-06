@@ -14,6 +14,20 @@ applies_to: Selvi 3.x
 (`select`, `where`, `join`, `group`, `order`, `limit`) merangkai AST, lalu
 `get()` mengubahnya menjadi SQL dan mengeksekusinya.
 
+## Jawaban singkat
+
+```php
+$rows = DB::table('kontak')
+    ->select('id_kontak', 'nm_kontak')
+    ->where([['nm_kontak', 'LIKE', '%John%']])
+    ->orderBy('id_kontak')
+    ->limit(10)
+    ->get()
+    ->rows();   // list<stdClass>
+
+$satu = DB::table('kontak')->where([['id_kontak', '=', 5]])->get()->row();
+```
+
 ## Prasyarat
 
 - [Koneksi database](01-koneksi.md) sudah terdaftar.

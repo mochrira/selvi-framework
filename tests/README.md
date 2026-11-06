@@ -7,6 +7,13 @@ Folder ini punya dua peran:
 2. **Verifikasi panduan** — setiap halaman `docs/` punya aplikasi uji sendiri,
    dengan nama folder sama seperti nama file dokumennya.
 
+`tests/app/` **bukan** acuan gaya penulisan kode aplikasi. Controller di sana
+menaruh query model langsung di controller dan memakai `switch($metode)` demi
+menguji dua jalur sekaligus. Contoh controller yang mengikuti best practice
+adalah `tests/05.01-crud-endpoint/Controllers/ProdukController.php`: controller
+hanya mengurus HTTP, query lewat model, dan kesalahan dilempar sebagai
+`Selvi\Exception`.
+
 Konvensi penamaan: halaman `docs/01-memulai/01-instalasi.md` diuji oleh
 `tests/01.01-instalasi/`. Dengan begitu audit bisa dilakukan per halaman.
 
@@ -249,6 +256,9 @@ php -l /workspace/tests/01.04-controller/Services/SapaanService.php'
 B=http://localhost:8089/01.04-controller
 curl -s "$B/"; echo
 curl -s "$B/sapa/Budi"; echo
+curl -s "$B/method-inject/Budi"; echo
+curl -s "$B/inject/Budi"; echo
+curl -s "$B/array-callback/Budi"; echo
 curl -s "$B/cari?q=selvi"; echo
 curl -s "$B/urut/A/B"; echo
 curl -s "$B/angka/5"; echo
@@ -265,6 +275,9 @@ Hasil terverifikasi:
 |---|---|---|
 | `GET /01.04-controller/` | `200` | `Halo dari controller!` |
 | `GET /01.04-controller/sapa/Budi` | `200` | `Halo, Budi!` |
+| `GET /01.04-controller/method-inject/Budi` | `200` | `Halo, Budi!` (dependency di parameter method) |
+| `GET /01.04-controller/inject/Budi` | `200` | JSON `pesan`, `samaDenganConstructor` `true` |
+| `GET /01.04-controller/array-callback/Budi` | `200` | `Halo, Budi!` |
 | `GET /01.04-controller/cari?q=selvi` | `200` | JSON `q` berisi `selvi` |
 | `GET /01.04-controller/cari` | `200` | JSON `q` berisi `null` |
 | `GET /01.04-controller/urut/A/B` | `200` | `B\|A` |
@@ -286,8 +299,59 @@ Hasil terverifikasi:
 Endpoint `PATCH`/`DELETE`/`OPTIONS`, grup, dan middleware dipakai untuk
 memverifikasi `docs/99-referensi/02-route.md`. `HaloController` mewarisi
 `Selvi\Controller` untuk memverifikasi `docs/99-referensi/07-controller.md`.
+Endpoint `method-inject`, `inject`, dan `array-callback` memverifikasi bagian
+dependency di `docs/01-memulai/04-controller.md`.
 
-## Langkah 7 — uji halaman DTO (`02.01`–`02.03`)
+## Langkah 7 — uji halaman struktur folder (`01.05-struktur-folder/`)
+
+Folder ini menguji `docs/01-memulai/05-struktur-folder.md`. Layout yang diuji:
+folder proyek sebagai document root, berisi `index.php` + `bootstrap.php` +
+`app/Config/routes.php` + `app/Controllers/` + `app/Services/` + `.htaccess`.
+`.htaccess` mengarahkan URI ke `index.php` sekaligus memblokir `app/`,
+`vendor/`, `private/`, `bootstrap.php`, `composer.json`, dan file berawalan
+titik.
+
+```sh
+docker exec selvi_test_dev sh -lc '
+php -l /workspace/tests/01.05-struktur-folder/index.php
+php -l /workspace/tests/01.05-struktur-folder/bootstrap.php
+php -l /workspace/tests/01.05-struktur-folder/app/Config/routes.php
+php -l /workspace/tests/01.05-struktur-folder/app/Controllers/HaloController.php
+php -l /workspace/tests/01.05-struktur-folder/app/Services/SapaanService.php'
+
+B=http://localhost:8089/01.05-struktur-folder
+curl -s "$B/"; echo
+curl -s "$B/sapa/Budi"; echo
+curl -s -o /dev/null -w '404 %{http_code}\n' "$B/tidak-ada"
+curl -s -o /dev/null -w 'app %{http_code}\n' "$B/app/Config/routes.php"
+curl -s -o /dev/null -w 'bootstrap %{http_code}\n' "$B/bootstrap.php"
+curl -s -o /dev/null -w 'vendor %{http_code}\n' "$B/vendor/autoload.php"
+curl -s -o /dev/null -w 'composer %{http_code}\n' "$B/composer.json"
+curl -s -o /dev/null -w 'private %{http_code}\n' "$B/private/contoh-rahasia.txt"
+curl -s -o /dev/null -w 'env %{http_code}\n' "$B/.env"
+curl -s -o /dev/null -w 'well-known %{http_code}\n' "$B/.well-known/test"
+```
+
+Hasil terverifikasi:
+
+| Endpoint | Status | Hasil |
+|---|---|---|
+| `GET /01.05-struktur-folder/` | `200` | `Halo dari index.php` |
+| `GET /01.05-struktur-folder/sapa/Budi` | `200` | `Halo, Budi!` |
+| `GET /01.05-struktur-folder/tidak-ada` | `404` | JSON error `Route GET ... not found` |
+| `GET /01.05-struktur-folder/app/Config/routes.php` | `403` | diblokir `.htaccess` |
+| `GET /01.05-struktur-folder/bootstrap.php` | `403` | diblokir `.htaccess` |
+| `GET /01.05-struktur-folder/private/contoh-rahasia.txt` | `403` | diblokir `.htaccess` (folder uji tidak memuat `private/`; tanpa aturan hasilnya `404`) |
+| `GET /01.05-struktur-folder/vendor/autoload.php` | `403` | diblokir `.htaccess` (folder `vendor/` uji tidak ada; tanpa aturan hasilnya `404`) |
+| `GET /01.05-struktur-folder/composer.json` | `403` | diblokir `.htaccess` (file tidak ada; tanpa aturan hasilnya `404`) |
+| `GET /01.05-struktur-folder/.env` | `403` | diblokir `.htaccess` (file tidak ada; tanpa aturan hasilnya `404`) |
+| `GET /01.05-struktur-folder/.well-known/test` | `404` | sengaja tidak diblokir (validasi sertifikat) |
+
+`bootstrap.php` memetakan `App\` ke `app/` lewat `spl_autoload_register()`
+karena autoload repo hanya memetakan `Selvi\` dan `Selvi\Tests\`; aplikasi
+nyata memakai `autoload.psr-4`.
+
+## Langkah 8 — uji halaman DTO (`02.01`–`02.03`)
 
 Folder `02.01-data-object/`, `02.02-properti-nested/`, dan
 `02.03-cast-dan-serialize/` memuat `vendor/` workspace dan tidak memerlukan
@@ -328,7 +392,7 @@ Hasil terverifikasi:
 | `GET /02.03-cast-dan-serialize/` | `200` | `opsi` array, `dibuat` `Y-m-d H:i:s`, `diperbarui` `DATE_ATOM` |
 | `GET /02.03-cast-dan-serialize/null` | `200` | nilai `null` dipertahankan |
 
-## Langkah 8 — uji halaman model (`03.01`–`03.03`)
+## Langkah 9 — uji halaman model (`03.01`–`03.03`)
 
 Folder ini memakai model contoh di `tests/app/Models/` dan koneksi `main`.
 
@@ -398,7 +462,7 @@ Hasil terverifikasi:
 | `GET /03.03-konversi-value/custom` | `200` | cast kustom |
 | `GET /03.03-konversi-value/model` | `200` | `toArray`/`toArrayDb` |
 
-## Langkah 9 — uji halaman DML (`04.03`–`04.04`)
+## Langkah 10 — uji halaman DML (`04.03`–`04.04`)
 
 Folder ini memakai koneksi `main` dari `tests/private/.ENV` dan data contoh di
 tabel `kontak`/`departemen`.
@@ -446,7 +510,7 @@ Hasil terverifikasi:
 Tabel `demo_tulis` dibuat dan dihapus di dalam endpoint `/`, jadi tidak perlu
 pembersihan manual.
 
-## Langkah 10 — uji migrasi dan seeder (`04.05`–`04.06`)
+## Langkah 11 — uji migrasi dan seeder (`04.05`–`04.06`)
 
 Migrasi:
 
@@ -481,7 +545,7 @@ Keduanya memakai koneksi terpisah (`demo_migrasi`, `demo_seed`) yang menunjuk
 database yang sama, tetapi path file terdaftar terpisah. Tabel `_migration`
 dipakai bersama.
 
-## Langkah 11 — uji halaman CRUD API (`05.01`)
+## Langkah 12 — uji halaman CRUD API (`05.01`)
 
 ```sh
 docker exec -w /workspace/tests/05.01-crud-endpoint selvi_test_dev \
@@ -510,7 +574,7 @@ baris, update `stok` menjadi `20`, `204` saat delete, lalu `[success:down]`.
 Setelah `down`, endpoint CRUD tidak bisa dipakai sampai migrasi dijalankan lagi.
 Halaman Swagger UI memuat aset dari unpkg, jadi butuh akses internet.
 
-## Langkah 12 — cek sintaks source
+## Langkah 13 — cek sintaks source
 
 ```sh
 docker exec selvi_test_dev sh -lc '

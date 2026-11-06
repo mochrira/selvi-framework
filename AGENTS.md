@@ -265,9 +265,18 @@ Jika verifikasi tidak bisa dijalankan, sampaikan alasannya secara eksplisit.
 - Dokumentasi ada di `docs/`, berupa Markdown biasa tanpa generator situs.
   `mkdocs.yml` sudah dihapus; jangan menambahkannya kembali.
 - `docs/README.md` adalah peta dokumentasi dan daftar status penulisan.
-- Setiap halaman memakai urutan bagian tetap: Tujuan, Prasyarat, Contoh,
-  Output yang diharapkan, Referensi API, Kesalahan umum, Sumber, dan Status
-  verifikasi.
+- Setiap halaman memakai salah satu dari dua template:
+  - **Panduan** (`type: panduan`; `01-memulai/`, `02-dto/`, `03-model/`,
+    `04-database/`, `05-api/`): paragraf pembuka berisi tujuan halaman, lalu
+    `## Jawaban singkat` (satu blok kode minimal ≤ 20 baris + hasil),
+    `## Prasyarat`, langkah bernomor `## 1. ...`, `## Referensi API`,
+    `## Kesalahan umum`, `## Sumber`, dan `## Status verifikasi`. Contoh kode
+    dan output yang diharapkan melekat pada langkah bernomor, tidak wajib
+    menjadi heading sendiri. Halaman berisi alur panjang boleh menambahkan
+    `## Tujuan` sebelum `## Jawaban singkat`.
+  - **Referensi** (`type: referensi`; `99-referensi/`): satu file per kelas
+    dengan heading `###` per method, tabel parameter, dan nilai kembalian,
+    lalu `## Sumber` dan `## Status verifikasi`.
 - Bagian **Sumber** wajib menunjuk file nyata di repo. Bagian **Status
   verifikasi** wajib jujur: tandai `BELUM DIVERIFIKASI` bila perilakunya hanya
   diturunkan dari membaca kode.

@@ -13,6 +13,21 @@ applies_to: Selvi 3.x
 Data request diambil lewat `Selvi\Input\Request`. Objek ini disuntikkan
 otomatis jika parameter callback diberi type hint `Request`.
 
+## Jawaban singkat
+
+```php
+Route::get('/halo', function (Request $request) {
+    $q    = $request->get('q');                        // query string
+    $form = $request->post('nama');                    // form-urlencoded
+    $body = json_decode($request->raw() ?? '', true);  // body JSON
+    $uas  = $request->header('User-Agent');            // header
+
+    return jsonResponse(compact('q', 'form', 'body', 'uas'));
+});
+```
+
+`Request` di-resolve otomatis karena parameternya bertipe `Request`.
+
 ## Prasyarat
 
 - [Instalasi](01-instalasi.md) sudah berhasil.

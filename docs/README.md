@@ -19,6 +19,7 @@ Bagian `01-memulai/` ditulis bertahap dengan urutan:
 2. [Response](01-memulai/02-response.md) — selesai.
 3. [Request](01-memulai/03-request.md) — selesai.
 4. [Controller](01-memulai/04-controller.md) — selesai.
+5. [Struktur folder aplikasi](01-memulai/05-struktur-folder.md) — selesai.
 
 Halaman yang belum ditulis tidak ditautkan, agar tidak ada link mati.
 
@@ -107,7 +108,7 @@ Kelas yang dipakai di bab `04-database/`:
 
 | Folder | Status |
 |---|---|
-| `01-memulai/` | selesai (4 halaman) |
+| `01-memulai/` | selesai (5 halaman) |
 | `02-dto/` | selesai (3 halaman) |
 | `03-model/` | selesai (3 halaman) |
 | `04-database/` | selesai (6 halaman) |
@@ -117,19 +118,32 @@ Kelas yang dipakai di bab `04-database/`:
 
 ## Cara membaca halaman
 
-Setiap halaman memakai bagian berikut secara konsisten:
+Ada dua template halaman, mengikuti `type` di front matter.
 
-- **Tujuan** — masalah yang diselesaikan halaman.
-- **Prasyarat** — halaman lain yang perlu dibaca lebih dulu.
-- **Contoh** — kode minimal yang bisa ditempel.
-- **Output yang diharapkan** — hasil persis yang seharusnya muncul.
-- **Referensi API** — signature, parameter, dan nilai default.
-- **Kesalahan umum** — pesan error nyata beserta penyebabnya.
-- **Sumber** — file di repo yang menjadi acuan.
-- **Status verifikasi** — apakah isi halaman sudah dibuktikan dengan contoh
-  yang berjalan, atau masih diturunkan dari membaca kode.
+**Panduan** (`type: panduan`, folder `01-memulai/`, `02-dto/`, `03-model/`,
+`04-database/`, dan `05-api/`):
 
-Halaman di `99-referensi/` memakai format berbeda: satu file per kelas, dengan
+1. Paragraf pembuka — masalah yang diselesaikan halaman dan kapan dipakai.
+2. **Jawaban singkat** — satu blok kode minimal (≤ 20 baris) beserta hasil
+   singkat. Ini chunk pertama yang terambil saat pencarian, jadi harus cukup
+   menjawab pertanyaan utama halaman tanpa membaca seluruh langkah.
+3. **Prasyarat** — halaman lain yang perlu dibaca lebih dulu, plus
+   konfigurasi/namespace yang harus sudah ada.
+4. Langkah bernomor `## 1. ...`, `## 2. ...` — tiap langkah memuat contoh kode
+   beserta output yang diharapkan. **Contoh** dan **Output yang diharapkan**
+   tidak wajib menjadi heading sendiri karena melekat pada langkah.
+5. **Referensi API** — signature, parameter, dan nilai default.
+6. **Kesalahan umum** — pesan error nyata beserta penyebabnya.
+7. **Sumber** — file di repo yang menjadi acuan.
+8. **Status verifikasi** — bukti pengujian: endpoint, status, hasil, dan hal
+   yang belum diuji.
+
+Halaman yang memuat alur panjang, misalnya
+[Panduan Endpoint CRUD API](05-api/01-crud-endpoint.md), boleh menambahkan
+**Tujuan** eksplisit sebelum **Prasyarat**.
+
+**Referensi** (`type: referensi`, folder `99-referensi/`) memakai format
+berbeda: satu file per kelas, dengan
 function dikelompokkan menjadi **Method statis**, **Method instance**, dan
 **Helper** (helper diletakkan di bagian bawah). Setiap function punya heading
 berisi nama parameter, tabel parameter (tipe, default, keterangan), dan nilai
@@ -162,7 +176,9 @@ Aturan pengindeksan yang disarankan:
 
 - Potong `01-memulai/`, `02-dto/`, `03-model/`, `04-database/`, dan `05-api/`
   per heading `##` (satu bagian satu chunk), dan `99-referensi/` per heading
-  `###` (satu method satu chunk).
+  `###` (satu method satu chunk). Chunk pertama panduan adalah **Jawaban
+  singkat**, sehingga pertanyaan umum bisa dijawab tanpa memuat seluruh
+  halaman.
 - Pertahankan hierarki heading sebagai metadata chunk. Heading method referensi
   sudah memuat nama kelas (mis. `AlterBlueprint::dropForeign($name)`), sehingga
   chunk tetap jelas walau dipisah dari halamannya.

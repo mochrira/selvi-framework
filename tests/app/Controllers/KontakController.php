@@ -1,5 +1,7 @@
 <?php 
 
+// Harness uji framework, bukan contoh gaya controller. Contoh kanonik:
+// tests/05.01-crud-endpoint/Controllers/ProdukController.php
 namespace Selvi\Tests\Controllers;
 
 use DateTime;

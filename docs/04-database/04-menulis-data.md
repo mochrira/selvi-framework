@@ -14,6 +14,22 @@ Operasi tulis memakai `QueryBuilder` yang sama dengan pembacaan:
 `insert()`, `update()`, dan `delete()`. `UPDATE` dan `DELETE` menolak berjalan
 tanpa kondisi `WHERE`.
 
+## Jawaban singkat
+
+```php
+$id = DB::table('kontak')->insert(['nm_kontak' => 'Budi']); // lastId()
+
+DB::table('kontak')
+    ->where([['id_kontak', '=', $id]])
+    ->update(['nm_kontak' => 'Budi S']);
+
+DB::table('kontak')
+    ->where([['id_kontak', '=', $id]])
+    ->delete();
+```
+
+`UPDATE` dan `DELETE` tanpa `WHERE` ditolak dengan `LogicException`.
+
 ## Prasyarat
 
 - [Membaca data](03-membaca-data.md) sudah dipahami.

@@ -17,6 +17,24 @@ Aplikasi mendaftarkan koneksi sekali saat bootstrap, lalu seluruh fitur database
 Halaman ini hanya menyiapkan koneksi. Belum ada tabel yang dibuat dan belum ada
 data yang dibaca.
 
+## Jawaban singkat
+
+```php
+Manager::add('main', [
+    'driver'   => Env::get('DB_DRIVER', 'mysql'),
+    'host'     => Env::get('DB_HOST'),
+    'port'     => Env::get('DB_PORT'),
+    'username' => Env::get('DB_USER'),
+    'password' => Env::get('DB_PASS'),
+    'database' => Env::get('DB_NAME'),
+]);
+
+$rows = DB::table('kontak')->get()->rows();
+```
+
+`Manager::add()` dipanggil sekali saat bootstrap; nama `main` itu yang dipakai
+`DB::table()`, model, migrasi, dan seeder.
+
 ## Prasyarat
 
 - [Instalasi](../01-memulai/01-instalasi.md) sudah berhasil dan aplikasi bisa

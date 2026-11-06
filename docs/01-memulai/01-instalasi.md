@@ -13,6 +13,16 @@ applies_to: Selvi 3.x
 Memasang Selvi Framework dan membuat satu route `/` dengan function (closure)
 sebagai controller.
 
+## Jawaban singkat
+
+```sh
+mkdir selvi-app && cd selvi-app
+composer require mochrira/selvi-framework
+```
+
+Lalu buat `index.php` (langkah 2) dan `.htaccess` (langkah 3). `GET /`
+menghasilkan `200` dengan body `Halo, Selvi Framework!`.
+
 ## Yang dibutuhkan
 
 - PHP 8.1 atau lebih baru.
@@ -95,6 +105,9 @@ Selesai. Sampai titik ini aplikasi sudah berjalan.
   menjadi `.../selvi-app/` dengan status 301.
 - Membuka URL yang tidak terdaftar menghasilkan 500 tanpa isi. Itu normal pada
   tahap ini karena handler exception belum didaftarkan.
+- Saat controller dan config bertambah, rapikan kode ke folder `app/` dengan
+  `bootstrap.php` dan `index.php` di root proyek. Contoh lengkapnya ada di
+  [Struktur folder aplikasi](05-struktur-folder.md).
 
 ## Kesalahan umum
 

@@ -14,6 +14,18 @@ Struktur tabel dibuat dan diubah lewat `SchemaBuilder`. Definisi ditulis sebagai
 method PHP, lalu Grammar driver menerjemahkannya menjadi SQL — saat ini hanya
 dialek MySQL/MariaDB. Tidak perlu menulis `CREATE TABLE` manual.
 
+## Jawaban singkat
+
+```php
+DB::schema()->create('kontak', function (Blueprint $table) {
+    $table->integer('id_kontak')->key()->autoIncrement();
+    $table->string('nm_kontak', 100);
+    $table->string('nomor', 20)->nullable();
+});
+```
+
+`create()` mengembalikan `true`; `IF NOT EXISTS` aktif secara default.
+
 ## Prasyarat
 
 - [Koneksi database](01-koneksi.md) sudah berjalan.

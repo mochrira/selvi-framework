@@ -23,6 +23,22 @@ class HaloController extends Controller {
         return response($this->sapaan->pesan($nama));
     }
 
+    public function methodInject(SapaanService $sapaan, string $nama) {
+        return response($sapaan->pesan($nama));
+    }
+
+    public function injectHelper(string $nama) {
+        $sapaan = inject(SapaanService::class);
+        return jsonResponse([
+            'pesan' => $sapaan->pesan($nama),
+            'samaDenganConstructor' => $sapaan === $this->sapaan
+        ]);
+    }
+
+    public function arrayCallback(SapaanService $sapaan, string $nama) {
+        return response($sapaan->pesan($nama));
+    }
+
     public function cari() {
         $q = $this->request->get('q');
         return jsonResponse(['q' => $q]);

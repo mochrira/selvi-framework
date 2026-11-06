@@ -17,6 +17,26 @@ menjadi properti DTO bersarang, tanpa query tambahan.
 Ada dua bentuk sumber yang didukung: kunci berprefix (`departemen__id_departemen`)
 dan objek yang sudah bersarang (`$row->grup` berupa objek).
 
+## Jawaban singkat
+
+```php
+class KontakDTO extends DataObject {
+
+    #[DataProperty(prefix: 'departemen', optional: true)]
+    public ?DepartemenDTO $departemen;
+
+}
+
+$dto = KontakDTO::of((object) [
+    'departemen__id_departemen' => 2,
+    'departemen__nm_departemen' => 'Sales',
+]);
+
+$dto->departemen->nmDepartemen; // 'Sales'
+```
+
+Kunci berprefix `{prefix}__{name}` dipetakan ke properti DTO bersarang.
+
 ## Prasyarat
 
 - [Data Object (DTO)](01-data-object.md) sudah dipahami.

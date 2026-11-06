@@ -13,6 +13,22 @@ applies_to: Selvi 3.x
 Seeder mengisi data awal ke tabel yang sudah ada. Berbeda dari migrasi, seeder
 tidak punya arah `down`: satu file seed hanya berjalan sekali.
 
+## Jawaban singkat
+
+```php
+return function (Schema $schema) {
+
+    $schema->table('demo_seed')->insert([
+        ['nama' => 'Seed A', 'nilai' => 1],
+        ['nama' => 'Seed B', 'nilai' => 2],
+    ]);
+
+};
+```
+
+Jalankan `php console.php db:seed main`. Seed yang sudah tercatat di log
+di-skip, jadi aman dijalankan berulang.
+
 ## Prasyarat
 
 - [Migrasi](05-migrasi.md) sudah dipahami dan tabel target sudah dibuat.

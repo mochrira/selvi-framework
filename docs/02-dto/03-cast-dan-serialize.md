@@ -18,6 +18,23 @@ applies_to: Selvi 3.x
 
 Tanpa keduanya, `DataObject` memilih cast bawaan berdasarkan tipe properti.
 
+## Jawaban singkat
+
+```php
+class PengaturanDTO extends DataObject {
+
+    #[DataProperty('opsi', cast: new ArrayCast())]
+    public ?array $opsi;
+
+    #[DataProperty('diperbarui', serialize: new DateTimeCast(format: DATE_ATOM))]
+    public DateTime $diperbarui;
+
+}
+```
+
+`cast` berlaku saat dibaca dari sumber dan saat ditulis ke database;
+`serialize` hanya berlaku saat `toArray()`.
+
 ## Prasyarat
 
 - [Data Object (DTO)](01-data-object.md) sudah dipahami.

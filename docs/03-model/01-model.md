@@ -19,6 +19,26 @@ Halaman ini membahas model tanpa relasi. Relasi ada di
 [relasi](02-relasi.md); cast dan serializer ada di
 [konversi value](03-konversi-value.md).
 
+## Jawaban singkat
+
+```php
+#[Table('kontak', schema: 'main')]
+class Kontak extends Model {
+
+    #[Column('id_kontak', key: true)]
+    public int $idKontak;
+
+    #[Column('nm_kontak')]
+    public ?string $nmKontak;
+
+}
+
+$kontak = Kontak::find(1);   // null bila tidak ada
+$kontak?->toArray();
+```
+
+Butuh koneksi `main` terdaftar dan tabel `kontak` sudah dibuat.
+
 ## Prasyarat
 
 - [Instalasi](../01-memulai/01-instalasi.md) sudah berhasil.

@@ -14,6 +14,26 @@ Migrasi adalah file PHP yang mengubah struktur database ke depan (`up`) dan
 mengembalikannya (`down`). Selvi tidak memakai ORM atau diff schema: setiap file
 menjalankan DDL sendiri lewat [`Schema`](../99-referensi/18-schema.md).
 
+## Jawaban singkat
+
+```php
+return function (Schema $schema, string $direction) {
+
+    if($direction === 'up') {
+        $schema->create('demo_migrasi', function (Blueprint $table) {
+            $table->integer('id')->key()->autoIncrement();
+        });
+    }
+
+    if($direction === 'down') {
+        $schema->drop('demo_migrasi');
+    }
+
+};
+```
+
+Jalankan `php console.php db:migrate main up`; `down` membatalkan.
+
 ## Prasyarat
 
 - [Koneksi database](01-koneksi.md) dan [skema tabel](02-skema-tabel.md) sudah

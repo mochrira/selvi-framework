@@ -13,6 +13,18 @@ applies_to: Selvi 3.x
 Setiap route harus mengembalikan `Response`. Ada dua helper: `response()`
 untuk teks dan `jsonResponse()` untuk JSON.
 
+## Jawaban singkat
+
+```php
+return response('Halo');                              // teks, 200
+return response('Tidak ditemukan', 404);              // teks, 404
+return jsonResponse(['pesan' => 'Halo']);             // JSON, 200
+return view('home.php', ['nama' => 'Budi'])->render(); // HTML dari views/
+```
+
+Semua bentuk di atas mengembalikan objek `Response`. Jangan memakai `echo`.
+`view()` memerlukan `View::addPath()` ke folder template lebih dulu.
+
 ## Prasyarat
 
 - [Instalasi](01-instalasi.md) sudah berhasil.

@@ -19,6 +19,18 @@ Ada dua jenis relasi:
 - **`Aggregate`** — nilai agregat dari query lain (mis. jumlah kontak per
   departemen).
 
+## Jawaban singkat
+
+```php
+#[BelongsTo(Departemen::class, foreignKey: 'id_departemen')]
+public ?Departemen $departemen;
+
+$kontak = Kontak::with('departemen')->find(1);
+$kontak?->departemen?->nmDepartemen;
+```
+
+Tanpa `with()`, properti relasi tetap `null`; tidak ada lazy loading.
+
 ## Prasyarat
 
 - [Model](01-model.md) sudah dipahami.

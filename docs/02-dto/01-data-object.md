@@ -17,6 +17,24 @@ berisi properti dan attribute, tanpa query dan tanpa koneksi database.
 Kelas ini bukan ORM. `Selvi\Model` mewarisinya, jadi aturan pemetaan yang sama
 berlaku untuk model, tetapi halaman ini hanya memakai `DataObject` langsung.
 
+## Jawaban singkat
+
+```php
+class KontakDTO extends DataObject {
+
+    #[DataProperty('id_kontak')]
+    public int $idKontak;
+
+    #[DataProperty('nm_kontak')]
+    public ?string $nmKontak;
+
+}
+
+$dto = KontakDTO::of((object) ['id_kontak' => '1', 'nm_kontak' => 'Halo']);
+$dto->idKontak;  // 1 (int, hasil cast dari '1')
+$dto->toArray(); // ['idKontak' => 1, 'nmKontak' => 'Halo']
+```
+
 ## Prasyarat
 
 - [Instalasi](../01-memulai/01-instalasi.md) sudah berhasil dan autoload aktif.
