@@ -11,6 +11,13 @@
   (khusus referensi), `tags`, `prerequisites`, `verified`, `applies_to`.
 - Signature kanonik ada di `99-referensi/`; halaman bab hanya contoh.
 - Bagian **Status verifikasi** adalah catatan pengujian, bukan spesifikasi API.
+- Nilai `verified`: tanggal = langkah utama teruji (kasus tepi dicatat di
+  `Belum diuji:`), `partial` = ada langkah/method utama yang belum dijalankan,
+  `false` = belum pernah dijalankan.
+- Setiap Status verifikasi diakhiri baris `Belum diuji: ...` atau
+  `Semua contoh di halaman ini teruji.` — jangan menganggap bagian yang tidak
+  disebut sebagai teruji.
+- Bagian **Sumber** berisi tautan Markdown relatif ke file nyata.
 - Peta dokumentasi lengkap: [README.md](README.md).
 
 ## Cara memotong (chunking)

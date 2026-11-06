@@ -155,10 +155,10 @@ Hanya kolom yang terdaftar di model yang dikirim.
 
 ## Sumber
 
-- `src/Database/Builder/DML/ModelQuery.php`
-- `src/Model.php` — pembuat `ModelQuery`
-- `src/Database/Builder/DML/WithBuilder.php`
-- `tests/03.01-model/index.php` dan `tests/03.02-relasi/index.php` — aplikasi uji
+- [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php)
+- [src/Model.php](../../src/Model.php) — pembuat `ModelQuery`
+- [src/Database/Builder/DML/WithBuilder.php](../../src/Database/Builder/DML/WithBuilder.php)
+- [tests/03.01-model/index.php](../../tests/03.01-model/index.php) dan [tests/03.02-relasi/index.php](../../tests/03.02-relasi/index.php) — aplikasi uji
 
 ## Status verifikasi
 

@@ -144,10 +144,10 @@ sendiri. Gunakan hanya untuk SQL tepercaya.
 
 ## Sumber
 
-- `src/Model/Attributes/Column.php`
-- `src/Model/PropertyAttribute.php`
-- `src/Model.php` — `columns()`, `getKeyColumn()`, `toArrayDb()`
-- `tests/app/Models/Kontak.php` — aplikasi uji
+- [src/Model/Attributes/Column.php](../../src/Model/Attributes/Column.php)
+- [src/Model/PropertyAttribute.php](../../src/Model/PropertyAttribute.php)
+- [src/Model.php](../../src/Model.php) — `columns()`, `getKeyColumn()`, `toArrayDb()`
+- [tests/app/Models/Kontak.php](../../tests/app/Models/Kontak.php) — aplikasi uji
 
 ## Status verifikasi
 

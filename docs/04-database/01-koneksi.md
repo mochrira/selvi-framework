@@ -298,15 +298,15 @@ method yang dipanggil di dalamnya (`QueryBuilder` atau `SchemaBuilder`).
 
 ## Sumber
 
-- `src/Database/Manager.php` — registry koneksi.
-- `src/Database/DB.php` — facade `connection()`, `table()`, `schema()`.
-- `src/Database/Drivers/MySQL/MySQLConnection.php` — implementasi `IConnection`.
-- `src/Database/Interfaces/IConnection.php` dan `IResult.php` — kontrak koneksi
+- [src/Database/Manager.php](../../src/Database/Manager.php) — registry koneksi.
+- [src/Database/DB.php](../../src/Database/DB.php) — facade `connection()`, `table()`, `schema()`.
+- [src/Database/Drivers/MySQL/MySQLConnection.php](../../src/Database/Drivers/MySQL/MySQLConnection.php) — implementasi `IConnection`.
+- [src/Database/Interfaces/IConnection.php](../../src/Database/Interfaces/IConnection.php) dan `IResult.php` — kontrak koneksi
   dan hasil query.
-- `src/Env.php` — pembacaan `.ENV`.
-- `src/Exception/DatabaseException.php` dan `src/Exception/Handler.php` — bentuk
+- [src/Env.php](../../src/Env.php) — pembacaan `.ENV`.
+- [src/Exception/DatabaseException.php](../../src/Exception/DatabaseException.php) dan [src/Exception/Handler.php](../../src/Exception/Handler.php) — bentuk
   error database.
-- `tests/04.01-koneksi/index.php` — semua contoh di halaman ini.
+- [tests/04.01-koneksi/index.php](../../tests/04.01-koneksi/index.php) — semua contoh di halaman ini.
 
 ## Status verifikasi
 
@@ -330,6 +330,6 @@ Endpoint `/error` sengaja menanyakan tabel yang tidak ada, untuk membuktikan
 bentuk error di *Bentuk error database*. Tabel `kontak` tidak perlu ada karena `/sql` hanya
 menyusun SQL.
 
-Satu hal yang belum diuji: kegagalan saat `Manager::add()` (kredensial salah).
-Perilaku itu disimpulkan dari `MySQLConnection::__construct()` yang langsung
-memanggil `connect()`.
+Belum diuji: kegagalan saat `Manager::add()` (kredensial salah). Perilaku itu
+disimpulkan dari `MySQLConnection::__construct()` yang langsung memanggil
+`connect()`.

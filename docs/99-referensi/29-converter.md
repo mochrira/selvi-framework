@@ -84,10 +84,10 @@ Sama seperti `get()`, arah properti → database.
 
 ## Sumber
 
-- `src/Database/Casting/Converter.php`
+- [src/Database/Casting/Converter.php](../../src/Database/Casting/Converter.php)
 - `src/Database/Casting/*Cast.php`
-- `src/Database/Interfaces/ICast.php`, `ISerializesCast.php`
-- `tests/03.03-konversi-value/index.php` — aplikasi uji
+- [src/Database/Interfaces/ICast.php](../../src/Database/Interfaces/ICast.php), `ISerializesCast.php`
+- [tests/03.03-konversi-value/index.php](../../tests/03.03-konversi-value/index.php) — aplikasi uji
 
 ## Status verifikasi
 

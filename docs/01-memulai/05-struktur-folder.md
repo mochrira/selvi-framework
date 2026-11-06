@@ -224,15 +224,15 @@ dan [`Selvi\Routing\Route`](../99-referensi/02-route.md).
 
 ## Sumber
 
-- `src/Framework.php` — urutan `run()` dan pengiriman response.
-- `src/Helpers/LoadHelper.php` — helper `inject()` dan `view()`.
-- `src/Exception/Handler.php` — `setDefaultHandlers()` dan `listen()`.
-- `tests/01.05-struktur-folder/index.php`,
-  `tests/01.05-struktur-folder/bootstrap.php`,
-  `tests/01.05-struktur-folder/.htaccess`,
-  `tests/01.05-struktur-folder/app/Config/routes.php`,
-  `tests/01.05-struktur-folder/app/Controllers/HaloController.php`, dan
-  `tests/01.05-struktur-folder/app/Services/SapaanService.php` — aplikasi uji
+- [src/Framework.php](../../src/Framework.php) — urutan `run()` dan pengiriman response.
+- [src/Helpers/LoadHelper.php](../../src/Helpers/LoadHelper.php) — helper `inject()` dan `view()`.
+- [src/Exception/Handler.php](../../src/Exception/Handler.php) — `setDefaultHandlers()` dan `listen()`.
+- [tests/01.05-struktur-folder/index.php](../../tests/01.05-struktur-folder/index.php),
+  [tests/01.05-struktur-folder/bootstrap.php](../../tests/01.05-struktur-folder/bootstrap.php),
+  [tests/01.05-struktur-folder/.htaccess](../../tests/01.05-struktur-folder/.htaccess),
+  [tests/01.05-struktur-folder/app/Config/routes.php](../../tests/01.05-struktur-folder/app/Config/routes.php),
+  [tests/01.05-struktur-folder/app/Controllers/HaloController.php](../../tests/01.05-struktur-folder/app/Controllers/HaloController.php), dan
+  [tests/01.05-struktur-folder/app/Services/SapaanService.php](../../tests/01.05-struktur-folder/app/Services/SapaanService.php) — aplikasi uji
   halaman ini.
 
 ## Status verifikasi

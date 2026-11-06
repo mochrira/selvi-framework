@@ -100,9 +100,9 @@ Mengambil route yang sedang dipakai.
 
 ## Sumber
 
-- `src/Input/Request.php` — implementasi.
-- `src/Injector.php` — penyuntikan berdasarkan type hint.
-- `tests/01.03-request/index.php` — aplikasi uji.
+- [src/Input/Request.php](../../src/Input/Request.php) — implementasi.
+- [src/Injector.php](../../src/Injector.php) — penyuntikan berdasarkan type hint.
+- [tests/01.03-request/index.php](../../tests/01.03-request/index.php) — aplikasi uji.
 
 ## Status verifikasi
 
@@ -125,3 +125,5 @@ Diuji 28 Oktober 2026 (PHP 8.4.14) lewat
 | `cookie()` | cookie `sesi=abc123` | `abc123` |
 | `method()` | GET | `GET` |
 | `route()` | `->getUri()` | `/route-info` |
+
+Semua contoh di halaman ini teruji.

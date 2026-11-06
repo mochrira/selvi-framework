@@ -52,12 +52,12 @@ Aturan:
 
 ## Sumber
 
-- `src/Model/Attributes/BelongsTo.php`
-- `src/Model/PropertyAttribute.php`
-- `src/Database/Builder/DML/ModelQuery.php` — `buildWith()`
-- `src/Model/Attributes/BelongsTo.php` — `assign()`
-- `src/Data/DataRow.php` — pembacaan prefix relasi
-- `tests/app/Models/Kontak.php` — aplikasi uji
+- [src/Model/Attributes/BelongsTo.php](../../src/Model/Attributes/BelongsTo.php)
+- [src/Model/PropertyAttribute.php](../../src/Model/PropertyAttribute.php)
+- [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php) — `buildWith()`
+- [src/Model/Attributes/BelongsTo.php](../../src/Model/Attributes/BelongsTo.php) — `assign()`
+- [src/Data/DataRow.php](../../src/Data/DataRow.php) — pembacaan prefix relasi
+- [tests/app/Models/Kontak.php](../../tests/app/Models/Kontak.php) — aplikasi uji
 
 ## Status verifikasi
 

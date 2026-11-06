@@ -267,13 +267,13 @@ melempar `InvalidArgumentException: Data insert tidak boleh kosong.`
 
 ## Sumber
 
-- `src/Database/Builder/DML/QueryBuilder.php`
-- `src/Database/Builder/DML/WhereBuilder.php`,
+- [src/Database/Builder/DML/QueryBuilder.php](../../src/Database/Builder/DML/QueryBuilder.php)
+- [src/Database/Builder/DML/WhereBuilder.php](../../src/Database/Builder/DML/WhereBuilder.php),
   `SelectBuilder.php`, `JoinBuilder.php`, `GroupBuilder.php`, `OrderBuilder.php`
-- `src/Database/Builder/DML/InsertBuilder.php`, `UpdateBuilder.php`
-- `src/Database/Interfaces/IQueryBuilder.php`
-- `tests/04.03-membaca-data/index.php` dan
-  `tests/04.04-menulis-data/index.php` — aplikasi uji
+- [src/Database/Builder/DML/InsertBuilder.php](../../src/Database/Builder/DML/InsertBuilder.php), `UpdateBuilder.php`
+- [src/Database/Interfaces/IQueryBuilder.php](../../src/Database/Interfaces/IQueryBuilder.php)
+- [tests/04.03-membaca-data/index.php](../../tests/04.03-membaca-data/index.php) dan
+  [tests/04.04-menulis-data/index.php](../../tests/04.04-menulis-data/index.php) — aplikasi uji
 
 ## Status verifikasi
 

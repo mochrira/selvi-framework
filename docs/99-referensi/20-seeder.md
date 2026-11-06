@@ -83,10 +83,10 @@ Pesan penting:
 
 ## Sumber
 
-- `src/Database/Seeder.php`
-- `src/Database/MigrationLog.php`
-- `src/Database/Schema.php`
-- `tests/04.06-seeder/console.php` dan `tests/04.06-seeder/seeds/` — aplikasi uji
+- [src/Database/Seeder.php](../../src/Database/Seeder.php)
+- [src/Database/MigrationLog.php](../../src/Database/MigrationLog.php)
+- [src/Database/Schema.php](../../src/Database/Schema.php)
+- [tests/04.06-seeder/console.php](../../tests/04.06-seeder/console.php) dan [tests/04.06-seeder/seeds/](../../tests/04.06-seeder/seeds) — aplikasi uji
 
 ## Status verifikasi
 

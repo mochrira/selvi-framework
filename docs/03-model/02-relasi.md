@@ -285,11 +285,11 @@ Kontak::relation('tidakAda');   // null
 
 ## Sumber
 
-- `src/Model.php` — `with()`, `relations()`, `relation()`
-- `src/Database/Builder/DML/ModelQuery.php` — `buildWith()`, alias join
-- `src/Model/Attributes/BelongsTo.php` dan `Aggregate.php`
-- `tests/app/Models/` — contoh model
-- `tests/03.02-relasi/index.php` — aplikasi uji halaman ini
+- [src/Model.php](../../src/Model.php) — `with()`, `relations()`, `relation()`
+- [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php) — `buildWith()`, alias join
+- [src/Model/Attributes/BelongsTo.php](../../src/Model/Attributes/BelongsTo.php) dan `Aggregate.php`
+- [tests/app/Models/](../../tests/app/Models) — contoh model
+- [tests/03.02-relasi/index.php](../../tests/03.02-relasi/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

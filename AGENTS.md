@@ -277,9 +277,24 @@ Jika verifikasi tidak bisa dijalankan, sampaikan alasannya secara eksplisit.
   - **Referensi** (`type: referensi`; `99-referensi/`): satu file per kelas
     dengan heading `###` per method, tabel parameter, dan nilai kembalian,
     lalu `## Sumber` dan `## Status verifikasi`.
-- Bagian **Sumber** wajib menunjuk file nyata di repo. Bagian **Status
-  verifikasi** wajib jujur: tandai `BELUM DIVERIFIKASI` bila perilakunya hanya
-  diturunkan dari membaca kode.
+- Bagian **Sumber** wajib menunjuk file nyata di repo **sebagai tautan
+  Markdown relatif** (mis. `[src/Router.php](../../src/Router.php)`), bukan path
+  polos dalam backtick. Tautan harus lolos pemeriksaan file.
+- Bagian **Status verifikasi** wajib jujur dan **diakhiri baris
+  `Belum diuji: ...`**, atau `Semua contoh di halaman ini teruji.` bila memang
+  tidak ada bagian yang tersisa. Jangan mengklaim "teruji" untuk perilaku yang
+  hanya diturunkan dari membaca kode.
+- Nilai `verified` pada front matter mengikuti aturan:
+  - tanggal `YYYY-MM-DD` — seluruh langkah/contoh utama halaman sudah
+    dijalankan dan hasilnya cocok. Kasus tepi yang belum diuji tetap dicatat
+    pada baris `Belum diuji:`;
+  - `partial` — ada langkah, method, atau cabang utama yang belum pernah
+    dijalankan; halaman wajib menjelaskan bagian itu;
+  - `false` — belum pernah dijalankan; status halaman harus memuat
+    `BELUM DIVERIFIKASI`.
+  Tanggal di `verified` diperbarui setiap kali halaman diuji ulang.
+- Contoh kode yang disalin dari `tests/` wajib menyebut file sumbernya di
+  dekat blok kode, dan kedua salinan diperbarui bersamaan.
 - Jangan membuat link ke halaman yang belum ada. Perbarui
   `docs/README.md` saat menambah atau menyelesaikan halaman.
 - `README.md` di root adalah ringkasan cepat. Jika perilaku yang terlihat user

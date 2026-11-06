@@ -203,13 +203,13 @@ dan [`DataObject`](../99-referensi/14-data-object.md).
 
 ## Sumber
 
-- `src/Data/DataObject.php` — `of()`, `toArray()`, pembacaan attribute
-- `src/Data/DataRow.php` — sumber data dan prefix
-- `src/Data/DataProperty.php` — definisi attribute
-- `src/Data/Interfaces/IDataObject.php` dan `src/Interfaces/IArrayable.php` —
+- [src/Data/DataObject.php](../../src/Data/DataObject.php) — `of()`, `toArray()`, pembacaan attribute
+- [src/Data/DataRow.php](../../src/Data/DataRow.php) — sumber data dan prefix
+- [src/Data/DataProperty.php](../../src/Data/DataProperty.php) — definisi attribute
+- [src/Data/Interfaces/IDataObject.php](../../src/Data/Interfaces/IDataObject.php) dan [src/Interfaces/IArrayable.php](../../src/Interfaces/IArrayable.php) —
   kontrak yang diimplementasikan
-- `src/Database/Casting/Converter.php` — pemilihan cast dan serializer
-- `tests/02.01-data-object/index.php` — aplikasi uji halaman ini
+- [src/Database/Casting/Converter.php](../../src/Database/Casting/Converter.php) — pemilihan cast dan serializer
+- [tests/02.01-data-object/index.php](../../tests/02.01-data-object/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 
@@ -229,3 +229,6 @@ Pesan `Typed property ... must not be accessed before initialization` diuji
 langsung lewat CLI. Perilaku `optional` pada properti nullable disimpulkan dari
 `DataObject::of()` dan `toArray()`: `of()` mengisi `null`, sehingga
 `toArray()` tidak pernah melihat properti itu sebagai tidak terinisialisasi.
+
+Belum diuji: `optional` pada properti nullable. Kesimpulan di atas berasal dari
+membaca `DataObject::of()`, bukan dari endpoint terpisah.

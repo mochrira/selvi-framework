@@ -49,9 +49,9 @@ method dipanggil sebagai bagian dari alur
 
 ## Sumber
 
-- `src/Controller.php` — deklarasi class.
-- `src/Base.php` — parent class kosong.
-- `tests/01.04-controller/Controllers/HaloController.php` — controller uji yang
+- [src/Controller.php](../../src/Controller.php) — deklarasi class.
+- [src/Base.php](../../src/Base.php) — parent class kosong.
+- [tests/01.04-controller/Controllers/HaloController.php](../../tests/01.04-controller/Controllers/HaloController.php) — controller uji yang
   mewarisi `Selvi\Controller`.
 
 ## Status verifikasi
@@ -63,3 +63,5 @@ Diuji 29 Oktober 2026 (PHP 8.4.14) lewat
 `http://localhost:8089/01.04-controller/`. `HaloController` mewarisi
 `Selvi\Controller`, dan seluruh endpoint controller tetap berjalan normal.
 Tidak ada perilaku tambahan yang perlu diuji karena kelas ini kosong.
+
+Semua contoh di halaman ini teruji.

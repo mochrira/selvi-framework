@@ -348,14 +348,14 @@ Aturan:
 
 ## Sumber
 
-- `src/Model.php` — metadata, query statis, `create()`, `update()`, `delete()`,
+- [src/Model.php](../../src/Model.php) — metadata, query statis, `create()`, `update()`, `delete()`,
   `toArrayDb()`
-- `src/Data/DataObject.php` — `of()` dan `toArray()`
-- `src/Data/DataRow.php` dan `src/Data/DataProperty.php` — assignment
+- [src/Data/DataObject.php](../../src/Data/DataObject.php) — `of()` dan `toArray()`
+- [src/Data/DataRow.php](../../src/Data/DataRow.php) dan [src/Data/DataProperty.php](../../src/Data/DataProperty.php) — assignment
   properti
-- `src/Database/Builder/DML/ModelQuery.php`
-- `src/Model/Attributes/Table.php`, `Column.php`, `NotMapped.php`
-- `tests/03.01-model/index.php` — aplikasi uji halaman ini
+- [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php)
+- [src/Model/Attributes/Table.php](../../src/Model/Attributes/Table.php), `Column.php`, `NotMapped.php`
+- [tests/03.01-model/index.php](../../tests/03.01-model/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

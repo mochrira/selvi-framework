@@ -141,9 +141,9 @@ RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 
 ## Sumber
 
-- `src/Input/Request.php` — seluruh method request.
-- `src/Injector.php` — penyuntikan `Request` ke callback.
-- `tests/01.03-request/index.php` — semua contoh di halaman ini.
+- [src/Input/Request.php](../../src/Input/Request.php) — seluruh method request.
+- [src/Injector.php](../../src/Injector.php) — penyuntikan `Request` ke callback.
+- [tests/01.03-request/index.php](../../tests/01.03-request/index.php) — semua contoh di halaman ini.
 
 ## Status verifikasi
 
@@ -170,3 +170,11 @@ workspace, jadi yang diuji adalah `src/` repo ini.
 Baris `cookie()` tanpa cookie memang memunculkan
 `Warning: Undefined array key "sesi"` pada `src/Input/Request.php`; itu sebabnya
 baris tersebut ada di tabel kesalahan umum.
+
+Belum diuji: `header()` untuk header yang dibuang Apache selain
+`Authorization`. Header lain belum diuji karena container uji memakai
+konfigurasi `mod_rewrite` yang sama.
+
+`Request::file()` sudah diuji lewat `POST /01.03-request/unggah` (lihat
+[tests/README.md](../../tests/README.md)); halaman ini tidak menampilkan
+contoh upload.

@@ -68,9 +68,9 @@ bila belum ada koneksi.
 
 ## Sumber
 
-- `src/Database/Manager.php`
-- `src/Database/Drivers/MySQL/MySQLConnection.php` — pembuatan koneksi
-- `tests/04.01-koneksi/index.php` — aplikasi uji
+- [src/Database/Manager.php](../../src/Database/Manager.php)
+- [src/Database/Drivers/MySQL/MySQLConnection.php](../../src/Database/Drivers/MySQL/MySQLConnection.php) — pembuatan koneksi
+- [tests/04.01-koneksi/index.php](../../tests/04.01-koneksi/index.php) — aplikasi uji
 
 ## Status verifikasi
 

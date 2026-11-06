@@ -215,11 +215,11 @@ class KontakCast extends Model {
 
 ## Sumber
 
-- `src/Database/Casting/Converter.php`
-- `src/Database/Casting/ArrayCast.php`, `DateTimeCast.php`, `EnumCast.php`
-- `src/Database/Interfaces/ICast.php`, `ISerializesCast.php`
-- `src/Model/Attributes/Column.php`
-- `tests/03.03-konversi-value/index.php` — aplikasi uji halaman ini
+- [src/Database/Casting/Converter.php](../../src/Database/Casting/Converter.php)
+- [src/Database/Casting/ArrayCast.php](../../src/Database/Casting/ArrayCast.php), `DateTimeCast.php`, `EnumCast.php`
+- [src/Database/Interfaces/ICast.php](../../src/Database/Interfaces/ICast.php), `ISerializesCast.php`
+- [src/Model/Attributes/Column.php](../../src/Model/Attributes/Column.php)
+- [tests/03.03-konversi-value/index.php](../../tests/03.03-konversi-value/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

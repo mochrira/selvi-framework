@@ -65,10 +65,10 @@ Helper ini tidak mengatur header `Content-Type`; set manual bila diperlukan.
 
 ## Sumber
 
-- `src/Output/JsonResponse.php` — implementasi.
-- `src/Output/Response.php` — kelas induk (`send()`).
-- `src/Helpers/ResponseHelper.php` — helper `jsonResponse()`.
-- `tests/01.02-response/index.php` — aplikasi uji.
+- [src/Output/JsonResponse.php](../../src/Output/JsonResponse.php) — implementasi.
+- [src/Output/Response.php](../../src/Output/Response.php) — kelas induk (`send()`).
+- [src/Helpers/ResponseHelper.php](../../src/Helpers/ResponseHelper.php) — helper `jsonResponse()`.
+- [tests/01.02-response/index.php](../../tests/01.02-response/index.php) — aplikasi uji.
 
 ## Status verifikasi
 

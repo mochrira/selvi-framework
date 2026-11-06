@@ -306,13 +306,13 @@ tetap dibentuk dan anaknya berisi nilai dari kolom cucu tersebut.
 
 ## Sumber
 
-- `src/Data/DataObject.php` — orchestrator `of()` dan pemanggilan `assign()`
-- `src/Data/DataRow.php` — pembacaan prefix dan `hasAny()`
-- `src/Data/DataProperty.php` — cabang `assign()` dengan prefix dan
+- [src/Data/DataObject.php](../../src/Data/DataObject.php) — orchestrator `of()` dan pemanggilan `assign()`
+- [src/Data/DataRow.php](../../src/Data/DataRow.php) — pembacaan prefix dan `hasAny()`
+- [src/Data/DataProperty.php](../../src/Data/DataProperty.php) — cabang `assign()` dengan prefix dan
   pemanggilan `of()` rekursif
-- `src/Data/DataProperty.php` — parameter `prefix`
-- `tests/02.02-properti-nested/index.php` — aplikasi uji halaman ini
-- `tests/app/DTO/KontakDTO.php` — contoh pemakaian pada aplikasi harness
+- [src/Data/DataProperty.php](../../src/Data/DataProperty.php) — parameter `prefix`
+- [tests/02.02-properti-nested/index.php](../../tests/02.02-properti-nested/index.php) — aplikasi uji halaman ini
+- [tests/app/DTO/KontakDTO.php](../../tests/app/DTO/KontakDTO.php) — contoh pemakaian pada aplikasi harness
 
 ## Status verifikasi
 
@@ -332,5 +332,5 @@ dengan PHP 8.4.14:
 | `GET /02.02-properti-nested/tanpa-anak` | `200`, kedua properti bersarang tidak muncul |
 | CLI: `?GrupDTO $grup` dengan prefix `grup` tanpa data | `toArray()` menghasilkan `{"grup":null}` |
 
-Perilaku "minimal satu kunci tidak `null`" disimpulkan dari
-`DataRow::hasAny()`; kasus semua kunci berprefix bernilai `null` belum diuji.
+Belum diuji: kasus semua kunci berprefix bernilai `null`. Perilaku "minimal
+satu kunci tidak `null`" disimpulkan dari `DataRow::hasAny()`.

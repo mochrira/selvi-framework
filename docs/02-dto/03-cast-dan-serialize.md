@@ -220,15 +220,15 @@ dan [`DataObject`](../99-referensi/14-data-object.md).
 
 ## Sumber
 
-- `src/Data/DataProperty.php` — parameter `cast` dan `serialize`
-- `src/Data/DataObject.php` — pemanggilan `Converter::get()` dan
+- [src/Data/DataProperty.php](../../src/Data/DataProperty.php) — parameter `cast` dan `serialize`
+- [src/Data/DataObject.php](../../src/Data/DataObject.php) — pemanggilan `Converter::get()` dan
   `Converter::serialize()`
-- `src/Database/Casting/Converter.php` — urutan pemilihan cast dan serializer
-- `src/Database/Casting/ArrayCast.php` dan
-  `src/Database/Casting/DateTimeCast.php` — cast yang dipakai contoh
-- `src/Database/Interfaces/ICast.php` dan
-  `src/Database/Interfaces/ISerializesCast.php` — kontrak cast
-- `tests/02.03-cast-dan-serialize/index.php` — aplikasi uji halaman ini
+- [src/Database/Casting/Converter.php](../../src/Database/Casting/Converter.php) — urutan pemilihan cast dan serializer
+- [src/Database/Casting/ArrayCast.php](../../src/Database/Casting/ArrayCast.php) dan
+  [src/Database/Casting/DateTimeCast.php](../../src/Database/Casting/DateTimeCast.php) — cast yang dipakai contoh
+- [src/Database/Interfaces/ICast.php](../../src/Database/Interfaces/ICast.php) dan
+  [src/Database/Interfaces/ISerializesCast.php](../../src/Database/Interfaces/ISerializesCast.php) — kontrak cast
+- [tests/02.03-cast-dan-serialize/index.php](../../tests/02.03-cast-dan-serialize/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

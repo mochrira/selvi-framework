@@ -493,18 +493,18 @@ dipakai internal; alurnya dijelaskan di
 
 ## Sumber
 
-- `src/Routing/Route.php` — pendaftaran route dan format callback.
-- `src/Router.php` — pencocokan method dan URI.
-- `src/Injector.php` — pemecahan `Kelas@method` dan resolusi parameter.
-- `src/Factory.php` — pembuatan instance controller dan dependency.
-- `src/Helpers/LoadHelper.php` — helper `inject()`.
-- `src/Exception.php` — `Selvi\Exception`, `with()`, dan kode string.
-- `src/Exception/Handler.php` — bentuk JSON error dari handler bawaan.
-- `src/Framework.php` — pemanggilan controller dan `send()`.
-- `src/Controller.php` dan `src/Base.php` — base class opsional.
-- `tests/01.04-controller/index.php`,
-  `tests/01.04-controller/Controllers/HaloController.php`, dan
-  `tests/01.04-controller/Services/SapaanService.php` — semua contoh di halaman
+- [src/Routing/Route.php](../../src/Routing/Route.php) — pendaftaran route dan format callback.
+- [src/Router.php](../../src/Router.php) — pencocokan method dan URI.
+- [src/Injector.php](../../src/Injector.php) — pemecahan `Kelas@method` dan resolusi parameter.
+- [src/Factory.php](../../src/Factory.php) — pembuatan instance controller dan dependency.
+- [src/Helpers/LoadHelper.php](../../src/Helpers/LoadHelper.php) — helper `inject()`.
+- [src/Exception.php](../../src/Exception.php) — `Selvi\Exception`, `with()`, dan kode string.
+- [src/Exception/Handler.php](../../src/Exception/Handler.php) — bentuk JSON error dari handler bawaan.
+- [src/Framework.php](../../src/Framework.php) — pemanggilan controller dan `send()`.
+- [src/Controller.php](../../src/Controller.php) dan [src/Base.php](../../src/Base.php) — base class opsional.
+- [tests/01.04-controller/index.php](../../tests/01.04-controller/index.php),
+  [tests/01.04-controller/Controllers/HaloController.php](../../tests/01.04-controller/Controllers/HaloController.php), dan
+  [tests/01.04-controller/Services/SapaanService.php](../../tests/01.04-controller/Services/SapaanService.php) — semua contoh di halaman
   ini.
 
 ## Status verifikasi
@@ -544,3 +544,7 @@ Bagian 7 (penanganan kesalahan) tidak diuji lewat folder ini karena
 JSON `400`/`404`/`422` pada bagian 7 diverifikasi lewat
 `tests/05.01-crud-endpoint/`, yang memanggil `Handler::setDefaultHandlers()`
 dan `Handler::listen()` di `bootstrap.php`.
+
+Belum diuji: middleware berbentuk string `'Kelas@method'`/array dan grup
+bersarang (`Route::group()` di dalam grup). Halaman ini hanya memakai closure
+dan satu tingkat grup.

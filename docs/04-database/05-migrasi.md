@@ -150,7 +150,7 @@ php console.php db:migrate main down
 Tanpa `--step`, `up` menjalankan **semua** file yang belum tercatat sukses,
 sedangkan `down` menjalankan **satu** file terakhir.
 
-## 4. Output
+## 4. Output perintah migrasi
 
 ```text
 [success:up] 20260101_01_create_demo_migrasi.php berhasil dijalankan
@@ -226,12 +226,12 @@ Keduanya menerima `?callable $logger` dengan signature
 
 ## Sumber
 
-- `src/Database/Migration.php` — perintah `db:migrate`, pemilihan file, skip,
+- [src/Database/Migration.php](../../src/Database/Migration.php) — perintah `db:migrate`, pemilihan file, skip,
   logger
-- `src/Database/MigrationLog.php` — tabel `_migration`
-- `src/Database/Schema.php` — handle koneksi untuk file migrasi
-- `tests/04.05-migrasi/console.php`, `tests/04.05-migrasi/migrations/`, dan
-  `tests/04.05-migrasi/index.php` — aplikasi uji halaman ini
+- [src/Database/MigrationLog.php](../../src/Database/MigrationLog.php) — tabel `_migration`
+- [src/Database/Schema.php](../../src/Database/Schema.php) — handle koneksi untuk file migrasi
+- [tests/04.05-migrasi/console.php](../../tests/04.05-migrasi/console.php), [tests/04.05-migrasi/migrations/](../../tests/04.05-migrasi/migrations), dan
+  [tests/04.05-migrasi/index.php](../../tests/04.05-migrasi/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

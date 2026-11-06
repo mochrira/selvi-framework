@@ -840,6 +840,10 @@ Catatan pengembangan:
 - Jangan memakai `echo`, `die`, atau `http_response_code()` di controller.
   Selalu kembalikan `response()` atau `jsonResponse()`.
 
+Kode di atas adalah salinan dari
+`tests/05.01-crud-endpoint/Controllers/ProdukController.php`. Bila salah satu
+diubah, perbarui keduanya agar dokumen dan aplikasi uji tidak menyimpang.
+
 ## 10. Uji endpoint
 
 Gunakan `curl` dari host. Respons dirapikan oleh `JSON_PRETTY_PRINT` bawaan
@@ -1040,12 +1044,12 @@ Body kosong. Memanggil `GET /produk/1` setelahnya menghasilkan `404`.
 - `app/Config/routes.php` — pendaftaran endpoint.
 - `bootstrap.php`, `index.php`, dan `console.php` — perakitan web dan
   CLI.
-- `src/Routing/Route.php` — method HTTP yang tersedia.
-- `src/Injector.php` dan `src/Factory.php` — penyuntikan `Request` dan
+- [src/Routing/Route.php](../../src/Routing/Route.php) — method HTTP yang tersedia.
+- [src/Injector.php](../../src/Injector.php) dan [src/Factory.php](../../src/Factory.php) — penyuntikan `Request` dan
   pembuatan controller.
-- `src/Model.php` dan `src/Database/Builder/DML/ModelQuery.php` — operasi model.
-- `src/Exception.php` dan `src/Exception/Handler.php` — bentuk error JSON.
-- `tests/05.01-crud-endpoint/` — aplikasi uji halaman ini.
+- [src/Model.php](../../src/Model.php) dan [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php) — operasi model.
+- [src/Exception.php](../../src/Exception.php) dan [src/Exception/Handler.php](../../src/Exception/Handler.php) — bentuk error JSON.
+- [tests/05.01-crud-endpoint/](../../tests/05.01-crud-endpoint) — aplikasi uji halaman ini.
 
 ## Status verifikasi
 

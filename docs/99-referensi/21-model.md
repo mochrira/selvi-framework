@@ -172,11 +172,11 @@ Memakai key model sebagai `WHERE`.
 
 ## Sumber
 
-- `src/Model.php`
-- `src/Data/DataObject.php` — `of()`/`toArray()`
-- `src/Model/Attribute.php`, `PropertyAttribute.php`
-- `src/Database/Builder/DML/ModelQuery.php`
-- `tests/03.01-model/index.php` — aplikasi uji
+- [src/Model.php](../../src/Model.php)
+- [src/Data/DataObject.php](../../src/Data/DataObject.php) — `of()`/`toArray()`
+- [src/Model/Attribute.php](../../src/Model/Attribute.php), `PropertyAttribute.php`
+- [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php)
+- [tests/03.01-model/index.php](../../tests/03.01-model/index.php) — aplikasi uji
 
 ## Status verifikasi
 

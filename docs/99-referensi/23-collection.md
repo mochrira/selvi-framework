@@ -122,9 +122,9 @@ Aturan yang berlaku:
 
 ## Sumber
 
-- `src/Collection.php`
-- `src/Interfaces/IArrayable.php`
-- `tests/03.01-model/index.php` — pemakaian `map()` dan `all()`
+- [src/Collection.php](../../src/Collection.php)
+- [src/Interfaces/IArrayable.php](../../src/Interfaces/IArrayable.php)
+- [tests/03.01-model/index.php](../../tests/03.01-model/index.php) — pemakaian `map()` dan `all()`
 
 ## Status verifikasi
 

@@ -58,10 +58,10 @@ Dipakai internal oleh `MySQLConnection::query()`.
 
 ## Sumber
 
-- `src/Database/Interfaces/IResult.php`
-- `src/Database/Drivers/MySQL/MySQLResult.php`
-- `src/Database/Drivers/MySQL/MySQLConnection.php` — pembuatan result
-- `tests/04.03-membaca-data/index.php` — aplikasi uji
+- [src/Database/Interfaces/IResult.php](../../src/Database/Interfaces/IResult.php)
+- [src/Database/Drivers/MySQL/MySQLResult.php](../../src/Database/Drivers/MySQL/MySQLResult.php)
+- [src/Database/Drivers/MySQL/MySQLConnection.php](../../src/Database/Drivers/MySQL/MySQLConnection.php) — pembuatan result
+- [tests/04.03-membaca-data/index.php](../../tests/04.03-membaca-data/index.php) — aplikasi uji
 
 ## Status verifikasi
 

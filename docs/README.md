@@ -172,6 +172,18 @@ applies_to: Selvi 3.x
 ---
 ```
 
+Arti nilai `verified`:
+
+| Nilai | Arti | Syarat |
+|---|---|---|
+| `YYYY-MM-DD` | teruji | semua langkah/contoh utama dijalankan; kasus tepi boleh dicatat di `Belum diuji:` |
+| `partial` | teruji sebagian | ada langkah, method, atau cabang utama yang belum dijalankan |
+| `false` | belum teruji | status halaman memuat `BELUM DIVERIFIKASI` |
+
+Setiap **Status verifikasi** diakhiri baris `Belum diuji: ...`, atau
+`Semua contoh di halaman ini teruji.` bila tidak ada sisa. Bagian **Sumber**
+memakai tautan Markdown relatif ke file nyata, bukan path polos.
+
 Aturan pengindeksan yang disarankan:
 
 - Potong `01-memulai/`, `02-dto/`, `03-model/`, `04-database/`, dan `05-api/`

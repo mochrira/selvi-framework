@@ -23,7 +23,7 @@ composer require mochrira/selvi-framework
 Lalu buat `index.php` (langkah 2) dan `.htaccess` (langkah 3). `GET /`
 menghasilkan `200` dengan body `Halo, Selvi Framework!`.
 
-## Yang dibutuhkan
+## Prasyarat
 
 - PHP 8.1 atau lebih baru.
 - Composer.
@@ -131,9 +131,9 @@ Selesai. Sampai titik ini aplikasi sudah berjalan.
 ## Sumber
 
 - `composer.json` — versi PHP dan autoload.
-- `src/Helpers/ResponseHelper.php` — helper `response()`.
-- `src/Framework.php` — entry point.
-- `tests/.htaccess` — aturan rewrite yang sama, tanpa bagian tambahan.
+- [src/Helpers/ResponseHelper.php](../../src/Helpers/ResponseHelper.php) — helper `response()`.
+- [src/Framework.php](../../src/Framework.php) — entry point.
+- [tests/.htaccess](../../tests/.htaccess) — aturan rewrite yang sama, tanpa bagian tambahan.
 
 ## Status verifikasi
 
@@ -158,3 +158,6 @@ dari Packagist (versi 3.6.10), bukan symlink. Container `selvi_test_dev` sudah
 berjalan sebelum pengujian, sehingga `docker compose` tidak dijalankan ulang.
 Langkah lengkap dan artefaknya ada di
 [tests/README.md](../../tests/README.md) dan `tests/01.01-instalasi/`.
+
+Belum diuji: penerapan `.htaccess` dan `AllowOverride All` pada server di luar
+container uji (Apache + image `mochrira/dev`).

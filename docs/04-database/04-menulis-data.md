@@ -185,13 +185,13 @@ Detail transaksi ada di [koneksi](01-koneksi.md).
 
 ## Sumber
 
-- `src/Database/Builder/DML/QueryBuilder.php` — `insert()`, `update()`,
+- [src/Database/Builder/DML/QueryBuilder.php](../../src/Database/Builder/DML/QueryBuilder.php) — `insert()`, `update()`,
   `delete()`, dan pengaman WHERE
-- `src/Database/Builder/DML/InsertBuilder.php` — normalisasi single/multi row
-- `src/Database/Builder/DML/UpdateBuilder.php`
-- `src/Database/Drivers/MySQL/MySQLGrammar.php` — kompilasi INSERT/UPDATE/DELETE
-- `src/Database/Drivers/MySQL/MySQLSanitizer.php` — literal value
-- `tests/04.04-menulis-data/index.php` — aplikasi uji halaman ini
+- [src/Database/Builder/DML/InsertBuilder.php](../../src/Database/Builder/DML/InsertBuilder.php) — normalisasi single/multi row
+- [src/Database/Builder/DML/UpdateBuilder.php](../../src/Database/Builder/DML/UpdateBuilder.php)
+- [src/Database/Drivers/MySQL/MySQLGrammar.php](../../src/Database/Drivers/MySQL/MySQLGrammar.php) — kompilasi INSERT/UPDATE/DELETE
+- [src/Database/Drivers/MySQL/MySQLSanitizer.php](../../src/Database/Drivers/MySQL/MySQLSanitizer.php) — literal value
+- [tests/04.04-menulis-data/index.php](../../tests/04.04-menulis-data/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

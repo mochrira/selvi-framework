@@ -14,6 +14,11 @@ adalah `tests/05.01-crud-endpoint/Controllers/ProdukController.php`: controller
 hanya mengurus HTTP, query lewat model, dan kesalahan dilempar sebagai
 `Selvi\Exception`.
 
+Beberapa contoh di folder uji juga **disalin ke `docs/`** (mis.
+`ProdukController.php` pada `docs/05-api/01-crud-endpoint.md`). Salinan itu
+tidak boleh menyimpang: bila salah satu diubah, perbarui keduanya dan catat
+file sumbernya di dokumen.
+
 Konvensi penamaan: halaman `docs/01-memulai/01-instalasi.md` diuji oleh
 `tests/01.01-instalasi/`. Dengan begitu audit bisa dilakukan per halaman.
 

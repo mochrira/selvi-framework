@@ -112,7 +112,7 @@ php console.php db:seed main --step=1
 Tidak ada arah `down`. Untuk mengulang seed, hapus record `_migration` untuk
 file tersebut (dan bersihkan tabelnya bila perlu), lalu jalankan lagi.
 
-## 4. Output
+## 4. Output perintah seeder
 
 ```text
 [success:seed] 20260101_01_demo_seed.php berhasil dijalankan
@@ -157,11 +157,11 @@ $seeder->up('main');
 
 ## Sumber
 
-- `src/Database/Seeder.php` — perintah `db:seed`, pemilihan file, skip, logger
-- `src/Database/MigrationLog.php` — tabel `_migration` bersama
-- `src/Database/Schema.php` — handle koneksi untuk file seed
-- `tests/04.06-seeder/console.php`, `tests/04.06-seeder/seeds/`, dan
-  `tests/04.06-seeder/index.php` — aplikasi uji halaman ini
+- [src/Database/Seeder.php](../../src/Database/Seeder.php) — perintah `db:seed`, pemilihan file, skip, logger
+- [src/Database/MigrationLog.php](../../src/Database/MigrationLog.php) — tabel `_migration` bersama
+- [src/Database/Schema.php](../../src/Database/Schema.php) — handle koneksi untuk file seed
+- [tests/04.06-seeder/console.php](../../tests/04.06-seeder/console.php), [tests/04.06-seeder/seeds/](../../tests/04.06-seeder/seeds), dan
+  [tests/04.06-seeder/index.php](../../tests/04.06-seeder/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
 

@@ -179,12 +179,12 @@ Unix timestamp.
 
 ## Sumber
 
-- `src/Helpers/ResponseHelper.php` — helper `response()` dan `jsonResponse()`.
-- `src/Helpers/LoadHelper.php` — helper `view()`.
-- `src/View.php` — pemuatan template dan `render()`.
-- `src/Output/Response.php` — status code, cookie, `send()`.
-- `src/Output/JsonResponse.php` — encoding JSON.
-- `tests/01.02-response/index.php` dan `tests/01.02-response/views/home.php` —
+- [src/Helpers/ResponseHelper.php](../../src/Helpers/ResponseHelper.php) — helper `response()` dan `jsonResponse()`.
+- [src/Helpers/LoadHelper.php](../../src/Helpers/LoadHelper.php) — helper `view()`.
+- [src/View.php](../../src/View.php) — pemuatan template dan `render()`.
+- [src/Output/Response.php](../../src/Output/Response.php) — status code, cookie, `send()`.
+- [src/Output/JsonResponse.php](../../src/Output/JsonResponse.php) — encoding JSON.
+- [tests/01.02-response/index.php](../../tests/01.02-response/index.php) dan [tests/01.02-response/views/home.php](../../tests/01.02-response/views/home.php) —
   semua contoh di halaman ini.
 
 ## Status verifikasi
@@ -212,3 +212,9 @@ halaman itu menjelaskan alur instalasi user.
 Endpoint `/tanpa-return` dan `/halaman-hilang` sengaja dibuat untuk
 membuktikan baris pada tabel kesalahan umum: `echo` tanpa `return` berakhir
 `500`, dan nama template yang salah juga `500`.
+
+`Response::cookie()` dan opsi JSON diuji lewat `tests/01.02-response/`
+(`/cookie-set`, `/options`); keduanya dirinci di
+[referensi Response](../99-referensi/04-response.md).
+
+Semua contoh di halaman ini teruji.

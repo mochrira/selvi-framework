@@ -150,10 +150,10 @@ Hanya berpengaruh di `alter()`. Memanggilnya membatalkan `after()`.
 
 ## Sumber
 
-- `src/Database/Builder/DDL/Clauses/ColumnClause.php`
-- `src/Database/Builder/DDL/HasColumnTypes.php` — pemanggil `make()`
-- `src/Database/Drivers/MySQL/MySQLGrammar.php` — pemakai `toArray()`
-- `tests/04.02-skema-tabel/index.php` — aplikasi uji
+- [src/Database/Builder/DDL/Clauses/ColumnClause.php](../../src/Database/Builder/DDL/Clauses/ColumnClause.php)
+- [src/Database/Builder/DDL/HasColumnTypes.php](../../src/Database/Builder/DDL/HasColumnTypes.php) — pemanggil `make()`
+- [src/Database/Drivers/MySQL/MySQLGrammar.php](../../src/Database/Drivers/MySQL/MySQLGrammar.php) — pemakai `toArray()`
+- [tests/04.02-skema-tabel/index.php](../../tests/04.02-skema-tabel/index.php) — aplikasi uji
 
 ## Status verifikasi
 
