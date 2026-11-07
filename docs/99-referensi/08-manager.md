@@ -3,7 +3,7 @@ id: ref-manager
 title: Selvi\Database\Manager
 type: referensi
 class: Selvi\Database\Manager
-tags: [database, koneksi, registry, manager, mysql]
+tags: [database, koneksi, registry, manager, mysql, postgresql]
 prerequisites: [database-koneksi]
 verified: 2026-10-29
 applies_to: Selvi 3.x
@@ -17,11 +17,12 @@ yang didaftarkan berlaku untuk seluruh proses. Pemakaian sehari-hari ada di
 
 Aturan yang berlaku:
 
-- Koneksi dibuat saat `add()` dipanggil (`MySQLConnection::__construct()`
-  langsung memanggil `connect()`), bukan saat query pertama.
+- Koneksi dibuat saat `add()` dipanggil (`MySQLConnection::__construct()` dan
+  `PostgreSQLConnection::__construct()` langsung memanggil `connect()`), bukan
+  saat query pertama.
 - Nama yang sudah terdaftar tidak ditimpa; `add()` kedua dengan nama yang sama
   diabaikan tanpa error.
-- Driver yang terdaftar hanya `mysql`. Nilai `driver` lain melempar
+- Driver yang terdaftar: `mysql` dan `pgsql`. Nilai `driver` lain melempar
   `InvalidArgumentException`.
 - `default()` mengembalikan koneksi **pertama** yang didaftarkan, bukan koneksi
   bernama `main` secara khusus.
@@ -33,7 +34,7 @@ Aturan yang berlaku:
 | Parameter | Tipe | Default | Keterangan |
 |---|---|---|---|
 | `$name` | `string` | wajib | nama koneksi; dipakai lagi oleh `DB::connection()`, `#[Table(schema: ...)]`, dan `db:migrate` |
-| `$config` | `array` | wajib | `host`, `username`, `password`, `database`; `driver` (default `mysql`), `port`, `socket` opsional |
+| `$config` | `array` | wajib | `host`, `username`, `password`, `database`; `driver` (default `mysql`, atau `pgsql`), `port`, `socket` (MySQL) opsional; `pgsql` juga menerima `user`/`dbname`, `sslmode`, `connect_timeout`, `application_name` |
 
 **Kembalian:** `void`.
 
@@ -69,7 +70,8 @@ bila belum ada koneksi.
 ## Sumber
 
 - [src/Database/Manager.php](../../src/Database/Manager.php)
-- [src/Database/Drivers/MySQL/MySQLConnection.php](../../src/Database/Drivers/MySQL/MySQLConnection.php) — pembuatan koneksi
+- [src/Database/Drivers/MySQL/MySQLConnection.php](../../src/Database/Drivers/MySQL/MySQLConnection.php) — pembuatan koneksi MySQL
+- [src/Database/Drivers/PostgreSQL/PostgreSQLConnection.php](../../src/Database/Drivers/PostgreSQL/PostgreSQLConnection.php) — pembuatan koneksi PostgreSQL
 - [tests/04.01-koneksi/index.php](../../tests/04.01-koneksi/index.php) — aplikasi uji
 
 ## Status verifikasi
@@ -85,6 +87,11 @@ Diuji 29 Oktober 2026 lewat `http://localhost:8089/04.01-koneksi/`:
 | `has('main')` | `true` |
 | `get('lain')` | `InvalidArgumentException: Koneksi 'lain' tidak terdaftar.` |
 
+Driver `pgsql` diuji 7 November 2026 lewat
+`http://localhost:8089/04.07-driver-postgresql/`: `add('pgdemo', ['driver' =>
+'pgsql', ...])` lalu `get('pgdemo')` membuka koneksi PostgreSQL 18.4 dan
+`getConfig()` mengembalikan `driver: pgsql`.
+
 Belum diuji: `default()` dengan lebih dari satu koneksi, penolakan driver selain
-`mysql`, dan perilaku `add()` yang tidak menimpa nama terdaftar. Ketiganya
-disimpulkan dari kode sumber.
+`mysql`/`pgsql`, dan perilaku `add()` yang tidak menimpa nama terdaftar.
+Ketiganya disimpulkan dari kode sumber.

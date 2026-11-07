@@ -11,6 +11,8 @@ use Selvi\Database\Interfaces\ICast;
  *
  * Driver MySQL dan SQL Server mengirim kolom boolean sebagai '0' / '1', dan PHP
  * sudah menganggap string '0' sebagai false, jadi cast (bool) biasa cukup.
+ * PostgreSQL mengirim 't' / 'f', sehingga PostgreSQLResult menormalkannya
+ * menjadi '1' / '0' sebelum value sampai ke cast ini.
  */
 final class BoolCast implements ICast {
 
