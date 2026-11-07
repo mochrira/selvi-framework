@@ -1,7 +1,7 @@
 name: selvi_test
 services:
   http:
-    image: mochrira/dev:latest
+    image: mochrira/dev:8.4-fpm-alpine3.21
     container_name: selvi_test_dev
     volumes:
       - ../../:/workspace

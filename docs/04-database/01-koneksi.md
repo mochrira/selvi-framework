@@ -2,7 +2,7 @@
 id: database-koneksi
 title: Koneksi Database
 type: panduan
-tags: [database, koneksi, manager, env, transaksi, query-mentah, multi-koneksi, mysql]
+tags: [database, koneksi, manager, env, transaksi, query-mentah, multi-koneksi, mysql, postgresql]
 prerequisites: [instalasi]
 verified: 2026-10-29
 applies_to: Selvi 3.x
@@ -39,8 +39,9 @@ $rows = DB::table('kontak')->get()->rows();
 
 - [Instalasi](../01-memulai/01-instalasi.md) sudah berhasil dan aplikasi bisa
   membalas request.
-- Server MySQL atau MariaDB aktif.
-- Ekstensi `mysqli` aktif. Driver yang tersedia saat ini hanya `mysql`.
+- Server MySQL/MariaDB **atau** PostgreSQL aktif.
+- Ekstensi `mysqli` untuk driver `mysql`, atau ekstensi `pgsql` untuk driver
+  `pgsql`. Dua driver itu yang saat ini terdaftar di `Manager`.
 
 ## 1. Menyimpan konfigurasi di `.ENV`
 
@@ -110,7 +111,12 @@ Hal yang perlu diketahui:
   lagi di `#[Table(schema: 'main')]`, `db:migrate main up`, dan
   `DB::connection('main')`.
 - Kunci wajib: `host`, `username`, `password`, `database`. Kunci `driver`
-  default `mysql`; `port` dan `socket` opsional.
+  default `mysql` (`mysql` atau `pgsql`); `port` dan `socket` opsional.
+  `socket` hanya dipakai driver `mysql`. Driver `pgsql` juga menerima
+  `username`/`user` dan `database`/`dbname`, plus `sslmode`, `connect_timeout`,
+  dan `application_name` yang diteruskan ke libpq.
+- `driver` `pgsql` memakai ekstensi `pgsql`, bukan PDO. Nama `main` tetap nama
+  koneksi, bukan nama database maupun schema PostgreSQL.
 - `Manager::add()` **langsung** membuat koneksi. Koneksi tidak ditunda sampai
   query pertama, sehingga kesalahan konfigurasi muncul saat bootstrap.
 - Nama yang sudah terdaftar tidak ditimpa: `Manager::add('main', ...)` kedua
@@ -288,7 +294,9 @@ method yang dipanggil di dalamnya (`QueryBuilder` atau `SchemaBuilder`).
 |---|---|---|
 | `InvalidArgumentException: Koneksi 'main' tidak terdaftar.` | `app/Config/database.php` belum di-`require`, atau namanya salah | muat config sebelum route, cek ejaan nama koneksi |
 | `RuntimeException: Koneksi database belum diatur.` | `DB::table()` dipakai padahal belum ada koneksi terdaftar | panggil `Manager::add()` lebih dulu |
-| `InvalidArgumentException: Driver 'sqlsrv' belum punya implementasi IConnection.` | driver di luar `mysql` | pakai `mysql`, driver lain belum tersedia |
+| `InvalidArgumentException: Driver 'sqlsrv' belum punya implementasi IConnection.` | driver belum terdaftar | pakai `mysql` atau `pgsql` |
+| `DatabaseException: Koneksi PostgreSQL gagal...` | `driver` `pgsql` tetapi host/kredensial salah, atau ekstensi `pgsql` tidak aktif | cek `.ENV` dan `php -m \| grep pgsql` |
+| Kolom boolean PostgreSQL terbaca `'t'`/`'f'` di luar `Model` | query mentah tidak lewat `IResult` milik driver | `PostgreSQLResult` menormalkan kolom boolean menjadi `'1'`/`'0'`; pastikan membaca lewat `query()->rows()`/`row()` |
 | Bootstrap gagal dengan `DatabaseException` (`Access denied`, `Unknown database`) | kredensial atau nama database salah; koneksi dibuka saat `Manager::add()` | perbaiki `.ENV`, ingat koneksi tidak ditunda |
 | `Warning: Undefined array key "host"` | kunci wajib tidak ada di array config | lengkapi `host`, `username`, `password`, `database` |
 | `Call to undefined method QueryBuilder::...` pada `DB::connection('main')` | `DB::connection()` mengembalikan `QueryBuilder`, bukan koneksi | pakai `Manager::get('main')` untuk method `IConnection` |
@@ -300,13 +308,16 @@ method yang dipanggil di dalamnya (`QueryBuilder` atau `SchemaBuilder`).
 
 - [src/Database/Manager.php](../../src/Database/Manager.php) — registry koneksi.
 - [src/Database/DB.php](../../src/Database/DB.php) — facade `connection()`, `table()`, `schema()`.
-- [src/Database/Drivers/MySQL/MySQLConnection.php](../../src/Database/Drivers/MySQL/MySQLConnection.php) — implementasi `IConnection`.
+- [src/Database/Drivers/MySQL/MySQLConnection.php](../../src/Database/Drivers/MySQL/MySQLConnection.php) — implementasi `IConnection` untuk MySQL.
+- [src/Database/Drivers/PostgreSQL/PostgreSQLConnection.php](../../src/Database/Drivers/PostgreSQL/PostgreSQLConnection.php) — implementasi `IConnection` untuk PostgreSQL.
+- [src/Database/Drivers/PostgreSQL/PostgreSQLGrammar.php](../../src/Database/Drivers/PostgreSQL/PostgreSQLGrammar.php), [PostgreSQLSanitizer.php](../../src/Database/Drivers/PostgreSQL/PostgreSQLSanitizer.php), dan [PostgreSQLResult.php](../../src/Database/Drivers/PostgreSQL/PostgreSQLResult.php) — dialek PostgreSQL.
 - [src/Database/Interfaces/IConnection.php](../../src/Database/Interfaces/IConnection.php) dan `IResult.php` — kontrak koneksi
   dan hasil query.
 - [src/Env.php](../../src/Env.php) — pembacaan `.ENV`.
 - [src/Exception/DatabaseException.php](../../src/Exception/DatabaseException.php) dan [src/Exception/Handler.php](../../src/Exception/Handler.php) — bentuk
   error database.
-- [tests/04.01-koneksi/index.php](../../tests/04.01-koneksi/index.php) — semua contoh di halaman ini.
+- [tests/04.01-koneksi/index.php](../../tests/04.01-koneksi/index.php) — contoh driver MySQL di halaman ini.
+- [tests/04.07-driver-postgresql/index.php](../../tests/04.07-driver-postgresql/index.php) — aplikasi uji driver PostgreSQL.
 
 ## Status verifikasi
 
@@ -330,6 +341,45 @@ Endpoint `/error` sengaja menanyakan tabel yang tidak ada, untuk membuktikan
 bentuk error di *Bentuk error database*. Tabel `kontak` tidak perlu ada karena `/sql` hanya
 menyusun SQL.
 
+### Driver PostgreSQL
+
+Diuji 7 November 2026 dengan container `mochrira/dev` (PHP 8.4.15, ekstensi
+`pgsql` aktif) terhadap PostgreSQL 18.4 di container `db_postgres`, lewat
+`http://localhost:8089/04.07-driver-postgresql/`.
+
+| Request | Status | Hasil |
+|---|---|---|
+| `GET /04.07-driver-postgresql/` | `200` | `ekstensi_pgsql: true`, `driver: pgsql`, `ok: 1`, `versi: 18.4` |
+| `GET /04.07-driver-postgresql/skema` | `200` | 12 kolom dibuat; `id_kontak` `is_identity: YES`, `aktif` bertipe `boolean` default `true` |
+| `GET /04.07-driver-postgresql/tulis` | `200` | `last_id: [1, 2, 3]`, `aktif` terbaca `"1"`/`"0"`, string berisi `'` dan `\` utuh |
+| `GET /04.07-driver-postgresql/baca` | `200` | `num_rows: 3`, agregat `COUNT` = `"3"` |
+| `GET /04.07-driver-postgresql/model` | `200` | `id` hasil IDENTITY, `aktif` `true`/`false` bertipe `boolean` |
+| `GET /04.07-driver-postgresql/ubah` | `200` | update, `ADD COLUMN`, `change()`, `RENAME COLUMN`, `CREATE/DROP INDEX`, `DROP COLUMN` berhasil |
+| `GET /04.07-driver-postgresql/transaksi` | `200` | `setelah_rollback: 0`, `setelah_commit: 1` |
+| `GET /04.07-driver-postgresql/createdb` | `200` | pembuatan database idempoten (`pertama` dan `kedua` `true`) |
+| `GET /04.07-driver-postgresql/error` | `500` | `sql.state: 42P01`, `sql.query` terisi |
+| `GET /04.07-driver-postgresql/kunci` | `200` | `primary` dan `dropPrimary` berhasil |
+| `GET /04.07-driver-postgresql/hapus` | `200` | delete, `TRUNCATE ... RESTART IDENTITY`, insert berikutnya `id` = `1` |
+| `db:migrate pgdemo up` / `down` | sukses | tabel migrasi dibuat/dihapus, baris `_migration` tercatat |
+
+Batasan driver `pgsql` yang perlu diketahui:
+
+- `lastId()` memakai `LASTVAL()`, yang berlaku **per sesi**, bukan per statement
+  seperti `LAST_INSERT_ID()` di MySQL. Bila satu sesi memakai beberapa
+  sequence, nilainya adalah sequence terakhir yang dipakai.
+- Identifier ditulis tanpa quote, sehingga nama kolom reserved word dan huruf
+  besar tidak aman — sama seperti jalur SELECT/WHERE yang sudah ada.
+- `after()`/`first()` diabaikan karena PostgreSQL tidak punya posisi kolom.
+- `default()` diabaikan pada kolom `autoIncrement()`, karena PostgreSQL menolak
+  `DEFAULT` bersamaan dengan `IDENTITY`.
+- `change()` tidak menghapus identity yang sudah ada. Menyebut
+  `autoIncrement()` pada kolom yang sudah identity akan gagal; hilangkan
+  pemanggilan itu bila hanya ingin mengubah tipe/nullable/default.
+- `TRUNCATE` memakai `RESTART IDENTITY` agar setara MySQL.
+- DDL PostgreSQL transaksional, jadi `ROLLBACK` setelah `DROP TABLE` benar-benar
+  mengembalikan tabel.
+
 Belum diuji: kegagalan saat `Manager::add()` (kredensial salah). Perilaku itu
 disimpulkan dari `MySQLConnection::__construct()` yang langsung memanggil
-`connect()`.
+`connect()`. Untuk driver `pgsql`, kegagalan koneksi juga disimpulkan dari
+`PostgreSQLConnection::connect()`, bukan diuji lewat endpoint.

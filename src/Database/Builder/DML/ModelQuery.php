@@ -300,7 +300,14 @@ class ModelQuery {
         /** @var list<Column> */
         $columns = $this->model::columns();
         foreach($columns as $column) {
-            $prepared_data[$column->name] = $data[$column->name];
+            $hasValue = array_key_exists($column->name, $data);
+
+            // Primary key yang tidak diisi dibiarkan agar database yang
+            // membangkitkan nilainya. MySQL menerima NULL eksplisit untuk
+            // AUTO_INCREMENT, tetapi PostgreSQL menolak NULL pada IDENTITY.
+            if(!$hasValue && $column->key) continue;
+
+            $prepared_data[$column->name] = $hasValue ? $data[$column->name] : null;
         }
 
         $id = $this->builder()->insert($prepared_data);

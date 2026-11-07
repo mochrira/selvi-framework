@@ -215,7 +215,7 @@ Jika verifikasi tidak bisa dijalankan, sampaikan alasannya secara eksplisit.
 - `Manager::add(name, config)` mendaftarkan koneksi; nama yang sudah ada
   **tidak** ditimpa. `DB::table()`, `DB::schema()`, `DB::connection()` adalah
   facade pembuat builder.
-- Driver terdaftar hanya `mysql`; `sqlsrv` baru punya `SQLSrvResult`.
+- Driver terdaftar: `mysql` dan `pgsql`; `sqlsrv` baru punya `SQLSrvResult`.
   Menambah driver berarti membuat `IConnection` + `IGrammar` baru dan
   mendaftarkannya di `Manager::$drivers`.
 - `UPDATE`/`DELETE` via builder menolak berjalan tanpa `WHERE`

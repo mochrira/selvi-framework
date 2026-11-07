@@ -590,6 +590,33 @@ done'
 
 Tidak ada output berarti semua file lolos.
 
+## Langkah 14 — uji driver PostgreSQL (`04.07-driver-postgresql/`)
+
+Prasyarat tambahan: image `mochrira/dev` harus memuat ekstensi `pgsql`
+(`php -m | grep -x pgsql`), container `db_postgres` berjalan di network
+`database`, dan `tests/private/.ENV` memuat `DB_PGSQL_HOST`, `DB_PGSQL_PORT`,
+`DB_PGSQL_USER`, `DB_PGSQL_PASS`, `DB_PGSQL_NAME`.
+
+```sh
+docker exec selvi_test_dev php -m | grep -x pgsql
+docker exec -w /workspace/tests/04.07-driver-postgresql selvi_test_dev \
+  php console.php db:migrate pgdemo up --no-interaction
+
+B=http://127.0.0.1:8089/04.07-driver-postgresql
+for p in skema tulis baca model ubah transaksi createdb error kunci hapus migrasi bersihkan; do
+  curl -s -o /dev/null -w "$p %{http_code}\n" "$B/$p"
+done
+
+docker exec -w /workspace/tests/04.07-driver-postgresql selvi_test_dev \
+  php console.php db:migrate pgdemo down --no-interaction
+```
+
+Hasil yang diharapkan: `pgsql` muncul sekali dari `php -m`, `[success:up]`,
+seluruh endpoint `200` kecuali `error` yang sengaja `500` dengan
+`sql.state: 42P01`, lalu `[success:down]`. Urutan endpoint penting: `skema`
+harus dijalankan sebelum `tulis`, dan `hapus`/`bersihkan` membersihkan tabel
+serta baris `_migration` milik harness ini.
+
 ## Catatan penting
 
 - Hanya `01.01-instalasi/` yang menguji **paket terbit di Packagist**, karena

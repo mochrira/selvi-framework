@@ -17,7 +17,7 @@ interface ISanitizer {
      *
      * Mapping yang diharapkan:
      * - null                        => NULL
-     * - bool                        => 1 / 0
+     * - bool                        => literal boolean dialek driver (mis. 1 / 0 atau TRUE / FALSE)
      * - int                         => literal angka (mis. 12)
      * - float                       => literal angka, pemisah titik (mis. 12.5)
      * - string                      => literal string ter-quote dan ter-escape

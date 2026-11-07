@@ -6,6 +6,7 @@ namespace Selvi\Database;
 
 use InvalidArgumentException;
 use Selvi\Database\Drivers\MySQL\MySQLConnection;
+use Selvi\Database\Drivers\PostgreSQL\PostgreSQLConnection;
 use Selvi\Database\Interfaces\IConnection;
 
 /**
@@ -24,7 +25,8 @@ class Manager {
      * @var array<string, class-string<IConnection>>
      */
     private static array $drivers = [
-        'mysql' => MySQLConnection::class
+        'mysql' => MySQLConnection::class,
+        'pgsql' => PostgreSQLConnection::class,
     ];
 
     /**
