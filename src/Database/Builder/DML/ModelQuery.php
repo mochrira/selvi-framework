@@ -247,7 +247,9 @@ class ModelQuery {
 
         /** @var Column */
         $keyColumn = $this->model::getKeyColumn();
-        $key = $keyColumn->name;
+        // Kualifikasi tabel wajib karena `with()` menambahkan join yang bisa
+        // memuat kolom bernama sama (mis. dua tabel sama-sama punya `id`).
+        $key = "{$this->model::getTable()}.{$keyColumn->name}";
 
         $this->where(array_map(fn($id) => [$key, $id], $ids));
         if(count($ids) == 1) return $this->first($query);
