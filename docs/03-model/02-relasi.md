@@ -4,7 +4,7 @@ title: Relasi
 type: panduan
 tags: [model, relasi, belongs-to, aggregate, eager-loading, join]
 prerequisites: [model]
-verified: 2026-11-01
+verified: 2026-11-09
 applies_to: Selvi 3.x
 ---
 
@@ -125,6 +125,68 @@ Hasil `unit.departemen`:
 ```
 
 Closure pada `with()` menerima `WithBuilder` dan bisa memanggil `with()` lagi.
+
+### Relasi ke diri sendiri (`parent`)
+
+Foreign key yang menunjuk ke tabel yang sama juga didukung. Model `Grup` di
+[tests/app/Models/Grup.php](../../tests/app/Models/Grup.php) memakai kolom
+`parent_id` dan properti `parent` bertipe kelasnya sendiri:
+
+```php
+#[Table('grup', 'main')]
+class Grup extends Model {
+
+    #[Column('id_grup', key: true)]
+    public int $idGrup;
+
+    #[Column('nm_grup')]
+    public ?string $nmGrup = null;
+
+    #[Column('parent_id')]
+    public ?int $parentId = null;
+
+    #[BelongsTo(Grup::class, foreignKey: 'parent_id')]
+    public ?Grup $parent = null;
+
+}
+```
+
+Kedalaman dibuka eksplisit; setiap level menambah satu `with()`. Data uji
+`Root` (1) → `Anak` (2) → `Cucu` (3):
+
+```php
+$grup = Grup::with('parent', fn($builder) => $builder
+    ->with('parent'))
+    ->find(3);
+```
+
+Hasil (dari `GET /03.02-relasi/parent`, sumber
+[tests/03.02-relasi/index.php](../../tests/03.02-relasi/index.php)):
+
+```json
+{
+    "data": {
+        "idGrup": 3,
+        "nmGrup": "Cucu",
+        "parentId": 2,
+        "parent": {
+            "idGrup": 2,
+            "nmGrup": "Anak",
+            "parentId": 1,
+            "parent": {
+                "idGrup": 1,
+                "nmGrup": "Root",
+                "parentId": null,
+                "parent": null
+            }
+        }
+    }
+}
+```
+
+Tanpa `with()`, `parent` tetap `null` seperti relasi lain. Relasi ini memakai
+subquery berprefix (`parent__id_grup`, `parent_parent__id_grup`), sehingga
+tidak bentrok walaupun tabelnya sama.
 
 ### Model anak dengan expression
 
@@ -281,6 +343,7 @@ Kontak::relation('tidakAda');   // null
 | `Call to undefined method ...::nama_relasi()` | method agregat tidak ada | buat method statis dengan nama sama seperti `query` |
 | `jmlKontak` selalu `null` | alias kolom agregat tidak cocok dengan `column` | samakan alias `SELECT` dengan parameter `column` |
 | Relasi bertingkat `null` | closure tidak memanggil `with()` di level anak | tambahkan `with()` pada closure |
+| `Column '...' in where clause is ambiguous` | `find()` dijalankan pada query ber-join yang punya kolom senama | pakai versi framework terbaru; `find()` mengualifikasi kolom key dengan tabel |
 | `Unknown column` | `foreignKey`/`key` salah | samakan dengan nama kolom sebenarnya |
 
 ## Sumber
@@ -289,6 +352,7 @@ Kontak::relation('tidakAda');   // null
 - [src/Database/Builder/DML/ModelQuery.php](../../src/Database/Builder/DML/ModelQuery.php) — `buildWith()`, alias join
 - [src/Model/Attributes/BelongsTo.php](../../src/Model/Attributes/BelongsTo.php) dan `Aggregate.php`
 - [tests/app/Models/](../../tests/app/Models) — contoh model
+- [tests/app/Models/Grup.php](../../tests/app/Models/Grup.php) — model relasi ke diri sendiri (`parent`)
 - [tests/03.02-relasi/index.php](../../tests/03.02-relasi/index.php) — aplikasi uji halaman ini
 
 ## Status verifikasi
@@ -296,7 +360,7 @@ Kontak::relation('tidakAda');   // null
 > Catatan pengujian pada lingkungan tertentu, bukan spesifikasi API. Perilaku
 > yang mengikat ada di bagian sebelumnya.
 
-Diuji 1 November 2026 lewat `http://localhost:8089/03.02-relasi/`
+Diuji 9 November 2026 lewat `http://localhost:8089/03.02-relasi/`
 (MariaDB 10.7.8, PHP 8.4.14):
 
 | Endpoint | Hasil |
@@ -312,6 +376,8 @@ Diuji 1 November 2026 lewat `http://localhost:8089/03.02-relasi/`
 | `GET /03.02-relasi/nested-ekspresi` | `200`, array expression anak, subquery mode |
 | `GET /03.02-relasi/nested-resolver` | `200`, resolver expression anak, subquery mode |
 | `GET /03.02-relasi/nested-aggregate-resolver` | `200`, resolver agregat bertingkat, `5` |
+| `GET /03.02-relasi/parent` | `200`, `Cucu → Anak → Root`; tanpa `with()` relasi `null` |
 
 Belum diuji: `ownerKey` (parameter belum dipakai `ModelQuery`), `Aggregate`
-dengan beberapa kolom, dan relasi bertingkat lebih dari dua level.
+dengan beberapa kolom, dan relasi bertingkat lebih dari dua level pada model
+berbeda.

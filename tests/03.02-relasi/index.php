@@ -17,6 +17,7 @@ use Selvi\Model\Attributes\Column;
 use Selvi\Model\Attributes\Table;
 use Selvi\Routing\Route;
 use Selvi\Tests\Models\Departemen;
+use Selvi\Tests\Models\Grup;
 use Selvi\Tests\Models\Kontak;
 
 Handler::setDefaultHandlers();
@@ -263,6 +264,26 @@ Route::get('/nested-aggregate-resolver', function () {
 
     return jsonResponse([
         'data' => $kontak?->toArray(),
+        'sql' => $query()->build()->getSql(),
+    ]);
+});
+
+Route::get('/parent', function () {
+    if(Grup::count() === 0) {
+        $root = DB::table('grup')->insert(['nm_grup' => 'Root', 'parent_id' => null]);
+        $anak = DB::table('grup')->insert(['nm_grup' => 'Anak', 'parent_id' => $root]);
+        DB::table('grup')->insert(['nm_grup' => 'Cucu', 'parent_id' => $anak]);
+    }
+
+    $query = fn() => Grup::with('parent', fn($builder) => $builder
+        ->with('parent'));
+
+    $cucu = Grup::where([['grup.nm_grup', 'Cucu']])->first();
+    $grup = $cucu !== null ? $query()->find($cucu->idGrup) : null;
+
+    return jsonResponse([
+        'data' => $grup?->toArray(),
+        'tanpa_with' => $cucu?->toArray(),
         'sql' => $query()->build()->getSql(),
     ]);
 });

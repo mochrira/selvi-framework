@@ -38,6 +38,14 @@ class QueryBuilder implements IQueryBuilder {
         $this->orderBuilder = new OrderBuilder();
     }
 
+    function __clone() {
+        $this->selectBuilder = clone $this->selectBuilder;
+        $this->whereBuilder = clone $this->whereBuilder;
+        $this->joinBuilder = clone $this->joinBuilder;
+        $this->groupBuilder = clone $this->groupBuilder;
+        $this->orderBuilder = clone $this->orderBuilder;
+    }
+
     #[Override]
     public function connection(): IConnection {
         if ($this->connectionInjected !== null) return $this->connectionInjected;

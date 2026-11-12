@@ -52,6 +52,13 @@ class ModelQuery {
         if($withClosure != null) $withClosure($this->withBuilder);
     }
 
+    function __clone() {
+        $this->whereBuilder = clone $this->whereBuilder;
+        $this->joinBuilder = clone $this->joinBuilder;
+        $this->orderBuilder = clone $this->orderBuilder;
+        $this->withBuilder = clone $this->withBuilder;
+    }
+
     private function builder() {
         $schema = $this->model::getSchema();
         $table = $this->model::getTable();
